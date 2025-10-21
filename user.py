@@ -1,16 +1,25 @@
 from fastapi import APIRouter, HTTPException
 from db import SessionDep
 from models import User, UserBase, UserAudit
+import traceback
 
 router = APIRouter()
 
 @router.post("/", response_model=User)
 def create_user(new_user: UserBase, session: SessionDep):
-    user = User.model_validate(new_user)
-    session.add(user)
-    session.commit()
-    session.refresh(user)
-    return user
+    try:
+    # Convertimos el modelo base a un diccionario
+     user = User(**new_user.model_dump())  # Si usas Pydantic v2 / SQLModel reciente
+     # user = User(**new_user.dict())  # Si usas Pydantic v1 (por si acaso)
+
+     session.add(user)
+     session.commit()
+     session.refresh(user)
+     return user
+
+    except Exception as e:
+     print(traceback.format_exc())  # Muestra en consola el error real
+     raise HTTPException(status_code=500, detail=f"Error creating user: {str(e)}")
 
 #  Obtener todos los usuarios activos
 
