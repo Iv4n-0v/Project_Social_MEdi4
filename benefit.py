@@ -17,7 +17,7 @@ def create_benefit(new_benefit: BenefitBase, session: SessionDep):
 def get_all_benefits(session: SessionDep):
     return session.query(Benefit).all()
 
-@router.post("/link")
+@router.post("/link", summary="Link Benefit to Methodology")
 def link_methodology_benefit(methodology_id: int, benefit_id: int, session: SessionDep):
     methodology = session.get(Methodology, methodology_id)
     benefit = session.get(Benefit, benefit_id)

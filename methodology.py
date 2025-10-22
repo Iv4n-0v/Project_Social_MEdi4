@@ -13,7 +13,7 @@ def create_methodology(new_methodology: MethodologyBase, session: SessionDep):
     session.refresh(methodology)
     return methodology
 
-@router.put("/assign")
+@router.put("/assign", summary="Assign Methodology to User")
 def assign_methodology(user_id: int, methodology_id: int, session: SessionDep):
     user = session.get(User, user_id)
     methodology = session.get(Methodology, methodology_id)
@@ -28,7 +28,7 @@ def assign_methodology(user_id: int, methodology_id: int, session: SessionDep):
 def get_all_methodologies(session: SessionDep):
     return session.query(Methodology).all()
 
-@router.get("/by_name/{name}")
+@router.get("/by_name/{name}", summary="Get methodology by name with assigned users")
 def get_users_by_methodology(name: str, session: SessionDep):
     methodology = session.exec(select(Methodology).where(Methodology.name == name)).first()
     if not methodology:
