@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from db import SessionDep
 from models import Analysis, AnalysisBase, User
 
-router = APIRouter()
+router = APIRouter(tags=["analyses"])
 
 
 @router.post("/", response_model=Analysis)
@@ -18,7 +18,7 @@ def create_analysis(new_analysis: AnalysisBase, user_id: int, session: SessionDe
     return analysis
 
 
-@router.get("/", response_model=list[Analysis])
+@router.get("/all", response_model=list[Analysis])
 def get_all_analyses(session: SessionDep):
     return session.query(Analysis).all()
 

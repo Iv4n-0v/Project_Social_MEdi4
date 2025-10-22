@@ -32,7 +32,7 @@ def get_user(user_id: int, session: SessionDep):
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
-@router.put("/{user_id}", response_model=User)
+@router.put("/{user_id}/update", response_model=User)
 def update_user(user_id: int, updated_user: UserBase, session: SessionDep):
     user = session.get(User, user_id)
     if not user:
@@ -44,7 +44,7 @@ def update_user(user_id: int, updated_user: UserBase, session: SessionDep):
     session.refresh(user)
     return user
 
-@router.delete("/{user_id}")
+@router.delete("/{user_id}/delete")
 def delete_user(user_id: int, session: SessionDep):
     user = session.get(User, user_id)
     if not user:
@@ -54,7 +54,7 @@ def delete_user(user_id: int, session: SessionDep):
     audit = UserAudit(user_id=user_id, action="DELETE")
     session.add(audit)
     session.commit()
-    return {"message": "User marked as deleted"}
+    return {"message": "User deactivated successfully"}
 
 @router.patch("/{user_id}/restore")
 def restore_user(user_id: int, session: SessionDep):
@@ -66,7 +66,7 @@ def restore_user(user_id: int, session: SessionDep):
     audit = UserAudit(user_id=user_id, action="RESTORE")
     session.add(audit)
     session.commit()
-    return {"message": "User restored successfully"}
+    return {"message": "User activated successfully"}
 
 @router.get("/audit/logs", response_model=list[UserAudit])
 def get_audit_logs(session: SessionDep):

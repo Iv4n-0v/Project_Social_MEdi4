@@ -13,7 +13,7 @@ def create_benefit(new_benefit: BenefitBase, session: SessionDep):
     session.refresh(benefit)
     return benefit
 
-@router.get("/", response_model=list[Benefit])
+@router.get("/all", response_model=list[Benefit])
 def get_all_benefits(session: SessionDep):
     return session.query(Benefit).all()
 
