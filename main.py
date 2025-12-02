@@ -13,7 +13,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(lifespan=create_tables, title="Social Impact API")
+app = FastAPI(lifespan=lifespan, title="Social Impact API")
 
 app.include_router(user.router, prefix="/users")
 app.include_router(methodology.router, prefix="/methodologies")
@@ -26,5 +26,6 @@ templates = Jinja2Templates(directory="templates")
 @app.get("/", response_class=HTMLResponse, status_code=200)
 async def root(request: Request):
     return templates.TemplateResponse(
-        request=request, name="index.html"
+        "index.html",
+        {"request": request}
     )
