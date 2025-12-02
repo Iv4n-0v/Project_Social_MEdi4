@@ -1,7 +1,17 @@
-from fastapi import FastAPI
+from contextlib import asynccontextmanager
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, Request
 import user, methodology, benefit, analysis
 from db import create_tables
 import reports
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await create_tables(app)
+    yield
+
 
 app = FastAPI(lifespan=create_tables, title="Social Impact API")
 
@@ -10,3 +20,11 @@ app.include_router(methodology.router, prefix="/methodologies")
 app.include_router(benefit.router, prefix="/benefits")
 app.include_router(analysis.router, prefix="/analyses")
 app.include_router(reports.router, prefix="/reports", tags=["reports"])
+
+templates = Jinja2Templates(directory="templates")
+
+@app.get("/", response_class=HTMLResponse, status_code=200)
+async def root(request: Request):
+    return templates.TemplateResponse(
+        request=request, name="index.html"
+    )
