@@ -8,7 +8,7 @@ db_url = f"sqlite:///{db_name}"
 engine = create_engine(db_url, echo=True)
 
 # Crear tablas al iniciar la app
-def create_tables():
+def create_tables(app: FastAPI):
     SQLModel.metadata.create_all(engine)
 
 # Sesión de DB
