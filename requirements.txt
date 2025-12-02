@@ -1,5 +1,6 @@
 fastapi[standard]
 uvicorn[standard]
+python-dotenv
 sqlmodel==0.0.22
 annotated-types==0.7.0
 anyio==4.12.0
