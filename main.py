@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 import user, methodology, benefit, analysis
 from db import create_tables
 import reports
@@ -32,4 +32,12 @@ def root(request: Request):
             "texto": "Bienvenido a la página de tu taller de confianza",
             "titulo_pagina": "Taller de Carros - Inicio"
         }
+    )
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    return templates.TemplateResponse(
+        "error.html",
+        {"request": request, "status_code": exc.status_code, "detail": exc.detail},
+        status_code=exc.status_code,
     )
