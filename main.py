@@ -23,9 +23,13 @@ app.include_router(reports.router, prefix="/reports", tags=["reports"])
 
 templates = Jinja2Templates(directory="templates")
 
-@app.get("/", response_class=HTMLResponse, status_code=200)
-async def root(request: Request):
+@app.get("/", response_class=HTMLResponse, tags=["Vistas HTML"])
+def root(request: Request):
     return templates.TemplateResponse(
         "index.html",
-        {"request": request}
+        {
+            "request": request,
+            "texto": "Bienvenido a la página de tu taller de confianza",
+            "titulo_pagina": "Taller de Carros - Inicio"
+        }
     )
