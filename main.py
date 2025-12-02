@@ -9,7 +9,7 @@ import reports
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await create_tables(app)
+    create_tables(app)
     yield
 
 
