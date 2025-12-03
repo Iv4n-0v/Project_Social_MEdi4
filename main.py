@@ -22,6 +22,7 @@ app.include_router(analysis.router, prefix="/analyses")
 app.include_router(reports.router, prefix="/reports", tags=["reports"])
 
 templates = Jinja2Templates(directory="templates")
+app.state.templates = templates
 
 @app.get("/", response_class=HTMLResponse, tags=["Vistas HTML"])
 def root(request: Request):

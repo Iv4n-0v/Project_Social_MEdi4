@@ -7,10 +7,7 @@ from db import SessionDep
 from models import User, UserBase, UserAudit
 from supa.supabase import upload_to_bucket
 
-router = APIRouter(
-    prefix="/users",
-    tags=["users"]
-)
+router = APIRouter(prefix="/users",tags=["users"])
 
 @router.get("/", response_class=HTMLResponse)
 def get_all_users(request: Request, session: Session = Depends(SessionDep)):
@@ -33,7 +30,7 @@ def show_create(request: Request):
 @router.post("/", response_model=User)
 async def create_user(
     request: Request,
-    session: SessionDep,
+    session: Session=Depends(SessionDep),
     name: str = Form(...),
     type: str = Form(...),
     is_active: bool = Form(True),
