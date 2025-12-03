@@ -1,0 +1,35 @@
+{% include 'header.html' %}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1>Listado de Metodologías</h1>
+        <a href="/" class="btn btn-secondary">Volver al inicio</a>
+    </div>
+
+    <div class="row">
+        {% for methodology in methodologies %}
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+
+                    <h4 class="card-title text-center">{{ methodology.name }}</h4>
+
+                    <p class="card-text">
+                        <strong>Descripción:</strong><br>
+                        {{ methodology.description }}
+                    </p>
+
+                    <p class="card-text">
+                        <strong>ID:</strong> {{ methodology.id }}
+                    </p>
+
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+{% include 'footer.html' %}

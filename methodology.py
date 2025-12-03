@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException
+from fastapi.responses import HTMLResponse
+from fastapi import APIRouter, HTTPException, Request
 from sqlmodel import select
 from db import SessionDep
 from models import Methodology, MethodologyBase, User
@@ -38,3 +39,15 @@ def get_users_by_methodology(name: str, session: SessionDep):
         "methodology": {"id": methodology.id, "name": methodology.name, "description": methodology.description},
         "users": [{"id": u.id, "name": u.name, "type": u.type} for u in users]
     }
+
+@router.get("", response_class=HTMLResponse)
+def show_methodologies(request: Request, session: SessionDep):
+    methodologies = session.exec(select(Methodology)).all()
+
+    return request.app.state.templates.TemplateResponse(
+        "methodologies_list.html",
+        {
+            "request": request,
+            "methodologies": methodologies
+        }
+    )
