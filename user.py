@@ -2,10 +2,10 @@ from fastapi import APIRouter, HTTPException, Request, Form, UploadFile, File, D
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlmodel import select, Session
 from typing import Optional
-
 from db import SessionDep
 from models import User, UserBase, UserAudit
 from supa.supabase import upload_to_bucket
+import traceback
 
 router = APIRouter(tags=["users"])
 
@@ -26,17 +26,42 @@ def show_create(request: Request):
     )
 
 @router.post("/new")
-def create_user_web(
+async def create_user_web(
+    request: Request,
+    session: SessionDep,
     name: str = Form(...),
     email: str = Form(...),
     type: str = Form(...),
-    session: SessionDep = None
+    is_active: str = Form("true"),       
+    img: Optional[UploadFile] = File(None)
 ):
-    user = User(name=name, email=email, type=type)
-    session.add(user)
-    session.commit()
+    # convertir is_active a bool
+    is_active_bool = True if is_active in ("true", "True", "1", True) else False
 
-    return RedirectResponse(url="/users/", status_code=status.HTTP_303_SEE_OTHER)
+    img_url = None
+    if img:
+        try:
+            img_url = await upload_to_bucket(img)
+        except Exception as e:
+            # log en servidor y mostrar 400
+            raise HTTPException(status_code=400, detail=f"Error subiendo imagen: {e}")
+
+    try:
+        new_user = User(
+            name=name,
+            type=type,
+            is_active=is_active_bool,
+            img=img_url
+        )
+        session.add(new_user)
+        session.commit()
+        session.refresh(new_user)
+    except Exception as e:
+        tb = traceback.format_exc()
+        print("ERROR creando usuario:", tb)
+        raise HTTPException(status_code=500, detail="Error interno al crear usuario")
+
+    return RedirectResponse(url="/users", status_code=303)
 
 @router.get("/active", response_model=list[User])
 def get_active_users(session: SessionDep):
