@@ -55,7 +55,7 @@ def get_methodologies_with_benefits(session: SessionDep):
     return result
 
 
-@router.get("/", response_class=HTMLResponse)
+@router.get("", response_class=HTMLResponse)
 def show_benefits(request: Request, session: SessionDep):
     benefits = session.exec(select(Benefit)).all()
 
