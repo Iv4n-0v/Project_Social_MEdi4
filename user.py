@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Request, Form, UploadFile, File, Depends
+from fastapi import APIRouter, HTTPException, Request, Form, UploadFile, File, Depends, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlmodel import select, Session
 from typing import Optional
@@ -25,6 +25,18 @@ def show_create(request: Request):
         {"request": request}
     )
 
+@router.post("/new")
+def create_user_web(
+    name: str = Form(...),
+    email: str = Form(...),
+    type: str = Form(...),
+    session: SessionDep = None
+):
+    user = User(name=name, email=email, type=type)
+    session.add(user)
+    session.commit()
+
+    return RedirectResponse(url="/users/", status_code=status.HTTP_303_SEE_OTHER)
 
 @router.get("/active", response_model=list[User])
 def get_active_users(session: SessionDep):
