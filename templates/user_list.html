@@ -13,13 +13,13 @@
                 <div class="card-body text-center">
 
                     {% if user.img %}
-                        <img src="{{ user.img }}" class="img-fluid rounded mb-2" style="max-height: 150px;">
+                        <img src="{{ user.img }}" class="img-fluid rounded mb-3" style="max-height: 180px;">
                     {% endif %}
 
-                    <h5 class="card-title">{{ user.name }}</h5>
+                    <h4 class="card-title">{{ user.name }}</h4>
 
                     <p class="card-text">
-                        <strong>Tipo:</strong> {{ user.type }}
+                        <strong>Tipo de usuario:</strong> {{ user.type }}
                     </p>
 
                     <p class="card-text">
@@ -31,9 +31,25 @@
                         {% endif %}
                     </p>
 
-                    <a href="/users/{{ user.id }}" class="btn btn-primary btn-sm">
-                        Ver detalles
-                    </a>
+                    <p class="card-text">
+                        <strong>ID:</strong> {{ user.id }}
+                    </p>
+
+                    <div class="d-flex justify-content-center gap-2">
+
+                        <form action="/users/{{ user.id }}/delete" method="post">
+                            <button type="submit" class="btn btn-danger btn-sm">
+                                Desactivar
+                            </button>
+                        </form>
+
+                        <form action="/users/{{ user.id }}/restore" method="post">
+                            <button type="submit" class="btn btn-warning btn-sm">
+                                Restaurar
+                            </button>
+                        </form>
+
+                    </div>
 
                 </div>
             </div>
