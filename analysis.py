@@ -37,7 +37,7 @@ def show_analyses(request: Request, session: SessionDep):
     analysis = session.exec(select(Analysis)).all()
 
     return request.app.state.templates.TemplateResponse(
-        "analyses_list.html",
+        "analysis_list.html",
         {
             "request": request,
             "analysis": analysis

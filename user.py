@@ -26,6 +26,15 @@ def show_create(request: Request):
     )
 
 
+@router.get("/active", response_model=list[User])
+def get_active_users(session: SessionDep):
+    return session.query(User).filter(User.is_active==True).all()
+
+
+@router.get("/all", response_model=list[User])
+def get_all_users(session: SessionDep):
+    return session.query(User).all()
+
 
 @router.post("/", response_model=User)
 async def create_user(
