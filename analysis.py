@@ -1,4 +1,6 @@
-from fastapi import APIRouter, HTTPException
+from fastapi.responses import HTMLResponse
+from fastapi import APIRouter, HTTPException, Request
+from sqlmodel import select
 from db import SessionDep
 from models import Analysis, AnalysisBase, User
 
@@ -29,3 +31,15 @@ def get_one_analysis(analysis_id: int, session: SessionDep):
     if not analysis_db:
         raise HTTPException(status_code=404, detail="Analysis not found")
     return analysis_db
+
+@router.get("/", response_class=HTMLResponse)
+def show_analyses(request: Request, session: SessionDep):
+    analyses = session.exec(select(Analysis)).all()
+
+    return request.app.state.templates.TemplateResponse(
+        "analyses_list.html",
+        {
+            "request": request,
+            "analyses": analyses
+        }
+    )
