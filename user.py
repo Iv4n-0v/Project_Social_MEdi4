@@ -5,7 +5,7 @@ from typing import Optional
 from db import SessionDep
 from models import User, UserBase, UserAudit
 import traceback
-from supabase.supabase import upload_to_bucket
+from supa.supabase import upload_to_bucket
 from starlette.status import HTTP_303_SEE_OTHER
 
 router = APIRouter(tags=["users"])
