@@ -32,7 +32,7 @@ def get_one_analysis(analysis_id: int, session: SessionDep):
         raise HTTPException(status_code=404, detail="Analysis not found")
     return analysis_db
 
-@router.get("/", response_class=HTMLResponse)
+@router.get("", response_class=HTMLResponse)
 def show_analyses(request: Request, session: SessionDep):
     analysis = session.exec(select(Analysis)).all()
 
