@@ -1,7 +1,7 @@
 import os
 from typing import Optional
 from fastapi import UploadFile
-from supa import create_client, Client
+from supabase import create_client, Client
 from dotenv import load_dotenv
 
 load_dotenv()
