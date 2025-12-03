@@ -35,7 +35,6 @@ async def create_user_web(
     is_active: str = Form("true"),       
     img: Optional[UploadFile] = File(None)
 ):
-    # convertir is_active a bool
     is_active_bool = True if is_active in ("true", "True", "1", True) else False
 
     img_url = None
@@ -68,8 +67,8 @@ def get_active_users(session: SessionDep):
     return session.query(User).filter(User.is_active==True).all()
 
 
-@router.get("/all", response_model=list[User])
-def get_all_users(session: SessionDep):
+@router.get("/api/all", response_model=list[User])
+def get_all_users_api(session: SessionDep):
     return session.query(User).all()
 
 
@@ -104,7 +103,7 @@ async def create_user(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-    return RedirectResponse(url=f"/users/{new_user.id}", status_code=303)
+    return RedirectResponse(url="/users", status_code=303)
 
 
 @router.get("/{user_id}", response_class=HTMLResponse)
