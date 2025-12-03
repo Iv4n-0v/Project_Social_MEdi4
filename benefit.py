@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException
+from fastapi.responses import HTMLResponse 
+from fastapi import APIRouter, HTTPException, Request
 from sqlmodel import select
 from db import SessionDep
 from models import Benefit, BenefitBase, Methodology, MethodologyBenefitLink
@@ -52,3 +53,16 @@ def get_methodologies_with_benefits(session: SessionDep):
         })
 
     return result
+
+
+@router.get("/", response_class=HTMLResponse)
+def show_benefits(request: Request, session: SessionDep):
+    benefits = session.exec(select(Benefit)).all()
+
+    return request.app.state.templates.TemplateResponse(
+        "benefits_list.html",
+        {
+            "request": request,
+            "benefits": benefits
+        }
+    )
