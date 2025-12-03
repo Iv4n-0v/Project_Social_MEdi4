@@ -1,44 +1,22 @@
 import os
-from typing import Optional
+import uuid
+from supabase import create_client
 from fastapi import UploadFile
-from supabase import create_client, Client
-from dotenv import load_dotenv
 
-load_dotenv()
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
-SUPABASE_URL=os.getenv("SUPABASE_URL")
-SUPABASE_KEY=os.getenv("SUPABASE_KEY")
-SUPABASE_BUCKET=os.getenv("SUPABASE_BUCKET")
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-_supabase_client:Optional[Client]=None
+async def upload_to_bucket(file: UploadFile, folder: str):
+    bucket = "bucket"
 
-def get_supabase_client():
-    global _supabase_client
-    if _supabase_client is None:
-        if not SUPABASE_URL or not SUPABASE_KEY:
-            raise ValueError(
-                "No estan las credenciales"
-            )
-        _supabase_client = create_client(SUPABASE_URL, SUPABASE_KEY)
+    content = await file.read()
 
-    return _supabase_client
+    extension = os.path.splitext(file.filename)[1].lower()
+    unique_name = f"{uuid.uuid4()}{extension}"
+    file_path = f"{folder}/{unique_name}"
 
-async def upload_to_bucket(file: UploadFile):
-    client = get_supabase_client()
+    supabase.storage.from_(bucket).upload(file_path, content)
 
-    try:
-        file_content = await file.read()
-        file_path= f"public/{file.filename}"
-        result = client.storage.from_(SUPABASE_BUCKET).upload(
-            path=file_path,
-            file=file_content,
-            file_options={
-                "content-type": file.content_type
-            }
-        )
-        public_url = client.storage.from_(
-            SUPABASE_BUCKET
-        ).get_public_url(file_path)
-        return public_url
-    except Exception as e:
-        raise e
+    return f"{SUPABASE_URL}/storage/v1/object/public/{bucket}/{file_path}"
