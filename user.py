@@ -11,8 +11,8 @@ from starlette.status import HTTP_303_SEE_OTHER
 router = APIRouter(tags=["users"])
 
 @router.get("/", response_class=HTMLResponse)
-def get_all_users(request: Request, session: Session = Depends(SessionDep)):
-    users = session.exec(select(User)).all()
+def get_all_users_html(request: Request, session: Session = Depends(SessionDep)):
+    users = session.exec(select(User).where(User.active == True)).all()
     return request.app.state.templates.TemplateResponse(
         "user_list.html",
         {"request": request, "users": users}
