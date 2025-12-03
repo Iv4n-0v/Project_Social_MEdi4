@@ -1,20 +1,45 @@
 {% include 'header.html' %}
+
 <div class="container mt-4">
-    <a href="/users/new" class="btn btn-success mb-3">Crear Usuario</a>
-    <h1>Usuarios Registrados</h1>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1>Usuarios Registrados</h1>
+        <a href="/users/new" class="btn btn-success">Crear Usuario</a>
+    </div>
+
     <div class="row">
         {% for user in users %}
         <div class="col-md-4 mb-3">
-            <div class="card">
-                <div class="card-body">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+
+                    {% if user.img %}
+                        <img src="{{ user.img }}" class="img-fluid rounded mb-2" style="max-height: 150px;">
+                    {% endif %}
+
                     <h5 class="card-title">{{ user.name }}</h5>
-                    <p class="card-text">Tipo: {{ user.type }}</p>
-                    <p class="card-text">Estado: {{ 'Activo' if user.is_active else 'Inactivo' }}</p>
-                    <a href="/users/{{ user.id }}" class="btn btn-primary">Ver detalles</a>
+
+                    <p class="card-text">
+                        <strong>Tipo:</strong> {{ user.type }}
+                    </p>
+
+                    <p class="card-text">
+                        <strong>Estado:</strong>
+                        {% if user.is_active %}
+                            <span class="badge bg-success">Activo</span>
+                        {% else %}
+                            <span class="badge bg-danger">Inactivo</span>
+                        {% endif %}
+                    </p>
+
+                    <a href="/users/{{ user.id }}" class="btn btn-primary btn-sm">
+                        Ver detalles
+                    </a>
+
                 </div>
             </div>
         </div>
         {% endfor %}
     </div>
 </div>
+
 {% include 'footer.html' %}
