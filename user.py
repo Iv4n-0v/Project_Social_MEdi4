@@ -30,7 +30,6 @@ async def create_user_web(
     request: Request,
     session: SessionDep,
     name: str = Form(...),
-    email: str = Form(...),
     type: str = Form(...),
     is_active: str = Form("true"),       
     img: Optional[UploadFile] = File(None)

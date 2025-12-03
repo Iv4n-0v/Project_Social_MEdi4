@@ -2,7 +2,7 @@
 {%include 'navbar.html'%}
 <div class="container mt-4">
     <h1>Registrar nuevo usuario</h1>
-    <form method="post" action="/users/" enctype="multipart/form-data">
+    <form method="post" action="/users/new" enctype="multipart/form-data">
         <div class="mb-3">
             <label class="form-label">Nombre</label>
             <input class="form-control" type="text" name="name" required>
@@ -15,6 +15,10 @@
             <label class="form-label">Estado</label><br>
             <input type="radio" name="is_active" value="true" checked> Activo
             <input type="radio" name="is_active" value="false"> Inactivo
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Foto de Perfil</label>
+            <input class="form-control" type="file" name="img">
         </div>
         <input type="submit" class="btn btn-primary" value="Registrar usuario">
     </form>
