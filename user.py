@@ -39,9 +39,8 @@ async def create_user_web(
     img_url = None
     if img:
         try:
-            img_url = await upload_to_bucket(img)
+            img_url = await upload_to_bucket(img, 'users')
         except Exception as e:
-            # log en servidor y mostrar 400
             raise HTTPException(status_code=400, detail=f"Error subiendo imagen: {e}")
 
     try:
