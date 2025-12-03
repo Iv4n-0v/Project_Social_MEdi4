@@ -34,12 +34,12 @@ def get_one_analysis(analysis_id: int, session: SessionDep):
 
 @router.get("/", response_class=HTMLResponse)
 def show_analyses(request: Request, session: SessionDep):
-    analyses = session.exec(select(Analysis)).all()
+    analysis = session.exec(select(Analysis)).all()
 
     return request.app.state.templates.TemplateResponse(
         "analyses_list.html",
         {
             "request": request,
-            "analyses": analyses
+            "analysis": analysis
         }
     )

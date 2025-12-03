@@ -1,0 +1,40 @@
+{% include 'header.html' %}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1>Listado de Análisis</h1>
+        <a href="/" class="btn btn-secondary">Volver al inicio</a>
+    </div>
+
+    <div class="row">
+        {% for analysis in analyses %}
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+
+                    <h4 class="card-title text-center">Análisis #{{ analysis.id }}</h4>
+
+                    <p class="card-text">
+                        <strong>Resultado:</strong><br>
+                        {{ analysis.result }}
+                    </p>
+
+                    <p class="card-text">
+                        <strong>Observación:</strong><br>
+                        {{ analysis.observation }}
+                    </p>
+
+                    <p class="card-text">
+                        <strong>ID Usuario:</strong> {{ analysis.user_id }}
+                    </p>
+
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+{% include 'footer.html' %}
