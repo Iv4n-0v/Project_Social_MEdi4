@@ -7,9 +7,9 @@ from db import SessionDep
 from models import User, UserBase, UserAudit
 from supa.supabase import upload_to_bucket
 
-router = APIRouter(prefix="/users",tags=["users"])
+router = APIRouter(tags=["users"])
 
-@router.get("/", response_class=HTMLResponse)
+@router.get("", response_class=HTMLResponse)
 def get_all_users(request: Request, session: Session = Depends(SessionDep)):
     users = session.exec(select(User)).all()
     return request.app.state.templates.TemplateResponse(
