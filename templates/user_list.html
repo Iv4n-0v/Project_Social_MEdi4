@@ -1,0 +1,20 @@
+{% include 'header.html' %}
+<div class="container mt-4">
+    <a href="/users/new" class="btn btn-success mb-3">Crear Usuario</a>
+    <h1>Usuarios Registrados</h1>
+    <div class="row">
+        {% for user in users %}
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ user.name }}</h5>
+                    <p class="card-text">Tipo: {{ user.type }}</p>
+                    <p class="card-text">Estado: {{ 'Activo' if user.is_active else 'Inactivo' }}</p>
+                    <a href="/users/{{ user.id }}" class="btn btn-primary">Ver detalles</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% include 'footer.html' %}

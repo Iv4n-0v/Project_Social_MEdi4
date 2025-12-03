@@ -1,36 +1,74 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request, Form, UploadFile, File, Depends
+from fastapi.responses import HTMLResponse, RedirectResponse
+from sqlmodel import select, Session
+from typing import Optional
 from db import SessionDep
 from models import User, UserBase, UserAudit
 import traceback
+from supa.supabase_upload import upload_to_bucket
+from starlette.status import HTTP_303_SEE_OTHER
 
 router = APIRouter(tags=["users"])
 
+@router.get("/", response_class=HTMLResponse)
+def get_all_users(request: Request, session: Session = Depends(SessionDep)):
+    users = session.exec(select(User)).all()
+    return request.app.state.templates.TemplateResponse(
+        "user_list.html",
+        {"request": request, "users": users}
+    )
+
+
+@router.get("/new", response_class=HTMLResponse)
+def show_create(request: Request):
+    return request.app.state.templates.TemplateResponse(
+        "new_user.html",
+        {"request": request}
+    )
+
 @router.post("/", response_model=User)
-def create_user(new_user: UserBase, session: SessionDep):
+async def create_user(
+    request: Request,
+    session: SessionDep,
+    name: str = Form(...),
+    type: str = Form(...),
+    is_active: bool = Form(True),
+    img: Optional[UploadFile] = File(None)
+):
+    img_url = None
+    if img:
+        try:
+            img_url = await upload_to_bucket(img)
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=str(e))
+
+    new_user = User(
+        name=name,
+        type=type,
+        is_active=is_active,
+        img=img_url
+    )
+
     try:
-        user = User(**new_user.model_dump())
-        session.add(user)
+        session.add(new_user)
         session.commit()
-        session.refresh(user)
-        return user
+        session.refresh(new_user)
     except Exception as e:
-        print(traceback.format_exc())
-        raise HTTPException(status_code=500, detail=f"Error creating user: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/active", response_model=list[User])
-def get_active_users(session: SessionDep):
-    return session.query(User).filter(User.is_active==True).all()
+    return RedirectResponse(url=f"/users/{new_user.id}", status_code=303)
 
-@router.get("/all", response_model=list[User])
-def get_all_users(session: SessionDep):
-    return session.query(User).all()
 
-@router.get("/{user_id}", response_model=User)
-def get_user(user_id: int, session: SessionDep):
-    user = session.get(User, user_id)
-    if not user:
+
+@router.get("/{user_id}", response_class=HTMLResponse)
+def get_user(request: Request, user_id: int, session: SessionDep):
+    user_db = session.get(User, user_id)
+    if not user_db:
         raise HTTPException(status_code=404, detail="User not found")
-    return user
+    return request.app.state.templates.TemplateResponse(
+        "user_detail.html",
+        {"request": request, "user": user_db}
+    )
 
 @router.put("/{user_id}/update", response_model=User)
 def update_user(user_id: int, updated_user: UserBase, session: SessionDep):
