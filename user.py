@@ -102,7 +102,7 @@ def delete_user(user_id: int, session: SessionDep, request: Request):
 
     if not user.is_active:
         return request.app.state.templates.TemplateResponse(
-            "error.html",
+            "error_habilitated.html",
             {"request": request, "message": "El usuario ya está inactivo"}
         )
 
