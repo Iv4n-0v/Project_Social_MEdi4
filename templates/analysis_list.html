@@ -1,5 +1,6 @@
 {% include 'header.html' %}
-{%include 'navbar.html'%}
+{% include 'navbar.html' %}
+
 <div class="container mt-4">
 
     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -16,18 +17,29 @@
                     <h4 class="card-title text-center">Análisis #{{ analysis.id }}</h4>
 
                     <p class="card-text">
-                        <strong>Resultado:</strong><br>
-                        {{ analysis.result }}
+                        <strong>Sector:</strong><br>
+                        {{ analysis.sector }}
                     </p>
 
                     <p class="card-text">
-                        <strong>Observación:</strong><br>
-                        {{ analysis.observation }}
+                        <strong>Alcance:</strong><br>
+                        {{ analysis.reach }}
+                    </p>
+
+                    <p class="card-text">
+                        <strong>Tiempo en redes:</strong><br>
+                        {{ analysis.time_in_social_media }} horas
                     </p>
 
                     <p class="card-text">
                         <strong>ID Usuario:</strong> {{ analysis.user_id }}
                     </p>
+
+                    {% if analysis.date %}
+                    <p class="card-text">
+                        <strong>Fecha:</strong> {{ analysis.date.strftime("%d/%m/%Y %H:%M") }}
+                    </p>
+                    {% endif %}
 
                 </div>
             </div>

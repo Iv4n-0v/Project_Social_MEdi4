@@ -43,7 +43,7 @@ def show_analyses(request: Request, session: SessionDep):
         "analysis_list.html",
         {
             "request": request,
-            "analysis": analysis
+            "analyses": analysis
         }
     )
 
@@ -64,6 +64,7 @@ def create_analysis_web(
 
     session.add(analysis)
     session.commit()
+    session.refresh(analysis) 
 
     return RedirectResponse("/analysis", status_code=303)
 
