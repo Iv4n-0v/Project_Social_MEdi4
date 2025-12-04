@@ -1,0 +1,39 @@
+{% include 'header.html' %}
+{% include 'navbar.html' %}
+
+<div class="container mt-4">
+    <h1>Nuevo Análisis</h1>
+
+    <form action="/analysis/create" method="post">
+
+        <div class="mb-3">
+            <label class="form-label">Usuario</label>
+            <select class="form-select" name="user_id" required>
+                <option value="">Seleccione un usuario</option>
+                {% for user in users %}
+                <option value="{{ user.id }}">{{ user.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Sector</label>
+            <input name="sector" type="text" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Alcance</label>
+            <input name="reach" type="number" min="0" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Tiempo en redes sociales (horas)</label>
+            <input name="time_in_social_media" type="number" step="0.1" min="0" class="form-control" required>
+        </div>
+
+        <button class="btn btn-success">Crear Análisis</button>
+    </form>
+
+</div>
+
+{% include 'footer.html' %}
