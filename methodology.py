@@ -86,3 +86,46 @@ def create_methodology_web(
     session.commit()
 
     return RedirectResponse(url="/methodologies", status_code=303)
+
+@router.get("/edit/{methodology_id}", response_class=HTMLResponse)
+def edit_methodology_form(methodology_id: int, request: Request, session: SessionDep):
+    methodology = session.get(Methodology, methodology_id)
+    if not methodology:
+        raise HTTPException(status_code=404, detail="Methodology not found")
+
+    benefits = session.exec(select(Benefit)).all()
+
+    return request.app.state.templates.TemplateResponse(
+        "methodology_edit.html",
+        {
+            "request": request,
+            "methodology": methodology,
+            "benefits": benefits
+        }
+    )
+
+@router.post("/edit/{methodology_id}")
+def update_methodology(
+    methodology_id: int,
+    session: SessionDep,
+    name: str = Form(...),
+    description: str = Form(None),
+    benefit_ids: list[int] = Form(default=[])
+):
+    methodology = session.get(Methodology, methodology_id)
+    if not methodology:
+        raise HTTPException(status_code=404, detail="Methodology not found")
+
+    methodology.name = name
+    methodology.description = description
+
+    methodology.benefits.clear()
+
+    for b_id in benefit_ids:
+        benefit = session.get(Benefit, b_id)
+        if benefit:
+            methodology.benefits.append(benefit)
+
+    session.commit()
+
+    return RedirectResponse(url="/methodologies", status_code=303)

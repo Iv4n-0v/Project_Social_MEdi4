@@ -1,0 +1,37 @@
+{% include 'header.html' %}
+{% include 'navbar.html' %}
+
+<div class="container mt-4">
+    <h2>Editar Metodología</h2>
+
+    <form action="/methodologies/edit/{{ methodology.id }}" method="post">
+
+        <div class="mb-3">
+            <label class="form-label">Nombre</label>
+            <input type="text" name="name" class="form-control" value="{{ methodology.name }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Descripción</label>
+            <textarea name="description" class="form-control" rows="3">{{ methodology.description }}</textarea>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Beneficios</label>
+            <select name="benefit_ids" class="form-control" multiple>
+                {% for b in benefits %}
+                    <option value="{{ b.id }}"
+                        {% if b in methodology.benefits %} selected {% endif %}>
+                        {{ b.name }}
+                    </option>
+                {% endfor %}
+            </select>
+            <small class="text-muted">Mantén presionado CTRL para seleccionar varios.</small>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Actualizar</button>
+        <a href="/methodologies" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+
+{% include 'footer.html' %}
