@@ -17,6 +17,12 @@ async def upload_to_bucket(file: UploadFile, folder: str="users"):
     unique_name = f"{uuid.uuid4()}{extension}"
     file_path = f"{folder}/{unique_name}"
 
-    supabase.storage.from_(bucket).upload(file_path, content)
+    supabase.storage.from_(bucket).upload(file_path,content,
+        {
+            "content-type": file.content_type,
+            "cache-control": "3600",
+            "upsert": False
+        }
+    )
 
     return f"{SUPABASE_URL}/storage/v1/object/public/{bucket}/{file_path}"
