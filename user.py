@@ -204,19 +204,18 @@ def update_user_web(
     user = session.get(User, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-
     user.name = name
-
-    # Limpiar metodologías actuales
     user.methodologies.clear()
     session.commit()
 
-    # Agregar nuevas
+    session.refresh(user)
+
     for mid in methodology_ids:
         methodology = session.get(Methodology, mid)
         if methodology:
             user.methodologies.append(methodology)
 
     session.commit()
+    session.refresh(user)
 
     return RedirectResponse(url="/users", status_code=303)
