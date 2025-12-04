@@ -134,7 +134,8 @@ pip install -r requirements.txt
 
 ## 4️⃣ Ejecutar el servidor FastAPI
 uvicorn main:app --reload
-
+o
+fastapi dev
 
 El proyecto estará disponible en:
 
