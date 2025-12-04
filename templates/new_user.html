@@ -8,8 +8,7 @@
             <input class="form-control" type="text" name="name" required>
         </div>
         <label class="form-label mt-3">Metodología</label>
-        <select class="form-select" name="methodology_id">
-        <option value="">Sin metodología</option>
+        <select class="form-select" name="methodology_ids" multiple size="5">
             {% for m in methodologies %}
         <option value="{{ m.id }}">{{ m.name }}</option>
             {% endfor %}

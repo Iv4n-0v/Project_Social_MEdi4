@@ -32,28 +32,23 @@ async def create_user_web(
     request: Request,
     session: SessionDep,
     name: str = Form(...),
-    methodology_id: Optional[str] = Form(None),
+    methodology_ids: list[int] = Form([]),
     is_active: str = Form("true"),
     img: Optional[UploadFile] = File(None)
 ):
     is_active_bool = is_active.lower() == "true"
-
-    if not methodology_id or methodology_id == "":
-        methodology_id = None
-    else:
-        methodology_id = int(methodology_id)
     img_url = None
     if img:
-        img_url = await upload_to_bucket(img, 'users')
-
-    new_user = User(
-        name=name,
-        methodology_id=methodology_id,
-        is_active=is_active_bool,
-        img=img_url
-    )
-
+        img_url = await upload_to_bucket(img, "users")
+    new_user = User(name=name,is_active=is_active_bool,img=img_url,)
     session.add(new_user)
+    session.commit()
+
+    for mid in methodology_ids:
+        methodology = session.get(Methodology, mid)
+        if methodology:
+            new_user.methodologies.append(methodology)
+
     session.commit()
     session.refresh(new_user)
 
@@ -130,19 +125,22 @@ def update_user(
     user_id: int,
     session: SessionDep,
     name: str = Form(...),
-    methodology_id: int = Form(None)
+    methodology_ids: list[int] = Form([])
 ):
     user = session.get(User, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
     user.name = name
-    user.methodology_id = methodology_id  
 
-    session.add(user)
+    user.methodologies.clear()
+
+    for mid in methodology_ids:
+        methodology = session.get(Methodology, mid)
+        if methodology:
+            user.methodologies.append(methodology)
     session.commit()
-
-    return RedirectResponse("/users", status_code=303)
+    return {"message": "ok"}
 
 
 @router.post("/{user_id}/delete")
@@ -201,16 +199,24 @@ def update_user_web(
     user_id: int,
     session: SessionDep,
     name: str = Form(...),
-    methodology_id: int = Form(None)
+    methodology_ids: list[int] = Form([])
 ):
     user = session.get(User, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
     user.name = name
-    user.methodology_id = methodology_id
+
+    # Limpiar metodologías actuales
+    user.methodologies.clear()
+    session.commit()
+
+    # Agregar nuevas
+    for mid in methodology_ids:
+        methodology = session.get(Methodology, mid)
+        if methodology:
+            user.methodologies.append(methodology)
 
     session.commit()
-    session.refresh(user)
 
     return RedirectResponse(url="/users", status_code=303)
