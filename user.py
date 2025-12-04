@@ -175,6 +175,17 @@ def restore_user(user_id: int, session: SessionDep):
     return RedirectResponse(url="/users/deleted", status_code=303)
 
 
+@router.get("/edit/{user_id}", response_class=HTMLResponse)
+def edit_user_page(request: Request, user_id: int, session: SessionDep):
+    user = session.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return request.app.state.templates.TemplateResponse(
+        "user_edit.html",
+        {"request": request, "user": user}
+    )
+
 @router.get("/audit/logs", response_model=list[UserAudit])
 def get_audit_logs(session: SessionDep):
     return session.exec(select(UserAudit)).all()

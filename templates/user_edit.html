@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Editar Usuario</h2>
+
+<form action="/users/{{ user.id }}/update" method="post">
+    <label>Nombre</label>
+    <input type="text" name="name" value="{{ user.name }}" required>
+
+    <label>Metodología</label>
+    <input type="text" name="type" value="{{ user.type }}" required>
+
+    <button type="submit">Guardar cambios</button>
+</form>
+
+{% endblock %}
