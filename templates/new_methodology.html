@@ -12,9 +12,14 @@
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Beneficios</label>
-            <input type="text" name="benefits" class="form-control">
-</div>
+            <label class="form-label">Seleccionar beneficios</label>
+            <select name="benefit_ids" multiple class="form-control">
+        {% for benefit in benefits %}
+            <option value="{{ benefit.id }}">{{ benefit.name }}</option>
+        {% endfor %}
+            </select>
+            <small class="text-muted">Mantén presionado CTRL para seleccionar varios.</small>
+        </div>
 
         <button type="submit" class="btn btn-primary">Guardar</button>
         <a href="/methodologies" class="btn btn-secondary">Cancelar</a>

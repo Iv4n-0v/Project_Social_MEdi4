@@ -20,9 +20,20 @@
                         {{ benefit.description }}
                     </p>
 
+                    <p><strong>Metodologías asociadas:</strong></p>
+                    <ul>
+                    {% for m in benefit.methodologies %}
+                    <li>{{ m.name }}</li>
+                    {% else %}
+                    <li><em>No asociado a ninguna metodología</em></li>
+                    {% endfor %}
+                    </ul>
+
                     <p class="card-text">
                         <strong>ID:</strong> {{ benefit.id }}
                     </p>
+
+
 
                 </div>
             </div>

@@ -54,10 +54,11 @@ def show_methodologies(request: Request, session: SessionDep):
 
 
 @router.get("/new", response_class=HTMLResponse)
-def new_methodology_form(request: Request):
+def new_methodology_form(request: Request, session: SessionDep):
+    benefits = session.exec(select(Benefit)).all()
     return request.app.state.templates.TemplateResponse(
         "new_methodology.html",
-        {"request": request}
+        {"request": request, "benefits": benefits}
     )
 
 @router.post("/new")
@@ -65,7 +66,7 @@ def create_methodology_web(
     session: SessionDep,
     name: str = Form(...),
     description: str = Form(None),
-    benefits: str = Form("")
+    benefit_ids: list[int] = Form(default=[])
 ):
     new_methodology = Methodology(
         name=name,
@@ -76,25 +77,12 @@ def create_methodology_web(
     session.commit()
     session.refresh(new_methodology)
 
-    # Procesar beneficios
-    if benefits.strip():
-        benefit_names = [b.strip() for b in benefits.split(",")]
-
-        for b_name in benefit_names:
-            # Ver si ya existe beneficio
-            benefit = session.exec(
-                select(Benefit).where(Benefit.name == b_name)
-            ).first()
-
-            if not benefit:
-                benefit = Benefit(name=b_name)
-                session.add(benefit)
-                session.commit()
-                session.refresh(benefit)
-
-            # Asociarlo a la metodología
+    # Asociar beneficios existentes
+    for b_id in benefit_ids:
+        benefit = session.get(Benefit, b_id)
+        if benefit:
             new_methodology.benefits.append(benefit)
 
-        session.commit()
+    session.commit()
 
     return RedirectResponse(url="/methodologies", status_code=303)
