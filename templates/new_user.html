@@ -1,5 +1,6 @@
-{% include 'header.html' %}
-{%include 'navbar.html'%}
+{% extends 'base.html' %}
+{% block title %}Crear User{% endblock %}
+{% block content %}
 <div class="container mt-4">
     <h1>Registrar nuevo usuario</h1>
     <form method="post" action="/users/new" enctype="multipart/form-data">
@@ -25,4 +26,4 @@
         <input type="submit" class="btn btn-primary" value="Registrar usuario">
     </form>
 </div>
-{% include 'footer.html' %}
+{% endblock %}
