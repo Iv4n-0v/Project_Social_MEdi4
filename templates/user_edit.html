@@ -1,17 +1,33 @@
-{% extends "base.html" %}
+{% include 'header.html' %}
+{% include 'navbar.html' %}
 
-{% block content %}
+<div class="container mt-4">
+    <h2>Editar Usuario</h2>
 
-<h2>Editar Usuario</h2>
+    <form action="/users/{{ user.id }}/update" method="post">
 
-<form action="/users/{{ user.id }}/update" method="post">
-    <label>Nombre</label>
-    <input type="text" name="name" value="{{ user.name }}" required>
+        <div class="mb-3">
+            <label>Nombre</label>
+            <input type="text" name="name" class="form-control" value="{{ user.name }}" required>
+        </div>
 
-    <label>Metodología</label>
-    <input type="text" name="type" value="{{ user.type }}" required>
+        <div class="mb-3">
+            <label>Tipo</label>
+            <select name="type" class="form-select">
+                <option value="admin" {% if user.type == "admin" %}selected{% endif %}>Admin</option>
+                <option value="user" {% if user.type == "user" %}selected{% endif %}>User</option>
+            </select>
+        </div>
 
-    <button type="submit">Guardar cambios</button>
-</form>
+        {% if user.img %}
+            <img src="{{ user.img }}" width="80">
+        {% else %}
+            <p>No tiene imagen</p>
+        {% endif %}
 
-{% endblock %}
+        <button class="btn btn-primary mt-3" type="submit">Guardar cambios</button>
+
+    </form>
+</div>
+
+{% include 'footer.html' %}
