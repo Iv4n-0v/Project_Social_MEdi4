@@ -22,11 +22,13 @@
                     <h4 class="card-title">{{ user.name }}</h4>
 
                     <p class="card-text">
-                    <strong>Metodología:</strong>
-                        {% if user.methodology %}
-                        {{ user.methodology.name }}
+                    <strong>Metodologías:</strong><br>
+                        {% if user.methodologies and user.methodologies|length > 0 %}
+                        {% for m in user.methodologies %}
+                    <span class="badge bg-primary">{{ m.name }}</span>
+                        {% endfor %}
                         {% else %}
-                        Sin metodología
+                    <span class="text-muted">Sin metodología</span>
                         {% endif %}
                     </p>
 
