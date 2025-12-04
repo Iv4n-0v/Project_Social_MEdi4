@@ -6,16 +6,18 @@
 
     <form action="/users/{{ user.id }}/update" method="post">
 
-        <div class="mb-3">
-            <label>Nombre</label>
-            <input type="text" name="name" class="form-control" value="{{ user.name }}" required>
-        </div>
+        <label class="form-label">Nombre</label>
+        <input type="text" class="form-control" name="name" value="{{ user.name }}" required>
 
-        <div class="mb-3">
-            <label>Tipo</label>
-            <select name="type" class="form-select">
-            </select>
-        </div>
+        <label class="form-label mt-3">Metodología</label>
+        <select class="form-select" name="methodology_id">
+        <option value="">Sin metodología</option>
+            {% for m in methodologies %}
+        <option value="{{ m.id }}" {% if user.methodology_id == m.id %}selected{% endif %}>
+            {{ m.name }}
+        </option>
+            {% endfor %}
+        </select>
 
         {% if user.img %}
             <img src="{{ user.img }}" width="80">

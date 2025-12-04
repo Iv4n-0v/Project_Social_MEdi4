@@ -3,7 +3,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlmodel import select
 from typing import Optional
 from db import SessionDep
-from models import User, UserBase, UserAudit
+from models import User, UserBase, UserAudit,Methodology
 from supa.supabase import upload_to_bucket
 import traceback
 import supabase
@@ -20,10 +20,11 @@ def get_active_users(request: Request, session: SessionDep):
     )
 
 @router.get("/new", response_class=HTMLResponse)
-def show_create(request: Request):
+def show_create(request: Request, session: SessionDep):
+    methodologies = session.exec(select(Methodology)).all()
     return request.app.state.templates.TemplateResponse(
         "new_user.html",
-        {"request": request}
+        {"request": request, "methodologies": methodologies}
     )
 
 @router.post("/new")
@@ -31,7 +32,7 @@ async def create_user_web(
     request: Request,
     session: SessionDep,
     name: str = Form(...),
-    type: str = Form(...),
+    methodology_id: int = Form(None),
     is_active: str = Form("true"),
     img: Optional[UploadFile] = File(None)
 ):
@@ -39,24 +40,18 @@ async def create_user_web(
 
     img_url = None
     if img:
-        try:
-            img_url = await upload_to_bucket(img, 'users')
-        except Exception as e:
-            raise HTTPException(status_code=400, detail=f"Error subiendo imagen: {e}")
+        img_url = await upload_to_bucket(img, 'users')
 
-    try:
-        new_user = User(
-            name=name,
-            type=type,
-            is_active=is_active_bool,
-            img=img_url
-        )
-        session.add(new_user)
-        session.commit()
-        session.refresh(new_user)
-    except:
-        print(traceback.format_exc())
-        raise HTTPException(status_code=500, detail="Error interno al crear usuario")
+    new_user = User(
+        name=name,
+        methodology_id=methodology_id,
+        is_active=is_active_bool,
+        img=img_url
+    )
+
+    session.add(new_user)
+    session.commit()
+    session.refresh(new_user)
 
     return RedirectResponse(url="/users", status_code=303)
 
@@ -128,18 +123,24 @@ def get_user_detail(request: Request, user_id: int, session: SessionDep):
     )
 
 
-@router.put("/api/{user_id}/update", response_model=User)
-def update_user(user_id: int, updated_user: UserBase, session: SessionDep):
+@router.post("/api/update/{user_id}")
+def update_user(
+    user_id: int,
+    session: SessionDep,
+    name: str = Form(...),
+    methodology_id: int = Form(None)
+):
     user = session.get(User, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    user.name = updated_user.name
-    user.type = updated_user.type
+    user.name = name
+    user.methodology_id = methodology_id  
 
+    session.add(user)
     session.commit()
-    session.refresh(user)
-    return user
+
+    return RedirectResponse("/users", status_code=303)
 
 
 @router.post("/{user_id}/delete")
@@ -177,13 +178,20 @@ def restore_user(user_id: int, session: SessionDep):
 
 @router.get("/edit/{user_id}", response_class=HTMLResponse)
 def edit_user_page(request: Request, user_id: int, session: SessionDep):
+
     user = session.get(User, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
+    methodologies = session.exec(select(Methodology)).all()
+
     return request.app.state.templates.TemplateResponse(
         "user_edit.html",
-        {"request": request, "user": user}
+        {
+            "request": request,
+            "user": user,
+            "methodologies": methodologies  
+        }
     )
 
 @router.post("/{user_id}/update")
@@ -191,21 +199,16 @@ def update_user_web(
     user_id: int,
     session: SessionDep,
     name: str = Form(...),
-    type: str = Form(...),
+    methodology_id: int = Form(None)
 ):
     user = session.get(User, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
     user.name = name
-    user.type = type
+    user.methodology_id = methodology_id
 
     session.commit()
     session.refresh(user)
 
     return RedirectResponse(url="/users", status_code=303)
-
-
-@router.get("/audit/logs", response_model=list[UserAudit])
-def get_audit_logs(session: SessionDep):
-    return session.exec(select(UserAudit)).all()

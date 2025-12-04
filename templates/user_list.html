@@ -22,7 +22,12 @@
                     <h4 class="card-title">{{ user.name }}</h4>
 
                     <p class="card-text">
-                        <strong>Tipo de usuario:</strong> {{ user.type }}
+                    <strong>Metodología:</strong>
+                        {% if user.methodology %}
+                        {{ user.methodology.name }}
+                        {% else %}
+                        Sin metodología
+                        {% endif %}
                     </p>
 
                     <p class="card-text">
