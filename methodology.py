@@ -56,7 +56,7 @@ def show_methodologies(request: Request, session: SessionDep):
 @router.get("/new", response_class=HTMLResponse)
 def new_methodology_form(request: Request):
     return request.app.state.templates.TemplateResponse(
-        "methodology_new.html",
+        "new_methodology.html",
         {"request": request}
     )
 
