@@ -128,7 +128,7 @@ def get_user_detail(request: Request, user_id: int, session: SessionDep):
     )
 
 
-@router.put("/{user_id}/update", response_model=User)
+@router.put("/api/{user_id}/update", response_model=User)
 def update_user(user_id: int, updated_user: UserBase, session: SessionDep):
     user = session.get(User, user_id)
     if not user:
@@ -185,6 +185,26 @@ def edit_user_page(request: Request, user_id: int, session: SessionDep):
         "user_edit.html",
         {"request": request, "user": user}
     )
+
+@router.post("/{user_id}/update")
+def update_user(
+    session: SessionDep,
+    user_id: int,
+    name: str = Form(...),
+    type: str = Form(...),
+):
+    user = session.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    user.name = name
+    user.type = type
+
+    session.commit()
+    session.refresh(user)
+
+    return RedirectResponse(url="/users", status_code=303)
+
 
 @router.get("/audit/logs", response_model=list[UserAudit])
 def get_audit_logs(session: SessionDep):
