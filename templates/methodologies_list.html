@@ -24,6 +24,15 @@
                         {{ methodology.description }}
                     </p>
 
+                    <p>
+                        <strong>Beneficios:</strong><br>
+                        {% for b in methodology.benefits %}
+                        - {{ b.name }}<br>
+                        {% else %}
+                        <em>Sin beneficios registrados</em>
+                        {% endfor %}
+                    </p>
+
                     <p class="card-text">
                         <strong>ID:</strong> {{ methodology.id }}
                     </p>

@@ -2,7 +2,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi import APIRouter, HTTPException, Request, Form
 from sqlmodel import select
 from db import SessionDep
-from models import Methodology, MethodologyBase, User
+from models import Methodology, MethodologyBase, User, Benefit
 
 router = APIRouter(tags=["methodologies"])
 
@@ -64,7 +64,8 @@ def new_methodology_form(request: Request):
 def create_methodology_web(
     session: SessionDep,
     name: str = Form(...),
-    description: str = Form(None)
+    description: str = Form(None),
+    benefits: str = Form("")
 ):
     new_methodology = Methodology(
         name=name,
@@ -74,5 +75,26 @@ def create_methodology_web(
     session.add(new_methodology)
     session.commit()
     session.refresh(new_methodology)
+
+    # Procesar beneficios
+    if benefits.strip():
+        benefit_names = [b.strip() for b in benefits.split(",")]
+
+        for b_name in benefit_names:
+            # Ver si ya existe beneficio
+            benefit = session.exec(
+                select(Benefit).where(Benefit.name == b_name)
+            ).first()
+
+            if not benefit:
+                benefit = Benefit(name=b_name)
+                session.add(benefit)
+                session.commit()
+                session.refresh(benefit)
+
+            # Asociarlo a la metodología
+            new_methodology.benefits.append(benefit)
+
+        session.commit()
 
     return RedirectResponse(url="/methodologies", status_code=303)
