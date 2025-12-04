@@ -21,11 +21,18 @@
 
 
                     <p>
-                        <strong>Beneficios:</strong><br>
+                    <strong>Beneficios:</strong><br>
                         {% for b in methodology.benefits %}
-                        - {{ b.name }}<br>
+                    <div class="mb-2">
+                    <strong>{{ b.name }}</strong><br>
+                        {% if b.description %}
+                    <small class="text-muted">{{ b.description }}</small>
                         {% else %}
-                        <em>Sin beneficios registrados</em>
+                    <small class="text-muted"><em>Sin descripción</em></small>
+                        {% endif %}
+                    </div>
+                        {% else %}
+                    <em>Sin beneficios registrados</em>
                         {% endfor %}
                     </p>
 
