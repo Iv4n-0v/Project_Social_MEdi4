@@ -1,5 +1,5 @@
-from fastapi.responses import HTMLResponse
-from fastapi import APIRouter, HTTPException, Request
+from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi import APIRouter, HTTPException, Request, Form
 from sqlmodel import select
 from db import SessionDep
 from models import Methodology, MethodologyBase, User
@@ -51,3 +51,28 @@ def show_methodologies(request: Request, session: SessionDep):
             "methodologies": methodologies
         }
     )
+
+
+@router.get("/new", response_class=HTMLResponse)
+def new_methodology_form(request: Request):
+    return request.app.state.templates.TemplateResponse(
+        "methodology_new.html",
+        {"request": request}
+    )
+
+@router.post("/new")
+def create_methodology_web(
+    session: SessionDep,
+    name: str = Form(...),
+    description: str = Form(None)
+):
+    new_methodology = Methodology(
+        name=name,
+        description=description
+    )
+
+    session.add(new_methodology)
+    session.commit()
+    session.refresh(new_methodology)
+
+    return RedirectResponse(url="/methodologies", status_code=303)
