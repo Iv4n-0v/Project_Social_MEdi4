@@ -18,7 +18,7 @@ class MethodologyBase(SQLModel):
 
 class Methodology(MethodologyBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    users: List["User"] = Relationship(back_populates="methodology")
+    users: List["User"] = Relationship(back_populates="methodologies",link_model=UserMethodologyLink)
     benefits: List["Benefit"] = Relationship(back_populates="methodologies", link_model=MethodologyBenefitLink)
 
 # Benefit
@@ -37,8 +37,7 @@ class UserBase(SQLModel):
 
 class User(UserBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    methodology_id: Optional[int] = Field(default=None, foreign_key="methodology.id")
-    methodology: Optional[Methodology] = Relationship(back_populates="users")
+    methodologies: List["Methodology"] = Relationship(back_populates="users",link_model=UserMethodologyLink)
     analyses: List["Analysis"] = Relationship(back_populates="user")
     audits: List["UserAudit"] = Relationship(back_populates="user")
     img: Optional[str] = Field(default=None, nullable=True)
