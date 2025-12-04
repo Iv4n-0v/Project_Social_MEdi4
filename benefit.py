@@ -1,5 +1,5 @@
-from fastapi.responses import HTMLResponse 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi import APIRouter, HTTPException, Request,Form
 from sqlmodel import select
 from db import SessionDep
 from models import Benefit, BenefitBase, Methodology, MethodologyBenefitLink
@@ -55,6 +55,32 @@ def get_methodologies_with_benefits(session: SessionDep):
     return result
 
 
+@router.get("/new", response_class=HTMLResponse)
+def new_benefit_form(request: Request):
+    return request.app.state.templates.TemplateResponse(
+        "new_benefit.html",
+        {"request": request}
+    )
+
+
+@router.post("/new")
+def create_benefit_web(
+    session: SessionDep,
+    name: str = Form(...),
+    description: str = Form(None)
+):
+    new_benefit = Benefit(
+        name=name,
+        description=description
+    )
+
+    session.add(new_benefit)
+    session.commit()
+    session.refresh(new_benefit)
+
+    return RedirectResponse(url="/benefits", status_code=303)
+
+
 @router.get("", response_class=HTMLResponse)
 def show_benefits(request: Request, session: SessionDep):
     benefits = session.exec(select(Benefit)).all()
@@ -66,3 +92,4 @@ def show_benefits(request: Request, session: SessionDep):
             "benefits": benefits
         }
     )
+
