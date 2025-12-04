@@ -188,8 +188,8 @@ def edit_user_page(request: Request, user_id: int, session: SessionDep):
 
 @router.post("/{user_id}/update")
 def update_user_web(
-    session: SessionDep,
     user_id: int,
+    session: SessionDep,
     name: str = Form(...),
     type: str = Form(...),
 ):
