@@ -1,5 +1,6 @@
 {% include 'header.html' %}
-{%include 'navbar.html'%}
+{% include 'navbar.html' %}
+
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1>Usuarios Registrados</h1>
@@ -33,20 +34,23 @@
                         {% endif %}
                     </p>
 
-                    
                     <p class="card-text">
                         <strong>ID:</strong> {{ user.id }}
                     </p>
 
                     <div class="d-flex justify-content-center gap-2">
 
-                    <form action="/users/{{ user.id }}/delete" method="post">
-                    <button type="submit" class="btn btn-danger btn-sm">
-                    Desactivar
-                    </button>
-    </form>
+                        <a href="/users/edit/{{ user.id }}" class="btn btn-primary btn-sm">
+                            Editar
+                        </a>
 
-</div>
+                        <form action="/users/{{ user.id }}/delete" method="post">
+                            <button type="submit" class="btn btn-danger btn-sm">
+                                Desactivar
+                            </button>
+                        </form>
+
+                    </div>
 
                 </div>
             </div>
