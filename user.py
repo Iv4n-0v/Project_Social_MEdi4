@@ -93,7 +93,6 @@ def get_all_users_api(session: SessionDep):
 async def create_user_api(
     session: SessionDep,
     name: str = Form(...),
-    type: str = Form(...),
     is_active: bool = Form(True),
     img: Optional[UploadFile] = File(None)
 ):
@@ -103,7 +102,6 @@ async def create_user_api(
 
     new_user = User(
         name=name,
-        type=type,
         is_active=is_active,
         img=img_url
     )

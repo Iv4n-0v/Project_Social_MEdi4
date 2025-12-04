@@ -33,7 +33,6 @@ class Benefit(BenefitBase, table=True):
 # User
 class UserBase(SQLModel):
     name: str
-    type: str
     is_active: bool = True
 
 class User(UserBase, table=True):

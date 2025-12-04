@@ -1,1 +1,1 @@
-ALTER TABLE public."user" ADD COLUMN img TEXT;
+SELECT * FROM methodology;
