@@ -89,50 +89,7 @@ User	1:N	UserAudit	Un usuario puede tener múltiples registros de auditoría. Ca
 Methodology	↔ Intermedia	UserMethodologyLink	Tabla puente que almacena pares (user_id – methodology_id).
 Methodology	↔ Intermedia	MethodologyBenefitLink	Tabla puente que relaciona metodologías con beneficios.
 
-🧩 1. User
-Campo	Tipo	Llave	Descripción
-id	int	PK	Identificador único del usuario.
-name	str	—	Nombre del usuario.
-is_active	bool	—	Estado del usuario.
-img	str / None	—	Imagen asociada al usuario.
-methodologies	Relationship	N:M	Relación con Methodology mediante UserMethodologyLink.
-analyses	Relationship	1:N	Análisis asociados al usuario.
-audits	Relationship	1:N	Registros de auditoría del usuario.
 
-🧩 2. Methodology
-Campo	Tipo	Llave	Descripción
-id	int	PK	Identificador único.
-name	str	—	Nombre de la metodología.
-description	str / None	—	Detalle opcional.
-users	Relationship	N:M	Usuarios asociados (tabla intermedia UserMethodologyLink).
-benefits	Relationship	N:M	Beneficios asociados (tabla intermedia MethodologyBenefitLink).
-
-🧩 3. Benefit
-Campo	Tipo	Llave	Descripción
-id	int	PK	Identificador único.
-name	str	—	Nombre del beneficio.
-description	str / None	—	Detalle opcional.
-methodologies	Relationship	N:M	Metodologías asociadas (via MethodologyBenefitLink).
-
-🧩 4. Analysis
-Campo	Tipo	Llave	Descripción
-id	int	PK	Identificador único.
-sector	str	—	Sector analizado.
-reach	int	—	Alcance en redes sociales.
-time_in_social_media	float	—	Tiempo promedio de uso.
-date	datetime	—	Fecha del análisis.
-user_id	int	FK	Relación al usuario propietario.
-user	Relationship	1:N	Relación hacia User.
-
-🧩 6. Tablas Intermedias
-UserMethodologyLink
-Campo	Tipo	Llave	Descripción
-user_id	int	PK / FK	Usuario asociado.
-methodology_id	int	PK / FK	Metodología asociada.
-MethodologyBenefitLink
-Campo	Tipo	Llave	Descripción
-methodology_id	int	PK / FK	Metodología asociada.
-benefit_id	int	PK / FK	Beneficio asociado.
 
 ## 🚀 Ejecución del Proyecto
 
@@ -153,14 +110,13 @@ El backend estará disponible de inmediato, y podrás consumir todos los endpoin
 
 Si deseas correr el proyecto localmente:
 
-### 1️⃣ Clonar el repositorio
-```bash
+## 1️⃣ Clonar el repositorio
+bash
 git clone https://github.com/Iv4n-0v/Project_Social_MEdi4.git
 cd Project_Social_MEdi4
 
 ## 2️⃣ Crear entorno virtual
 python -m venv venv
-
 
 Activarlo:
 
