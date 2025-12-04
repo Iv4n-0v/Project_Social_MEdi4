@@ -1,0 +1,21 @@
+{
+    "sqltools.connections": [
+        {
+            "pgOptions": {
+                "ssl": {
+                    "rejectUnauthorized": true
+                }
+            },
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "dpg-d4n503uuk2gs739h9s2g-a.oregon-postgres.render.com",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "RenderDB",
+            "group": "Render",
+            "database": "media_db_vb3o",
+            "username": "media_db_vb3o_user",
+            "password": "jZvhTYFgFNDLqRZCEZclU75EPiukZdWA"
+        }
+    ]
+}

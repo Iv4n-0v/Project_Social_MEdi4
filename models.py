@@ -42,6 +42,7 @@ class User(UserBase, table=True):
     methodology: Optional[Methodology] = Relationship(back_populates="users")
     analyses: List["Analysis"] = Relationship(back_populates="user")
     audits: List["UserAudit"] = Relationship(back_populates="user")
+    img: Optional[str] = Field(default=None, nullable=True)
 
 # Analysis
 class AnalysisBase(SQLModel):
