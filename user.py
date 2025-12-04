@@ -32,14 +32,16 @@ async def create_user_web(
     request: Request,
     session: SessionDep,
     name: str = Form(...),
-    methodology_id: Optional[int] = Form(None),
+    methodology_id: Optional[str] = Form(None),
     is_active: str = Form("true"),
     img: Optional[UploadFile] = File(None)
 ):
     is_active_bool = is_active.lower() == "true"
 
-    if methodology_id == "" or methodology_id is None:
+    if not methodology_id or methodology_id == "":
         methodology_id = None
+    else:
+        methodology_id = int(methodology_id)
     img_url = None
     if img:
         img_url = await upload_to_bucket(img, 'users')
