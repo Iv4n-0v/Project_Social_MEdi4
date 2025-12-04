@@ -2,46 +2,39 @@
 
 ## 🌐 Descripción General
 
-Project Social MEdi4 es un proyecto desarrollado en **Python** orientado a la gestión de información, análisis y funcionalidades relacionadas con usuarios, metodologías y generación de reportes.  
-El sistema está organizado de forma modular, permitiendo una clara separación de responsabilidades entre lógica de negocio, manejo de datos y utilidades de análisis.
-
-Este repositorio contiene el código base, scripts de procesamiento, conexión a base de datos y herramientas para expandir funcionalidades.
+Project Social MEdi4 es un proyecto desarrollado en **Python** orientado a la gestión de información,<br>
+análisis y funcionalidades relacionadas con usuarios, metodologías y generación de reportes.  <br>
+El sistema está organizado de forma modular, permitiendo una clara separación de responsabilidades<br>
+entre lógica de negocio, manejo de datos y utilidades de análisis.<br>
 
 ---
 
 ## 📁 Estructura del Proyecto
 /
-├── .vscode/ # Configuración opcional para VS Code
-├── templates/ # Carpeta para plantillas (HTML, textos, etc.)
-├── db.py # Manejo y conexión a base de datos
-├── models.py # Modelos de datos y estructuras principales
-├── user.py # Lógica referente a usuarios
-├── methodology.py # Procesos/metodologías de negocio
-├── benefit.py # Módulo relacionado con beneficios / cálculos
-├── analysis.py # Scripts de análisis
-├── reports.py # Generación de reportes
-├── main.py # Punto principal de ejecución
-├── requirements.txt # Dependencias del proyecto
-└── README.md # Documentación principal
-
-**Nota:** Directorios como `myvenv/` o `__pycache__/` deben excluirse usando `.gitignore`.
+├── .vscode/ # Configuración opcional para VS Code <br>
+├── templates/ # Carpeta para plantillas (HTML, textos, etc.)<br>
+├── db.py # Manejo y conexión a base de datos<br>
+├── models.py # Modelos de datos y estructuras principales<br>
+├── user.py # Lógica referente a usuarios<br>
+├── methodology.py # Procesos/metodologías de negocio<br>
+├── benefit.py # Módulo relacionado con beneficios / cálculos<br>
+├── analysis.py # Scripts de análisis<br>
+├── reports.py # Generación de reportes<br>
+├── main.py # Punto principal de ejecución<br>
+├── requirements.txt # Dependencias del proyecto<br>
+└── README.md # Documentación principal<br>
 
 ---
 
 ## 📦 Tecnologías Utilizadas
 
-El proyecto está desarrollado sobre Python 3.8+ y 
-utiliza un conjunto sólido de tecnologías principales que 
-estructuran el funcionamiento completo del sistema. La base del backend se sostiene 
-en FastAPI como framework web y Uvicorn como servidor ASGI, mientras que la capa de 
-datos se gestiona mediante SQLModel y SQLAlchemy, que combinan tipado moderno con 
-un ORM potente y flexible. Para la validación de datos y esquemas se emplea Pydantic, 
-y la comunicación asíncrona y manejo de redes se apoyan en librerías como httpx, anyio 
-y websockets. El proyecto también integra el ecosistema de Supabase (auth, storage, realtime 
-y postgrest) para autenticación, persistencia remota y sincronización en tiempo real. Además, 
-utiliza Jinja2 para plantillas, ReportLab para generación de documentos PDF, y python-dotenv para 
-la gestión de variables de entorno. Con este conjunto de herramientas principales, el proyecto 
-cuenta con una arquitectura robusta, escalable y bien estructurada.
+FastAPI
+Python 3
+SQLAlchemy
+SQLite
+Pydantic
+Routers modulares
+Jinja2 para interfaz HTML
 
 ## Modelo de Base de Datos
 
@@ -63,33 +56,21 @@ User 1:N UserAudit
 
 ---
 ## Modelo N:M entre User y Metodología
-class Methodology(MethodologyBase, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    users: List["User"] = Relationship(
-        back_populates="methodologies",
-        link_model=UserMethodologyLink
-    )
-    benefits: List["Benefit"] = Relationship(
-        back_populates="methodologies",
-        link_model=MethodologyBenefitLink
-    )
+class Methodology(MethodologyBase, table=True):<br>
+    id: Optional[int] = Field(default=None, primary_key=True)<br>
+    users: List["User"] = Relationship(<br>
+        back_populates="methodologies",<br>
+        link_model=UserMethodologyLink<br>
+    )<br>
+    benefits: List["Benefit"] = Relationship(<br>
+        back_populates="methodologies",<br>
+        link_model=MethodologyBenefitLink<br>
+    )<br>
 
-    Este modelo representa una metodología dentro del sistema y muestra claramente:
+    Este modelo representa una metodología dentro del sistema y muestra claramente:<br>
 
-Su relación N:M con User, enlazada mediante UserMethodologyLink.
-Su relación N:M con Benefit, enlazada mediante MethodologyBenefitLink.
-
-
-## 📊 Tabla de Relaciones del Modelo de Datos
-Modelo A	Relación	Modelo B	Tipo / Detalle
-User	N:M	Methodology	Relación mediante la tabla intermedia UserMethodologyLink. Cada usuario puede tener varias metodologías y cada metodología puede pertenecer a varios usuarios.
-Methodology	N:M	Benefit	Relación a través de la tabla MethodologyBenefitLink. Una metodología puede tener múltiples beneficios y un beneficio puede estar asociado a varias metodologías.
-User	1:N	Analysis	Un usuario puede tener muchos análisis; cada análisis pertenece a un único usuario.
-User	1:N	UserAudit	Un usuario puede tener múltiples registros de auditoría. Cada auditoría pertenece a un solo usuario.
-Methodology	↔ Intermedia	UserMethodologyLink	Tabla puente que almacena pares (user_id – methodology_id).
-Methodology	↔ Intermedia	MethodologyBenefitLink	Tabla puente que relaciona metodologías con beneficios.
-
-
+Su relación N:M con User, enlazada mediante UserMethodologyLink.<br>
+Su relación N:M con Benefit, enlazada mediante MethodologyBenefitLink.<br>
 
 ## 🚀 Ejecución del Proyecto
 
@@ -112,7 +93,7 @@ Si deseas correr el proyecto localmente:
 
 ## 1️⃣ Clonar el repositorio
 bash
-git clone https://github.com/Iv4n-0v/Project_Social_MEdi4.git
+git clone https://github.com/Iv4n-0v/Project_Social_MEdi4.git<br>
 cd Project_Social_MEdi4
 
 ## 2️⃣ Crear entorno virtual
