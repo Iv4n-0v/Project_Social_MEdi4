@@ -1,1 +1,1 @@
-SELECT * FROM methodology;
+ALTER TABLE "user" DROP COLUMN IF EXISTS methodology_id;
