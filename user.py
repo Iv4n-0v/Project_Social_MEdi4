@@ -6,17 +6,17 @@ from db import SessionDep
 from models import User, UserBase, UserAudit
 from supa.supabase import upload_to_bucket
 import traceback
+import supabase
 
 router = APIRouter(tags=["users"])
 
 @router.get("", response_class=HTMLResponse)
-def get_all_users(request: Request, session: SessionDep):
-    users = session.exec(select(User)).all()
+def get_active_users(request: Request, session: SessionDep):
+    users = session.exec(select(User).where(User.is_active == True)).all()
     return request.app.state.templates.TemplateResponse(
         "user_list.html",
         {"request": request, "users": users}
     )
-
 
 @router.get("/new", response_class=HTMLResponse)
 def show_create(request: Request):
@@ -59,6 +59,70 @@ async def create_user_web(
         raise HTTPException(status_code=500, detail="Error interno al crear usuario")
 
     return RedirectResponse(url="/users", status_code=303)
+
+@router.get("/users/active")
+def get_active_users():
+    response = supabase.table("users").select("*").eq("active", True).execute()
+    return response.data
+
+@router.put("/users/{user_id}/deactivate")
+def deactivate_user(user_id: str):
+    response = supabase.table("users").update({"active": False}).eq("id", user_id).execute()
+    return {"message": "Usuario desactivado"}
+
+@router.post("/{user_id}/restore")
+def restore_user(user_id: int, session: SessionDep, request: Request):
+    user = session.get(User, user_id)
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if user.is_active:
+        return request.app.state.templates.TemplateResponse(
+            "error.html",
+            {"request": request, "message": "El usuario ya está activo"}
+        )
+
+    user.is_active = True
+    session.add(user)
+
+    audit = UserAudit(user_id=user_id, action="RESTORE")
+    session.add(audit)
+
+    session.commit()
+
+    return RedirectResponse(url="/users_elist", status_code=303)
+
+@router.post("/{user_id}/delete")
+def delete_user(user_id: int, session: SessionDep, request: Request):
+    user = session.get(User, user_id)
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if not user.is_active:
+        return request.app.state.templates.TemplateResponse(
+            "error.html",
+            {"request": request, "message": "El usuario ya está inactivo"}
+        )
+
+    user.is_active = False
+    session.add(user)
+
+    audit = UserAudit(user_id=user_id, action="DELETE")
+    session.add(audit)
+
+    session.commit()
+
+    return RedirectResponse(url="/users", status_code=303)
+
+@router.get("/elist", response_class=HTMLResponse)
+def list_inactive_users(request: Request, session: SessionDep):
+    users = session.exec(select(User).where(User.is_active == False)).all()
+    return request.app.state.templates.TemplateResponse(
+        "user_elist.html",
+        {"request": request, "users": users}
+    )
 
 @router.get("/active", response_model=list[User])
 def get_active_users(session: SessionDep):

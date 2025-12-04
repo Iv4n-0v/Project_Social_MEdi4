@@ -1,0 +1,40 @@
+{% include 'header.html' %}
+{% include 'navbar.html' %}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1>Usuarios Inactivos</h1>
+        <a href="/users" class="btn btn-secondary">Volver a activos</a>
+    </div>
+
+    <div class="row">
+        {% for user in users %}
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+
+                    {% if user.img %}
+                    <img src="{{ user.img }}" width="60" height="60" style="border-radius:50%; object-fit:cover;">
+                    {% else %}
+                    <span>Sin imagen</span>
+                    {% endif %}
+
+                    <h4>{{ user.name }}</h4>
+                    <p><strong>Tipo:</strong> {{ user.type }}</p>
+
+                    <div class="d-flex justify-content-center">
+                        <form action="/users/{{ user.id }}/restore" method="post">
+                            <button type="submit" class="btn btn-warning btn-sm">
+                                Restaurar
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% include 'footer.html' %}
