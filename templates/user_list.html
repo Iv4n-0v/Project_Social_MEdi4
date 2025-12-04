@@ -34,6 +34,25 @@
                         {% endif %}
                     </p>
 
+                    <h3 class="mt-4">📊 Análisis del usuario</h3>
+
+                        {% if user.analyses %}
+                    <ul class="list-group">
+                        {% for analysis in user.analyses %}
+                    <li class="list-group-item">
+                    <b>Sector:</b> {{ analysis.sector }} <br>
+                    <b>Alcance:</b> {{ analysis.reach }} personas <br>
+                    <b>Tiempo en redes:</b> {{ analysis.time_in_social_media }} horas <br>
+                    <b>Fecha:</b> {{ analysis.date.strftime("%d/%m/%Y %H:%M") }}
+                    </li>
+                        {% endfor %}
+                    </ul>
+                        {% else %}
+                    <p class="text-muted">Este usuario no tiene análisis registrados.</p>
+                        {% endif %}
+
+
+
                     <p class="card-text">
                         <strong>ID:</strong> {{ user.id }}
                     </p>

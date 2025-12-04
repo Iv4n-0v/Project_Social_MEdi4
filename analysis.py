@@ -25,12 +25,15 @@ def get_all_analyses(session: SessionDep):
     return session.query(Analysis).all()
 
 
-@router.get("/{analysis_id}", response_model=Analysis)
-def get_one_analysis(analysis_id: int, session: SessionDep):
-    analysis_db = session.get(Analysis, analysis_id)
-    if not analysis_db:
-        raise HTTPException(status_code=404, detail="Analysis not found")
-    return analysis_db
+@router.get("/new", response_class=HTMLResponse)
+def new_analysis_form(request: Request, session: SessionDep):
+
+    users = session.exec(select(User)).all()
+
+    return request.app.state.templates.TemplateResponse(
+        "new_analysis.html",
+        {"request": request, "users": users}
+    )
 
 @router.get("", response_class=HTMLResponse)
 def show_analyses(request: Request, session: SessionDep):
@@ -43,18 +46,6 @@ def show_analyses(request: Request, session: SessionDep):
             "analysis": analysis
         }
     )
-
-
-@router.get("/new", response_class=HTMLResponse)
-def new_analysis_form(request: Request, session: SessionDep):
-
-    users = session.exec(select(User)).all()
-
-    return request.app.state.templates.TemplateResponse(
-        "new_analysis.html",
-        {"request": request, "users": users}
-    )
-
 
 @router.post("/create")
 def create_analysis_web(
@@ -75,3 +66,11 @@ def create_analysis_web(
     session.commit()
 
     return RedirectResponse("/analysis", status_code=303)
+
+
+@router.get("/{analysis_id}", response_model=Analysis)
+def get_one_analysis(analysis_id: int, session: SessionDep):
+    analysis_db = session.get(Analysis, analysis_id)
+    if not analysis_db:
+        raise HTTPException(status_code=404, detail="Analysis not found")
+    return analysis_db
