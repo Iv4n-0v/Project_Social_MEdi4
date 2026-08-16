@@ -1,29 +1,317 @@
 {% extends 'base.html' %}
+
 {% block title %}Crear User{% endblock %}
+
 {% block content %}
-<div class="container mt-4">
-    <h1>Registrar nuevo usuario</h1>
-    <form method="post" action="/users/new" enctype="multipart/form-data">
-        <div class="mb-3">
-            <label class="form-label">Nombre</label>
-            <input class="form-control" type="text" name="name" required>
-        </div>
-        <label class="form-label mt-3">Metodología</label>
-        <select class="form-select" name="methodology_ids" multiple size="5">
-            {% for m in methodologies %}
-        <option value="{{ m.id }}">{{ m.name }}</option>
-            {% endfor %}
-        </select>
-        <div class="mb-3">
-            <label class="form-label">Estado</label><br>
-            <input type="radio" name="is_active" value="true" checked> Activo
-            <input type="radio" name="is_active" value="false"> Inactivo
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Foto de perfil</label>
-            <input class="form-control" type="file" name="img" accept="image/*">
+
+<div class="user-form-container">
+
+    <div class="user-form-card">
+
+        <h1 class="text-center">
+            Registrar nuevo usuario
+        </h1>
+
+        <form
+            method="post"
+            action="/users/new"
+            enctype="multipart/form-data"
+            class="user-form"
+        >
+
+            <!-- NOMBRE -->
+            <div class="form-section">
+
+                <label class="form-label fw-bold">
+                    Nombre
+                </label>
+
+                <input
+                    class="form-control"
+                    type="text"
+                    name="name"
+                    required
+                >
+
+            </div>
+
+
+            <!-- METODOLOGÍA -->
+            <div class="form-section">
+
+                <label class="form-label fw-bold">
+                    Metodología
+                </label>
+
+                <select
+                    class="form-select methodology-select"
+                    name="methodology_ids"
+                    multiple
+                >
+
+                    {% for m in methodologies %}
+
+                        <option value="{{ m.id }}">
+                            {{ m.name }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+                <div class="form-text">
+                    Puedes seleccionar una o varias metodologías.
+                </div>
+
+            </div>
+
+
+            <!-- ESTADO -->
+            <div class="form-section">
+
+                <label class="form-label fw-bold d-block">
+                    Estado
+                </label>
+
+                <div class="form-check">
+                    
+                    <input
+                        class="form-check-input"
+                        type="radio"
+                        name="is_active"
+                        value="true"
+                        checked
+                    >
+
+                    <label class="form-check-label">
+                        Activo
+                    </label>
+
+                </div>
+
+
+                <div class="form-check">
+
+                    <input
+                        class="form-check-input"
+                        type="radio"
+                        name="is_active"
+                        value="false"
+                    >
+
+                    <label class="form-check-label">
+                        Inactivo
+                    </label>
+
+                </div>
+
+            </div>
+
+
+            <!-- IMAGEN -->
+            <div class="form-section">
+
+                <label class="form-label fw-bold">
+                    Foto de perfil
+                </label>
+
+                <input
+                    class="form-control"
+                    type="file"
+                    name="img"
+                    accept="image/*"
+                >
+
+            </div>
+
+
+            <!-- BOTÓN -->
+            <div class="form-button">
+
+                <button
+                    type="submit"
+                    class="btn btn-primary btn-lg w-100"
+                >
+                    Registrar usuario
+                </button>
+
+            </div>
+
+        </form>
+
     </div>
-        <input type="submit" class="btn btn-primary" value="Registrar usuario">
-    </form>
+
 </div>
+
+
+<style>
+
+    /* Contenedor principal */
+
+    .user-form-container {
+
+        width: 100%;
+
+        flex: 1;
+
+        display: flex;
+
+        justify-content: center;
+
+        align-items: stretch;
+
+    }
+
+
+    /* Tarjeta */
+
+    .user-form-card {
+
+        width: 100%;
+
+        max-width: 750px;
+
+        margin: 0 auto;
+
+        padding: clamp(20px, 3vw, 40px);
+
+        display: flex;
+
+        flex-direction: column;
+
+        justify-content: center;
+
+    }
+
+
+    /* Título */
+
+    .user-form-card h1 {
+
+        font-size: clamp(1.6rem, 3vw, 2.3rem);
+
+        margin-bottom: clamp(20px, 4vh, 40px);
+
+    }
+
+
+    /* Formulario */
+
+    .user-form {
+
+        width: 100%;
+
+        display: flex;
+
+        flex-direction: column;
+
+        gap: clamp(18px, 4vh, 40px);
+
+    }
+
+
+    /* Secciones */
+
+    .form-section {
+
+        width: 100%;
+
+    }
+
+
+    /* Campos */
+
+    .form-control,
+    .form-select {
+
+        font-size: 1rem;
+
+        padding: 0.7rem;
+
+    }
+
+
+    /* Metodologías */
+
+    .methodology-select {
+
+        min-height: 120px;
+
+    }
+
+
+    /* Botón */
+
+    .form-button {
+
+        margin-top: clamp(5px, 2vh, 20px);
+
+    }
+
+
+    /* ========================= */
+    /* CELULARES */
+    /* ========================= */
+
+    @media (max-width: 767px) {
+
+        .user-form-container {
+
+            min-height: calc(100dvh - 120px);
+
+        }
+
+
+        .user-form-card {
+
+            max-width: none;
+
+            padding: 20px 10px;
+
+            justify-content: space-evenly;
+
+        }
+
+
+        .user-form-card h1 {
+
+            font-size: 1.6rem;
+
+            margin-bottom: 20px;
+
+        }
+
+
+        .user-form {
+
+            gap: clamp(20px, 4vh, 35px);
+
+        }
+
+
+        .methodology-select {
+
+            min-height: 150px;
+
+        }
+
+    }
+
+
+    /* ========================= */
+    /* TABLETS */
+    /* ========================= */
+
+    @media (min-width: 768px) and (max-width: 1199px) {
+
+        .user-form-card {
+
+            max-width: 650px;
+
+        }
+
+    }
+
+</style>
+
 {% endblock %}

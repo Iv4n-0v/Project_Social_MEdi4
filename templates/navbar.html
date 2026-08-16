@@ -1,55 +1,134 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
     <div class="container-fluid">
 
-        <a class="navbar-brand fw-bold" href="/">🌐 Redes Sociales</a>
+        <!-- Logo / nombre -->
+        <a class="navbar-brand fw-bold" href="/">
+            🌐 Redes Sociales
+        </a>
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                data-bs-target="#navbarMenu">
+        <!-- Botón que aparece en celular -->
+        <button 
+            class="navbar-toggler" 
+            type="button" 
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarMenu"
+            aria-controls="navbarMenu"
+            aria-expanded="false"
+            aria-label="Abrir menú">
             <span class="navbar-toggler-icon"></span>
         </button>
 
+        <!-- Menú -->
         <div class="collapse navbar-collapse" id="navbarMenu">
 
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
 
+                <!-- USUARIOS -->
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                    <a 
+                        class="nav-link dropdown-toggle" 
+                        href="#" 
+                        role="button"
+                        data-bs-toggle="dropdown">
                         👥 Usuarios
                     </a>
+
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="/users">📋 Usuarios activos</a></li>
-                        <li><a class="dropdown-item" href="/users/deleted">🗑️ Usuarios Inactivos</a></li>
-                        <li><a class="dropdown-item" href="/users/new">➕ Nuevo Usuario</a></li>
+                        <li>
+                            <a class="dropdown-item" href="/users">
+                                📋 Usuarios activos
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item" href="/users/deleted">
+                                🗑️ Usuarios inactivos
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item" href="/users/new">
+                                ➕ Nuevo usuario
+                            </a>
+                        </li>
                     </ul>
                 </li>
 
+
+                <!-- METODOLOGÍAS -->
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                        Metodologías
+                    <a 
+                        class="nav-link dropdown-toggle" 
+                        href="#" 
+                        role="button"
+                        data-bs-toggle="dropdown">
+                        🧪 Metodologías
                     </a>
+
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="/methodologies">Ver metodologías</a></li>
-                        <li><a class="dropdown-item" href="/methodologies/new">Crear metodología</a></li>
+                        <li>
+                            <a class="dropdown-item" href="/methodologies">
+                                📋 Ver metodologías
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item" href="/methodologies/new">
+                                ➕ Crear metodología
+                            </a>
+                        </li>
                     </ul>
                 </li>
 
+
+                <!-- BENEFICIOS -->
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                        Beneficios
+                    <a 
+                        class="nav-link dropdown-toggle" 
+                        href="#" 
+                        role="button"
+                        data-bs-toggle="dropdown">
+                        🎁 Beneficios
                     </a>
+
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="/benefits">Ver beneficios</a></li>
-                        <li><a class="dropdown-item" href="/benefits/new">Crear beneficio</a></li>
+                        <li>
+                            <a class="dropdown-item" href="/benefits">
+                                📋 Ver beneficios
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item" href="/benefits/new">
+                                ➕ Crear beneficio
+                            </a>
+                        </li>
                     </ul>
                 </li>
 
+
+                <!-- ANÁLISIS -->
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                    <a 
+                        class="nav-link dropdown-toggle" 
+                        href="#" 
+                        role="button"
+                        data-bs-toggle="dropdown">
                         📊 Análisis
                     </a>
+
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="/analysis">Ver análisis</a></li>
-                        <li><a class="dropdown-item" href="/analysis/new">Crear análisis</a></li>
+                        <li>
+                            <a class="dropdown-item" href="/analysis">
+                                📋 Ver análisis
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item" href="/analysis/new">
+                                ➕ Crear análisis
+                            </a>
+                        </li>
                     </ul>
                 </li>
 
