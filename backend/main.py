@@ -37,8 +37,8 @@ def root(request: Request):
         "index.html",
         {
             "request": request,
-            "texto": "Bienvenido a la página de tu taller de confianza",
-            "titulo_pagina": "Taller de Carros - Inicio"
+            "texto": "Bienvenido a la página del manejo y registro de metodologias de tu pagina web",
+            "titulo_pagina": "Social Media - Inicio"
         }
     )
 
