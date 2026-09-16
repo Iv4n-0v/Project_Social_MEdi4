@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from sqlmodel import select
-from microservicios.servicio_beneficios.database import SessionDep
-from microservicios.servicio_beneficios.models import Benefit, BenefitBase
+from database import SessionDep
+from models import Benefit, BenefitBase
 
 router = APIRouter(tags=["benefits"])
 
