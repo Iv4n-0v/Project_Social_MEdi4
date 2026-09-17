@@ -2,7 +2,7 @@ from sqlmodel import SQLModel, create_engine, Session
 from typing import Generator, Annotated
 from fastapi import Depends
 
-db_name = "benefits.sqlite3"
+db_name = "methodologies.sqlite3"
 db_url = f"sqlite:///{db_name}"
 
 engine = create_engine(db_url, echo=True)
