@@ -1,5 +1,8 @@
 # Project Social MEdi4
 
+Link de acceso remoto 👉👉👉 **https://project-social-medi4.onrender.com**
+
+
 ## 🌐 Descripción General
 
 Project Social MEdi4 es un proyecto desarrollado en **Python** orientado a la gestión de información,<br>
@@ -127,3 +130,21 @@ Y la documentación automática de la API:
 Swagger UI → /docs
 
 Redoc → /redoc
+
+
+## 🧩 Microservicio de Beneficios
+
+El módulo de beneficios fue separado como microservicio independiente,
+con su propia base de datos y proceso.
+
+**Ubicación:** `backend/microservicios/beneficios/`
+
+### Ejecutarlo
+
+```bash
+cd backend/microservicios/beneficios
+uvicorn main:app --reload --port 8001
+```
+
+El backend principal (puerto 8000) consume este servicio por HTTP
+en `backend/benefit.py` para crear y listar beneficios.
