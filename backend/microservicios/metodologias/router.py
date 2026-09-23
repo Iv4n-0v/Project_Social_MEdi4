@@ -35,3 +35,12 @@ def update_methodology(methodology_id: int, methodology_data: MethodologyBase, s
     session.commit()
     session.refresh(methodology)
     return methodology
+
+@router.delete("/{methodology_id}")
+def delete_methodology(methodology_id: int, session: SessionDep):
+    methodology = session.get(Methodology, methodology_id)
+    if not methodology:
+        raise HTTPException(status_code=404, detail="Methodology not found")
+    session.delete(methodology)
+    session.commit()
+    return {"message": "Methodology deleted successfully"}
