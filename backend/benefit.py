@@ -1,22 +1,36 @@
+import httpx
 from fastapi.responses import HTMLResponse, RedirectResponse
-from fastapi import APIRouter, HTTPException, Request,Form
+from fastapi import APIRouter, HTTPException, Request, Form
 from sqlmodel import select
 from backend.db import SessionDep
 from backend.models import Benefit, BenefitBase, Methodology, MethodologyBenefitLink
 
 router = APIRouter(tags=["benefits"])
 
+BENEFITS_SERVICE_URL = "http://127.0.0.1:8001/benefits/"
+
+
 @router.post("/", response_model=Benefit)
-def create_benefit(new_benefit: BenefitBase, session: SessionDep):
-    benefit = Benefit.model_validate(new_benefit)
-    session.add(benefit)
-    session.commit()
-    session.refresh(benefit)
-    return benefit
+def create_benefit(new_benefit: BenefitBase):
+    try:
+        response = httpx.post(BENEFITS_SERVICE_URL, json=new_benefit.model_dump(), timeout=5)
+    except httpx.RequestError:
+        raise HTTPException(status_code=503, detail="Servicio de beneficios no disponible")
+    if response.status_code != 200:
+        raise HTTPException(status_code=response.status_code, detail="Error al crear el beneficio")
+    return response.json()
+
 
 @router.get("/all", response_model=list[Benefit])
-def get_all_benefits(session: SessionDep):
-    return session.query(Benefit).all()
+def get_all_benefits():
+    try:
+        response = httpx.get(BENEFITS_SERVICE_URL, timeout=5)
+    except httpx.RequestError:
+        raise HTTPException(status_code=503, detail="Servicio de beneficios no disponible")
+    if response.status_code != 200:
+        raise HTTPException(status_code=response.status_code, detail="Error al obtener beneficios")
+    return response.json()
+
 
 @router.post("/link", summary="Link Benefit to Methodology")
 def link_methodology_benefit(methodology_id: int, benefit_id: int, session: SessionDep):
@@ -29,14 +43,13 @@ def link_methodology_benefit(methodology_id: int, benefit_id: int, session: Sess
     session.commit()
     return {"message": "Link created successfully"}
 
+
 @router.get("/methodologies_with_benefits")
 def get_methodologies_with_benefits(session: SessionDep):
     result = []
 
-    # Obtener todas las metodologías
     metodologias = session.exec(select(Methodology)).all()
     for met in metodologias:
-        # Obtener los beneficios asociados mediante la tabla intermedia
         links = session.exec(
             select(MethodologyBenefitLink).where(MethodologyBenefitLink.methodology_id == met.id)
         ).all()
@@ -92,4 +105,3 @@ def show_benefits(request: Request, session: SessionDep):
             "benefits": benefits
         }
     )
-

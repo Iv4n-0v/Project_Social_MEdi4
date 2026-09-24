@@ -9,9 +9,11 @@ load_dotenv()
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY) if SUPABASE_URL and SUPABASE_KEY else None
 
 async def upload_to_bucket(file: UploadFile, folder: str = "users"):
+    if supabase is None:
+        raise RuntimeError("Supabase no está configurado (faltan SUPABASE_URL / SUPABASE_KEY)")
 
     bucket = "bucket"
     content = await file.read()
