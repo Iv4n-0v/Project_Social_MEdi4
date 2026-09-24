@@ -23,3 +23,24 @@ def get_benefit(benefit_id: int, session: SessionDep):
     if not benefit:
         raise HTTPException(status_code=404, detail="Benefit not found")
     return benefit
+
+@router.put("/{benefit_id}", response_model=Benefit)
+def update_benefit(benefit_id: int, benefit_data: BenefitBase, session: SessionDep):
+    benefit = session.get(Benefit, benefit_id)
+    if not benefit:
+        raise HTTPException(status_code=404, detail="Benefit not found") 
+    benefit.name = benefit_data.name
+    benefit.description = benefit_data.description
+    session.add(benefit)
+    session.commit()
+    session.refresh(benefit)
+    return benefit
+
+@router.delete("/{benefit_id}")
+def delete_benefit(benefit_id: int, session: SessionDep):
+    benefit = session.get(Benefit, benefit_id)
+    if not benefit:
+        raise HTTPException(status_code=404, detail="Benefit not found")
+    session.delete(benefit)
+    session.commit()
+    return {"message": "Benefit deleted successfully"}

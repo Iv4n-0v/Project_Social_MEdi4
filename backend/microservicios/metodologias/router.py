@@ -23,3 +23,24 @@ def get_methodology(methodology_id: int, session: SessionDep):
     if not methodology:
         raise HTTPException(status_code=404, detail="Methodology not found")
     return methodology
+
+@router.put("/{methodology_id}", response_model=Methodology)
+def update_methodology(methodology_id: int, methodology_data: MethodologyBase, session: SessionDep):
+    methodology = session.get(Methodology, methodology_id)
+    if not methodology:
+        raise HTTPException(status_code=404, detail="Methodology not found")
+    methodology.name = methodology_data.name
+    methodology.description = methodology_data.description
+    session.add(methodology)
+    session.commit()
+    session.refresh(methodology)
+    return methodology
+
+@router.delete("/{methodology_id}")
+def delete_methodology(methodology_id: int, session: SessionDep):
+    methodology = session.get(Methodology, methodology_id)
+    if not methodology:
+        raise HTTPException(status_code=404, detail="Methodology not found")
+    session.delete(methodology)
+    session.commit()
+    return {"message": "Methodology deleted successfully"}
