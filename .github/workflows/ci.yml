@@ -1,0 +1,25 @@
+name: Instalar dependencias y verificar build
+
+on:
+  push:
+    branches: ["DB", "main"]
+  pull_request:
+    branches: ["DB", "main"]
+  workflow_dispatch:
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del repo
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar requirements
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
