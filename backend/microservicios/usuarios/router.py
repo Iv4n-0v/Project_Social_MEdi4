@@ -69,20 +69,40 @@ async def create_user(
     session: SessionDep,
     name: str = Form(...),
     is_active: bool = Form(True),
-    methodology_ids: list[int] = Form([]),
+    methodology_ids: list[str] = Form(default=[]),
     img: Optional[UploadFile] = File(None),
 ):
+    # Ignora campos vacíos y convierte los IDs a enteros
+    methodology_ids_clean = []
+
+    for raw_id in methodology_ids:
+        raw_id = raw_id.strip()
+
+        if not raw_id:
+            continue
+
+        try:
+            methodology_ids_clean.append(int(raw_id))
+        except ValueError as exc:
+            raise HTTPException(
+                status_code=422,
+                detail="methodology_ids debe contener IDs enteros",
+            ) from exc
+
     img_url = None
     if img and img.filename:
         img_url = await upload_to_bucket(img, "users")
 
     user = User(name=name, is_active=is_active, img=img_url)
     session.add(user)
-    session.flush()  # obtiene user.id
-    _set_methodologies(session, user.id, methodology_ids)
+    session.flush()  # Obtiene user.id antes de crear las asociaciones
+
+    _set_methodologies(session, user.id, methodology_ids_clean)
     _audit(session, user.id, "CREATE")
+
     session.commit()
     session.refresh(user)
+
     return _to_response(session, user)
 
 
