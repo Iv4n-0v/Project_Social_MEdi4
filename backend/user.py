@@ -1,19 +1,33 @@
-from fastapi import APIRouter, HTTPException, Request, Form, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, Request, Form, UploadFile, File
 from fastapi.responses import HTMLResponse, RedirectResponse
 from typing import Optional
+from backend.clients.analysis_client import AnalysisClient, get_analysis_client
+from backend.clients.base import ServiceUnavailable
 from backend.db import SessionDep
 from backend.models import User
-from backend.services import user_service
+from backend.services import analysis_service, user_service
 
 router = APIRouter(tags=["users"])
 
 
+def _analyses_by_user(client: AnalysisClient) -> dict:
+    """Analisis agrupados por usuario. Si el servicio cae, la pagina igual carga."""
+    try:
+        return analysis_service.get_analyses_by_user(client)
+    except ServiceUnavailable:
+        return {}
+
+
 @router.get("", response_class=HTMLResponse)
-def get_active_users(request: Request, session: SessionDep):
+def get_active_users(
+    request: Request, session: SessionDep,
+    analysis_client: AnalysisClient = Depends(get_analysis_client),
+):
     users = user_service.get_active_users(session)
     return request.app.state.templates.TemplateResponse(
         "user_list.html",
-        {"request": request, "users": users}
+        {"request": request, "users": users,
+         "analyses_by_user": _analyses_by_user(analysis_client)}
     )
 
 
@@ -41,11 +55,15 @@ async def create_user_web(
 
 
 @router.get("/deleted", response_class=HTMLResponse)
-def list_inactive_users(request: Request, session: SessionDep):
+def list_inactive_users(
+    request: Request, session: SessionDep,
+    analysis_client: AnalysisClient = Depends(get_analysis_client),
+):
     users = user_service.get_inactive_users(session)
     return request.app.state.templates.TemplateResponse(
         "user_elist.html",
-        {"request": request, "users": users}
+        {"request": request, "users": users,
+         "analyses_by_user": _analyses_by_user(analysis_client)}
     )
 
 

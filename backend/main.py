@@ -5,6 +5,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse 
 from fastapi import FastAPI, Request, HTTPException
 
+from backend.clients.base import ServiceError, ServiceUnavailable
 from backend import user, methodology, benefit, analysis, reports
 from backend.db import create_tables
 
@@ -53,3 +54,21 @@ async def http_exception_handler(request: Request, exc: HTTPException):
         },
         status_code=exc.status_code,
     )
+
+
+def _error_page(request: Request, status_code: int, detail: str):
+    return templates.TemplateResponse(
+        "error.html",
+        {"request": request, "status_code": status_code, "detail": detail},
+        status_code=status_code,
+    )
+
+
+@app.exception_handler(ServiceUnavailable)
+async def service_unavailable_handler(request: Request, exc: ServiceUnavailable):
+    return _error_page(request, 503, str(exc))
+
+
+@app.exception_handler(ServiceError)
+async def service_error_handler(request: Request, exc: ServiceError):
+    return _error_page(request, exc.status_code, exc.detail)

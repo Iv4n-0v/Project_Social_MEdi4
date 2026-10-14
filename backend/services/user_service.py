@@ -27,7 +27,7 @@ def get_user_by_id(session: Session, user_id: int):
 
 async def create_user(session: Session, name: str, is_active: bool, img: Optional[UploadFile], methodology_ids: list[int] | None = None):
     img_url = None
-    if img:
+    if img and img.filename:
         img_url = await upload_to_bucket(img, "users")
 
     new_user = User(name=name, is_active=is_active, img=img_url)

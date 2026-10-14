@@ -38,9 +38,10 @@
 
                     <h3 class="mt-4">📊 Análisis del usuario</h3>
 
-                    {% if user.analyses %}
+                    {% set user_analyses = analyses_by_user.get(user.id, []) %}
+{% if user_analyses %}
                         <ul class="list-group">
-                            {% for analysis in user.analyses %}
+                            {% for analysis in user_analyses %}
                             <li class="list-group-item">
                                 <b>Sector:</b> {{ analysis.sector }} <br>
                                 <b>Alcance:</b> {{ analysis.reach }} personas <br>
