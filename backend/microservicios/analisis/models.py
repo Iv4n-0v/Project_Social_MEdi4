@@ -1,25 +1,37 @@
-from datetime import datetime, timezone
+"""Modelo de datos del servicio de analisis (la "M" de MVC).
+
+Borrado logico: un analisis eliminado no se destruye, queda is_active=False.
+Cada cambio queda registrado en analysis_audit.
+
+user_id es solo un numero: el usuario vive en OTRO servicio (con su propia BD),
+por eso no hay llave foranea hacia el.
+"""
+import datetime
 from typing import Optional
 
 from sqlmodel import Field, SQLModel
 
 
-class AnalysisBase(SQLModel):
-    sector: str = Field(min_length=1, max_length=100)
-    reach: int = Field(ge=0)
-    time_in_social_media: float = Field(ge=0)
-    user_id: int = Field(gt=0)
+def _utcnow() -> datetime.datetime:
+    return datetime.datetime.now(datetime.timezone.utc)
 
 
-class Analysis(AnalysisBase, table=True):
+class Analysis(SQLModel, table=True):
+    __tablename__ = "analysis"
+
     id: Optional[int] = Field(default=None, primary_key=True)
-    date: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc)
-    )
+    sector: str
+    reach: int
+    time_in_social_media: float
+    user_id: int  # referencia logica al servicio de usuarios (sin FK)
+    date: datetime.datetime = Field(default_factory=_utcnow)
+    is_active: bool = True
 
 
-class AnalysisUpdate(SQLModel):
-    sector: Optional[str] = Field(default=None, min_length=1, max_length=100)
-    reach: Optional[int] = Field(default=None, ge=0)
-    time_in_social_media: Optional[float] = Field(default=None, ge=0)
-    user_id: Optional[int] = Field(default=None, gt=0)
+class AnalysisAudit(SQLModel, table=True):
+    __tablename__ = "analysis_audit"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    analysis_id: int = Field(foreign_key="analysis.id")
+    action: str
+    timestamp: datetime.datetime = Field(default_factory=_utcnow)

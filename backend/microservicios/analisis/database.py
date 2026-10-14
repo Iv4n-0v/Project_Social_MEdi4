@@ -1,13 +1,24 @@
-from sqlmodel import SQLModel, create_engine, Session
-from typing import Generator, Annotated
+import os
+from typing import Annotated, Generator
+
 from fastapi import Depends
+from sqlmodel import Session, SQLModel, create_engine
 
-db_name = "analysis.sqlite3"
-db_url = f"sqlite:///{db_name}"
+# Base de datos PROPIA del servicio de analisis.
+# En local usa analysis.sqlite3; para produccion (Render) define DATABASE_URL.
+db_url = os.getenv("DATABASE_URL", "sqlite:///analysis.sqlite3")
 
-engine = create_engine(db_url,echo=True)
+# Render entrega "postgres://", pero SQLAlchemy necesita "postgresql://"
+if db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
+
+connect_args = {"check_same_thread": False} if db_url.startswith("sqlite") else {}
+engine = create_engine(db_url, connect_args=connect_args)
+
 
 def create_tables():
+    import models  # noqa: F401  (registra las tablas antes de crearlas)
+
     SQLModel.metadata.create_all(engine)
 
 
