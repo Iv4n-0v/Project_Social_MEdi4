@@ -1,3 +1,5 @@
+import os
+
 import httpx
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi import APIRouter, HTTPException, Request, Form
@@ -7,7 +9,10 @@ from backend.services import benefit_service
 
 router = APIRouter(tags=["benefits"])
 
-BENEFITS_SERVICE_URL = "http://127.0.0.1:8001/benefits/"
+# El monolito ya no llama al micro directamente: pasa por el gateway (KrakenD).
+# Sin barra final: KrakenD define "/api/v1/benefits" y httpx no sigue redirecciones.
+GATEWAY_URL = os.getenv("GATEWAY_URL", "http://127.0.0.1:8080")
+BENEFITS_SERVICE_URL = f"{GATEWAY_URL}/api/v1/benefits"
 
 
 @router.post("/", response_model=Benefit)
@@ -16,7 +21,7 @@ def create_benefit(new_benefit: BenefitBase):
         response = httpx.post(BENEFITS_SERVICE_URL, json=new_benefit.model_dump(), timeout=5)
     except httpx.RequestError:
         raise HTTPException(status_code=503, detail="Servicio de beneficios no disponible")
-    if response.status_code != 200:
+    if response.status_code not in (200, 201):
         raise HTTPException(status_code=response.status_code, detail="Error al crear el beneficio")
     return response.json()
 

@@ -1,0 +1,622 @@
+{
+  "$schema": "https://www.krakend.io/schema/krakend.json",
+  "version": 4,
+  "name": "Project Social Media - API Gateway",
+  "port": 8080,
+  "timeout": "10s",
+  "cache_ttl": "0s",
+  "endpoints": [
+    {
+      "endpoint": "/api/v1/benefits",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_query_strings": [
+        "is_active",
+        "ids"
+      ],
+      "input_headers": [
+        "Content-Type",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/benefits/",
+          "method": "GET",
+          "host": [
+            "http://beneficios:8001"
+          ],
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/v1/benefits",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "input_query_strings": [],
+      "input_headers": [
+        "Content-Type",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/benefits/",
+          "method": "POST",
+          "host": [
+            "http://beneficios:8001"
+          ],
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/v1/benefits/{id}",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_query_strings": [
+        "is_active",
+        "ids"
+      ],
+      "input_headers": [
+        "Content-Type",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/benefits/{id}",
+          "method": "GET",
+          "host": [
+            "http://beneficios:8001"
+          ],
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/v1/benefits/{id}",
+      "method": "PUT",
+      "output_encoding": "no-op",
+      "input_query_strings": [],
+      "input_headers": [
+        "Content-Type",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/benefits/{id}",
+          "method": "PUT",
+          "host": [
+            "http://beneficios:8001"
+          ],
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/v1/benefits/{id}",
+      "method": "DELETE",
+      "output_encoding": "no-op",
+      "input_query_strings": [],
+      "input_headers": [
+        "Content-Type",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/benefits/{id}",
+          "method": "DELETE",
+          "host": [
+            "http://beneficios:8001"
+          ],
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/v1/benefits/{id}/restore",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "input_query_strings": [],
+      "input_headers": [
+        "Content-Type",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/benefits/{id}/restore",
+          "method": "POST",
+          "host": [
+            "http://beneficios:8001"
+          ],
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/v1/benefits/{id}/audits",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_query_strings": [
+        "is_active",
+        "ids"
+      ],
+      "input_headers": [
+        "Content-Type",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/benefits/{id}/audits",
+          "method": "GET",
+          "host": [
+            "http://beneficios:8001"
+          ],
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/v1/users",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_query_strings": [
+        "is_active"
+      ],
+      "input_headers": [
+        "Content-Type",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/users/",
+          "method": "GET",
+          "host": [
+            "http://usuarios:8002"
+          ],
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/v1/users",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "input_query_strings": [],
+      "input_headers": [
+        "Content-Type",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/users/",
+          "method": "POST",
+          "host": [
+            "http://usuarios:8002"
+          ],
+          "encoding": "no-op"
+        }
+      ],
+      "timeout": "30s"
+    },
+    {
+      "endpoint": "/api/v1/users/{id}",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_query_strings": [
+        "is_active"
+      ],
+      "input_headers": [
+        "Content-Type",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/users/{id}",
+          "method": "GET",
+          "host": [
+            "http://usuarios:8002"
+          ],
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/v1/users/{id}",
+      "method": "PUT",
+      "output_encoding": "no-op",
+      "input_query_strings": [],
+      "input_headers": [
+        "Content-Type",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/users/{id}",
+          "method": "PUT",
+          "host": [
+            "http://usuarios:8002"
+          ],
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/v1/users/{id}",
+      "method": "DELETE",
+      "output_encoding": "no-op",
+      "input_query_strings": [],
+      "input_headers": [
+        "Content-Type",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/users/{id}",
+          "method": "DELETE",
+          "host": [
+            "http://usuarios:8002"
+          ],
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/v1/users/{id}/restore",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "input_query_strings": [],
+      "input_headers": [
+        "Content-Type",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/users/{id}/restore",
+          "method": "POST",
+          "host": [
+            "http://usuarios:8002"
+          ],
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/v1/users/{id}/audits",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_query_strings": [
+        "is_active"
+      ],
+      "input_headers": [
+        "Content-Type",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/users/{id}/audits",
+          "method": "GET",
+          "host": [
+            "http://usuarios:8002"
+          ],
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/v1/users/{id}/image",
+      "method": "PUT",
+      "output_encoding": "no-op",
+      "input_query_strings": [],
+      "input_headers": [
+        "Content-Type",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/users/{id}/image",
+          "method": "PUT",
+          "host": [
+            "http://usuarios:8002"
+          ],
+          "encoding": "no-op"
+        }
+      ],
+      "timeout": "30s"
+    },
+    {
+      "endpoint": "/api/v1/methodologies",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_query_strings": [
+        "is_active"
+      ],
+      "input_headers": [
+        "Content-Type",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/methodologies/",
+          "method": "GET",
+          "host": [
+            "http://metodologias:8003"
+          ],
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/v1/methodologies",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "input_query_strings": [],
+      "input_headers": [
+        "Content-Type",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/methodologies/",
+          "method": "POST",
+          "host": [
+            "http://metodologias:8003"
+          ],
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/v1/methodologies/{id}",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_query_strings": [
+        "is_active"
+      ],
+      "input_headers": [
+        "Content-Type",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/methodologies/{id}",
+          "method": "GET",
+          "host": [
+            "http://metodologias:8003"
+          ],
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/v1/methodologies/{id}",
+      "method": "PUT",
+      "output_encoding": "no-op",
+      "input_query_strings": [],
+      "input_headers": [
+        "Content-Type",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/methodologies/{id}",
+          "method": "PUT",
+          "host": [
+            "http://metodologias:8003"
+          ],
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/v1/methodologies/{id}",
+      "method": "DELETE",
+      "output_encoding": "no-op",
+      "input_query_strings": [],
+      "input_headers": [
+        "Content-Type",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/methodologies/{id}",
+          "method": "DELETE",
+          "host": [
+            "http://metodologias:8003"
+          ],
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/v1/methodologies/{id}/restore",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "input_query_strings": [],
+      "input_headers": [
+        "Content-Type",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/methodologies/{id}/restore",
+          "method": "POST",
+          "host": [
+            "http://metodologias:8003"
+          ],
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/v1/methodologies/{id}/audits",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_query_strings": [
+        "is_active"
+      ],
+      "input_headers": [
+        "Content-Type",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/methodologies/{id}/audits",
+          "method": "GET",
+          "host": [
+            "http://metodologias:8003"
+          ],
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/v1/analysis",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_query_strings": [
+        "is_active",
+        "user_id"
+      ],
+      "input_headers": [
+        "Content-Type",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/analysis/",
+          "method": "GET",
+          "host": [
+            "http://analisis:8004"
+          ],
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/v1/analysis",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "input_query_strings": [],
+      "input_headers": [
+        "Content-Type",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/analysis/",
+          "method": "POST",
+          "host": [
+            "http://analisis:8004"
+          ],
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/v1/analysis/{id}",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_query_strings": [
+        "is_active",
+        "user_id"
+      ],
+      "input_headers": [
+        "Content-Type",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/analysis/{id}",
+          "method": "GET",
+          "host": [
+            "http://analisis:8004"
+          ],
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/v1/analysis/{id}",
+      "method": "PUT",
+      "output_encoding": "no-op",
+      "input_query_strings": [],
+      "input_headers": [
+        "Content-Type",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/analysis/{id}",
+          "method": "PUT",
+          "host": [
+            "http://analisis:8004"
+          ],
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/v1/analysis/{id}",
+      "method": "DELETE",
+      "output_encoding": "no-op",
+      "input_query_strings": [],
+      "input_headers": [
+        "Content-Type",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/analysis/{id}",
+          "method": "DELETE",
+          "host": [
+            "http://analisis:8004"
+          ],
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/v1/analysis/{id}/restore",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "input_query_strings": [],
+      "input_headers": [
+        "Content-Type",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/analysis/{id}/restore",
+          "method": "POST",
+          "host": [
+            "http://analisis:8004"
+          ],
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/v1/analysis/{id}/audits",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_query_strings": [
+        "is_active",
+        "user_id"
+      ],
+      "input_headers": [
+        "Content-Type",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/analysis/{id}/audits",
+          "method": "GET",
+          "host": [
+            "http://analisis:8004"
+          ],
+          "encoding": "no-op"
+        }
+      ]
+    }
+  ]
+}
