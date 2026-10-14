@@ -83,7 +83,7 @@ class UserService:
 
     # ---- casos de uso ----
     def list_users(self, is_active: Optional[bool] = None) -> list[UserResponse]:
-        return [self._to_response(u) for u in self.repo.list(is_active)]
+        return [self._to_response(u) for u in self.repo.find_all(is_active)]
 
     def get_user(self, user_id: int) -> UserResponse:
         return self._to_response(self._get_or_raise(user_id))
