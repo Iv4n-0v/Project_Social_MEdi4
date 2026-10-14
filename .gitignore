@@ -9,3 +9,9 @@ __pycache__/
 
 # Configuraciones locales
 .DS_Store
+
+# Bases de datos generadas por microservicios
+backend/microservicios/*/*.sqlite3
+
+*.sqlite3
+*.db
