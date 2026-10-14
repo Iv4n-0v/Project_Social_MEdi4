@@ -14,7 +14,7 @@
         <select class="form-select" name="methodology_ids" multiple size="5">
             {% for m in methodologies %}
                 <option value="{{ m.id }}" 
-                    {% if m in user.methodologies %}selected{% endif %}>
+                    {% if m.id in selected_ids %}selected{% endif %}>
                     {{ m.name }}
                 </option>
             {% endfor %}

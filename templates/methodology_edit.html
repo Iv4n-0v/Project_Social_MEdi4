@@ -17,7 +17,7 @@
             <select name="benefit_ids" class="form-control" multiple>
                 {% for b in benefits %}
                     <option value="{{ b.id }}"
-                        {% if b in methodology.benefits %} selected {% endif %}>
+                        {% if b.id in methodology.benefit_ids %} selected {% endif %}>
                         {{ b.name }}
                     </option>
                 {% endfor %}

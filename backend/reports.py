@@ -1,5 +1,9 @@
-from fastapi import APIRouter, HTTPException
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
+from backend.clients.benefit_client import BenefitClient, get_benefit_client
+from backend.clients.methodology_client import MethodologyClient, get_methodology_client
 from backend.db import SessionDep
 from backend.services import report_service
 
@@ -11,8 +15,12 @@ router = APIRouter(tags=["reports"])
 
 
 @router.get("/methodologies_benefits_users/pdf")
-def generate_pdf(session: SessionDep):
-    report = report_service.get_methodologies_full_report(session)
+def generate_pdf(
+    session: SessionDep,
+    methodology_client: Annotated[MethodologyClient, Depends(get_methodology_client)],
+    benefit_client: Annotated[BenefitClient, Depends(get_benefit_client)],
+):
+    report = report_service.get_methodologies_full_report(session, methodology_client, benefit_client)
     if report is None:
         raise HTTPException(status_code=404, detail="No hay metodologías registradas")
 
@@ -50,7 +58,7 @@ def generate_pdf(session: SessionDep):
             c.drawString(70, y_position, "Usuarios asignados:")
             y_position -= 15
             for u in entry["users"]:
-                c.drawString(90, y_position, f"- {u.name} ({u.type})")
+                c.drawString(90, y_position, f"- {u.name}")
                 y_position -= 15
         else:
             c.drawString(70, y_position, "Usuarios asignados: Ninguno")

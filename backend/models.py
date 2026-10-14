@@ -2,33 +2,20 @@ from sqlmodel import SQLModel, Field, Relationship
 from typing import Optional, List
 import datetime
 
-# Tablas intermedias
+# Tabla intermedia usuario <-> metodologia.
+# La metodologia vive en OTRO servicio: aqui solo se guarda su ID (sin llave foranea).
 class UserMethodologyLink(SQLModel, table=True):
     user_id: Optional[int] = Field(default=None, foreign_key="user.id", primary_key=True)
-    methodology_id: Optional[int] = Field(default=None, foreign_key="methodology.id", primary_key=True)
+    methodology_id: int = Field(primary_key=True)
 
-class MethodologyBenefitLink(SQLModel, table=True):
-    methodology_id: Optional[int] = Field(default=None, foreign_key="methodology.id", primary_key=True)
-    benefit_id: Optional[int] = Field(default=None, foreign_key="benefit.id", primary_key=True)
-
-# Methodology
+# Esquemas de entrada de las rutas (ya NO son tablas: los datos viven en los micros)
 class MethodologyBase(SQLModel):
     name: str
     description: Optional[str] = None
 
-class Methodology(MethodologyBase, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    users: List["User"] = Relationship(back_populates="methodologies", link_model=UserMethodologyLink)
-    benefits: List["Benefit"] = Relationship(back_populates="methodologies", link_model=MethodologyBenefitLink)
-    
-# Benefit
 class BenefitBase(SQLModel):
     name: str
     description: Optional[str] = None
-
-class Benefit(BenefitBase, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    methodologies: List[Methodology] = Relationship(back_populates="benefits", link_model=MethodologyBenefitLink)
 
 # User
 class UserBase(SQLModel):
@@ -37,7 +24,6 @@ class UserBase(SQLModel):
 
 class User(UserBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    methodologies: List[Methodology] = Relationship(back_populates="users", link_model=UserMethodologyLink)
     analyses: List["Analysis"] = Relationship(back_populates="user")
     audits: List["UserAudit"] = Relationship(back_populates="user")
     img: Optional[str] = Field(default=None, nullable=True)

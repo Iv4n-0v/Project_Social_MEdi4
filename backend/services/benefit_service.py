@@ -1,49 +1,65 @@
-from sqlmodel import select, Session
-from backend.models import Benefit, Methodology, MethodologyBenefitLink
+"""Servicio de beneficios del monolito (parte del Controlador).
+
+Los beneficios y sus relaciones con metodologias viven en los microservicios.
+Aqui solo se COMPONE: pedir a un micro y a otro, y unir el resultado para la vista.
+"""
+from backend.clients.base import ServiceError
+from backend.clients.benefit_client import BenefitClient
+from backend.clients.methodology_client import MethodologyClient
 
 
-def link_methodology_benefit(session: Session, methodology_id: int, benefit_id: int):
-    methodology = session.get(Methodology, methodology_id)
-    benefit = session.get(Benefit, benefit_id)
-    if not methodology or not benefit:
-        return None
-
-    link = MethodologyBenefitLink(methodology_id=methodology_id, benefit_id=benefit_id)
-    session.add(link)
-    session.commit()
-    return link
+def create_benefit(client: BenefitClient, name: str, description: str | None):
+    return client.create(name, description)
 
 
-def get_methodologies_with_benefits(session: Session):
+def get_all_benefits(client: BenefitClient):
+    return client.find_all()
+
+
+def get_benefits_with_methodologies(
+    benefit_client: BenefitClient, methodology_client: MethodologyClient
+) -> list[dict]:
+    """Para /benefits: cada beneficio con los nombres de sus metodologias."""
+    methodologies = methodology_client.find_all()
     result = []
-    metodologias = session.exec(select(Methodology)).all()
-
-    for met in metodologias:
-        links = session.exec(
-            select(MethodologyBenefitLink).where(MethodologyBenefitLink.methodology_id == met.id)
-        ).all()
-
-        beneficios = []
-        for link in links:
-            benefit = session.get(Benefit, link.benefit_id)
-            if benefit:
-                beneficios.append({"id": benefit.id, "name": benefit.name, "description": benefit.description})
-
+    for b in benefit_client.find_all():
         result.append({
-            "methodology": {"id": met.id, "name": met.name, "description": met.description},
-            "benefits": beneficios
+            **b.model_dump(),
+            "methodologies": [m for m in methodologies if b.id in m.benefit_ids],
         })
-
     return result
 
 
-def create_benefit_local(session: Session, name: str, description: str | None):
-    new_benefit = Benefit(name=name, description=description)
-    session.add(new_benefit)
-    session.commit()
-    session.refresh(new_benefit)
-    return new_benefit
+def get_methodologies_with_benefits(
+    methodology_client: MethodologyClient, benefit_client: BenefitClient
+) -> list[dict]:
+    """Composicion: metodologias (micro) + datos de sus beneficios (otro micro).
+
+    Una sola llamada a beneficios con ?ids=1,2,3 (no una por metodologia).
+    """
+    methodologies = methodology_client.find_all()
+    all_ids = sorted({i for m in methodologies for i in m.benefit_ids})
+    benefits = {b.id: b for b in benefit_client.find_all(all_ids)}
+    return [
+        {
+            **m.model_dump(),
+            "benefits": [benefits[i] for i in m.benefit_ids if i in benefits],
+        }
+        for m in methodologies
+    ]
 
 
-def get_all_benefits_local(session: Session):
-    return session.exec(select(Benefit)).all()
+def link_methodology_benefit(
+    methodology_client: MethodologyClient, benefit_client: BenefitClient,
+    methodology_id: int, benefit_id: int,
+):
+    """Agrega un beneficio a una metodologia. None si alguno no existe."""
+    try:
+        methodology = methodology_client.get(methodology_id)
+        benefit_client.get(benefit_id)
+    except ServiceError as e:
+        if e.status_code == 404:
+            return None
+        raise
+    ids = sorted(set(methodology.benefit_ids) | {benefit_id})
+    return methodology_client.update(methodology_id, benefit_ids=ids)

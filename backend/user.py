@@ -3,11 +3,25 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from typing import Optional
 from backend.clients.analysis_client import AnalysisClient, get_analysis_client
 from backend.clients.base import ServiceUnavailable
+from backend.clients.methodology_client import MethodologyClient, get_methodology_client
 from backend.db import SessionDep
 from backend.models import User
 from backend.services import analysis_service, user_service
 
 router = APIRouter(tags=["users"])
+
+
+def _methodology_names_by_user(session, client: MethodologyClient) -> dict:
+    """{user_id: [nombres]}. Si el servicio de metodologias cae, la pagina igual carga."""
+    ids_by_user = user_service.get_methodology_ids_by_user(session)
+    try:
+        names = {m.id: m.name for m in client.find_all()}
+    except ServiceUnavailable:
+        names = {}
+    return {
+        uid: [names.get(mid, f"Metodologia {mid}") for mid in mids]
+        for uid, mids in ids_by_user.items()
+    }
 
 
 def _analyses_by_user(client: AnalysisClient) -> dict:
@@ -22,18 +36,23 @@ def _analyses_by_user(client: AnalysisClient) -> dict:
 def get_active_users(
     request: Request, session: SessionDep,
     analysis_client: AnalysisClient = Depends(get_analysis_client),
+    methodology_client: MethodologyClient = Depends(get_methodology_client),
 ):
     users = user_service.get_active_users(session)
     return request.app.state.templates.TemplateResponse(
         "user_list.html",
         {"request": request, "users": users,
-         "analyses_by_user": _analyses_by_user(analysis_client)}
+         "analyses_by_user": _analyses_by_user(analysis_client),
+         "methodologies_by_user": _methodology_names_by_user(session, methodology_client)}
     )
 
 
 @router.get("/new", response_class=HTMLResponse)
-def show_create(request: Request, session: SessionDep):
-    methodologies = user_service.get_all_methodologies(session)
+def show_create(
+    request: Request,
+    methodology_client: MethodologyClient = Depends(get_methodology_client),
+):
+    methodologies = user_service.get_all_methodologies(methodology_client)
     return request.app.state.templates.TemplateResponse(
         "new_user.html",
         {"request": request, "methodologies": methodologies}
@@ -47,10 +66,13 @@ async def create_user_web(
     name: str = Form(...),
     methodology_ids: list[int] = Form([]),
     is_active: str = Form("true"),
-    img: Optional[UploadFile] = File(None)
+    img: Optional[UploadFile] = File(None),
+    methodology_client: MethodologyClient = Depends(get_methodology_client),
 ):
     is_active_bool = is_active.lower() == "true"
-    await user_service.create_user(session, name, is_active_bool, img, methodology_ids)
+    await user_service.create_user(
+        session, name, is_active_bool, img, methodology_ids, methodology_client
+    )
     return RedirectResponse(url="/users", status_code=303)
 
 
@@ -58,12 +80,14 @@ async def create_user_web(
 def list_inactive_users(
     request: Request, session: SessionDep,
     analysis_client: AnalysisClient = Depends(get_analysis_client),
+    methodology_client: MethodologyClient = Depends(get_methodology_client),
 ):
     users = user_service.get_inactive_users(session)
     return request.app.state.templates.TemplateResponse(
         "user_elist.html",
         {"request": request, "users": users,
-         "analyses_by_user": _analyses_by_user(analysis_client)}
+         "analyses_by_user": _analyses_by_user(analysis_client),
+         "methodologies_by_user": _methodology_names_by_user(session, methodology_client)}
     )
 
 
@@ -115,9 +139,10 @@ def update_user(
     user_id: int,
     session: SessionDep,
     name: str = Form(...),
-    methodology_ids: list[int] = Form([])
+    methodology_ids: list[int] = Form([]),
+    methodology_client: MethodologyClient = Depends(get_methodology_client),
 ):
-    user = user_service.update_user(session, user_id, name, methodology_ids)
+    user = user_service.update_user(session, user_id, name, methodology_ids, methodology_client)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return {"message": "ok"}
@@ -140,16 +165,20 @@ def restore_user(user_id: int, session: SessionDep):
 
 
 @router.get("/edit/{user_id}", response_class=HTMLResponse)
-def edit_user_page(request: Request, user_id: int, session: SessionDep):
+def edit_user_page(
+    request: Request, user_id: int, session: SessionDep,
+    methodology_client: MethodologyClient = Depends(get_methodology_client),
+):
     user = user_service.get_user_by_id(session, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    methodologies = user_service.get_all_methodologies(session)
+    methodologies = user_service.get_all_methodologies(methodology_client)
 
     return request.app.state.templates.TemplateResponse(
         "user_edit.html",
-        {"request": request, "user": user, "methodologies": methodologies}
+        {"request": request, "user": user, "methodologies": methodologies,
+         "selected_ids": user_service.get_methodology_ids(session, user_id)}
     )
 
 
@@ -158,9 +187,10 @@ def update_user_web(
     user_id: int,
     session: SessionDep,
     name: str = Form(...),
-    methodology_ids: list[int] = Form([])
+    methodology_ids: list[int] = Form([]),
+    methodology_client: MethodologyClient = Depends(get_methodology_client),
 ):
-    user = user_service.update_user(session, user_id, name, methodology_ids)
+    user = user_service.update_user(session, user_id, name, methodology_ids, methodology_client)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return RedirectResponse(url="/users", status_code=303)

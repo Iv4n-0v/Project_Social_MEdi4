@@ -24,9 +24,10 @@
 
                     <p class="card-text">
                     <strong>Metodologías:</strong><br>
-                        {% if user.methodologies and user.methodologies|length > 0 %}
-                        {% for m in user.methodologies %}
-                    <span class="badge bg-primary">{{ m.name }}</span>
+                        {% set user_methodologies = methodologies_by_user.get(user.id, []) %}
+                        {% if user_methodologies %}
+                        {% for name in user_methodologies %}
+                    <span class="badge bg-primary">{{ name }}</span>
                         {% endfor %}
                         {% else %}
                     <span class="text-muted">Sin metodología</span>

@@ -24,8 +24,9 @@
 
                     <p class="card-text">
                         <strong>Metodología:</strong>
-                        {% if user.methodology %}
-                            {{ user.methodology.name }}
+                        {% set user_methodologies = methodologies_by_user.get(user.id, []) %}
+                        {% if user_methodologies %}
+                            {{ user_methodologies|join(', ') }}
                         {% else %}
                             Sin metodología
                         {% endif %}
