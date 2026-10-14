@@ -1,0 +1,10 @@
+.git
+.github
+.devcontainer
+.vscode
+gateway
+backend/microservicios
+**/__pycache__
+*.sqlite3
+*.session.sql
+.env

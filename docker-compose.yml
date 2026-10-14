@@ -1,0 +1,105 @@
+# Levanta todo el sistema:  docker compose up --build
+#
+#   navegador ─► monolito :8000 ─► gateway (KrakenD) :8080 ─► micros (red interna)
+#
+# Solo el monolito (8000) y el gateway (8080) se publican al exterior.
+# Los micros y la BD quedan en la red interna: nadie los llama directamente.
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  beneficios:
+    build: ./backend/microservicios/beneficios
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@db:5432/beneficios
+    depends_on:
+      db: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
+  usuarios:
+    build: ./backend/microservicios/usuarios
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@db:5432/usuarios
+    # SUPABASE_URL / SUPABASE_KEY (imagenes). Si no existe el .env, el servicio
+    # arranca igual y responde 503 al subir imagenes.
+    env_file:
+      - path: ./backend/microservicios/usuarios/.env
+        required: false
+    depends_on:
+      db: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8002/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
+  metodologias:
+    build: ./backend/microservicios/metodologias
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@db:5432/metodologias
+    depends_on:
+      db: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8003/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
+  analisis:
+    build: ./backend/microservicios/analisis
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@db:5432/analisis
+    depends_on:
+      db: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8004/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
+  gateway:
+    image: krakend:latest   # la config usa "version": 4 (KrakenD 3.x)
+    command: ["run", "-c", "/etc/krakend/krakend.json"]
+    volumes:
+      - ./gateway/krakend/krakend.json:/etc/krakend/krakend.json:ro
+    ports:
+      - "8080:8080"
+    depends_on:
+      beneficios: { condition: service_healthy }
+      usuarios: { condition: service_healthy }
+      metodologias: { condition: service_healthy }
+      analisis: { condition: service_healthy }
+
+  monolito:
+    build:
+      context: .
+      dockerfile: Dockerfile.monolito
+    environment:
+      GATEWAY_URL: http://gateway:8080
+    ports:
+      - "8000:8000"
+    depends_on:
+      - gateway
+
+volumes:
+  pgdata:
