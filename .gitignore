@@ -11,4 +11,7 @@ __pycache__/
 .DS_Store
 
 # Bases de datos generadas por microservicios
-backend/microservicios/beneficios/*.sqlite3
+backend/microservicios/*/*.sqlite3
+
+*.sqlite3
+*.db

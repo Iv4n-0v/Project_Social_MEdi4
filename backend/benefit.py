@@ -1,9 +1,9 @@
 import httpx
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi import APIRouter, HTTPException, Request, Form
-from sqlmodel import select
 from backend.db import SessionDep
-from backend.models import Benefit, BenefitBase, Methodology, MethodologyBenefitLink
+from backend.models import Benefit, BenefitBase
+from backend.services import benefit_service
 
 router = APIRouter(tags=["benefits"])
 
@@ -34,38 +34,15 @@ def get_all_benefits():
 
 @router.post("/link", summary="Link Benefit to Methodology")
 def link_methodology_benefit(methodology_id: int, benefit_id: int, session: SessionDep):
-    methodology = session.get(Methodology, methodology_id)
-    benefit = session.get(Benefit, benefit_id)
-    if not methodology or not benefit:
+    link = benefit_service.link_methodology_benefit(session, methodology_id, benefit_id)
+    if link is None:
         raise HTTPException(status_code=404, detail="Methodology or Benefit not found")
-    link = MethodologyBenefitLink(methodology_id=methodology_id, benefit_id=benefit_id)
-    session.add(link)
-    session.commit()
     return {"message": "Link created successfully"}
 
 
 @router.get("/methodologies_with_benefits")
 def get_methodologies_with_benefits(session: SessionDep):
-    result = []
-
-    metodologias = session.exec(select(Methodology)).all()
-    for met in metodologias:
-        links = session.exec(
-            select(MethodologyBenefitLink).where(MethodologyBenefitLink.methodology_id == met.id)
-        ).all()
-
-        beneficios = []
-        for link in links:
-            benefit = session.get(Benefit, link.benefit_id)
-            if benefit:
-                beneficios.append({"id": benefit.id, "name": benefit.name, "description": benefit.description})
-
-        result.append({
-            "methodology": {"id": met.id, "name": met.name, "description": met.description},
-            "benefits": beneficios
-        })
-
-    return result
+    return benefit_service.get_methodologies_with_benefits(session)
 
 
 @router.get("/new", response_class=HTMLResponse)
@@ -82,22 +59,13 @@ def create_benefit_web(
     name: str = Form(...),
     description: str = Form(None)
 ):
-    new_benefit = Benefit(
-        name=name,
-        description=description
-    )
-
-    session.add(new_benefit)
-    session.commit()
-    session.refresh(new_benefit)
-
+    benefit_service.create_benefit_local(session, name, description)
     return RedirectResponse(url="/benefits", status_code=303)
 
 
 @router.get("", response_class=HTMLResponse)
 def show_benefits(request: Request, session: SessionDep):
-    benefits = session.exec(select(Benefit)).all()
-
+    benefits = benefit_service.get_all_benefits_local(session)
     return request.app.state.templates.TemplateResponse(
         "benefits_list.html",
         {
