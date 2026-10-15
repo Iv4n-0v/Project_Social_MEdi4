@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from backend.clients.benefit_client import BenefitClient, get_benefit_client
 from backend.clients.methodology_client import MethodologyClient, get_methodology_client
-from backend.db import SessionDep
+from backend.clients.users_client import UsersClient, get_users_client
 from backend.services import report_service
 
 from io import BytesIO
@@ -16,11 +16,11 @@ router = APIRouter(tags=["reports"])
 
 @router.get("/methodologies_benefits_users/pdf")
 def generate_pdf(
-    session: SessionDep,
+    users_client: Annotated[UsersClient, Depends(get_users_client)],
     methodology_client: Annotated[MethodologyClient, Depends(get_methodology_client)],
     benefit_client: Annotated[BenefitClient, Depends(get_benefit_client)],
 ):
-    report = report_service.get_methodologies_full_report(session, methodology_client, benefit_client)
+    report = report_service.get_methodologies_full_report(users_client, methodology_client, benefit_client)
     if report is None:
         raise HTTPException(status_code=404, detail="No hay metodologías registradas")
 

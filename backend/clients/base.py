@@ -47,3 +47,13 @@ class BaseClient:
                 detail = "Datos invalidos"
             raise ServiceError(response.status_code, detail)
         return response.json()
+
+
+def or_none(fn, *args, **kwargs):
+    """Ejecuta una llamada al micro; si responde 404 devuelve None (no existe)."""
+    try:
+        return fn(*args, **kwargs)
+    except ServiceError as e:
+        if e.status_code == 404:
+            return None
+        raise

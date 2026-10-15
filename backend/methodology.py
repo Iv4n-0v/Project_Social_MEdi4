@@ -7,7 +7,7 @@ from backend.clients.benefit_client import BenefitClient, get_benefit_client
 from backend.clients.methodology_client import (
     MethodologyClient, MethodologyDTO, get_methodology_client,
 )
-from backend.db import SessionDep
+from backend.clients.users_client import UsersClient, get_users_client
 from backend.models import MethodologyBase
 from backend.services import benefit_service, methodology_service
 
@@ -15,6 +15,7 @@ router = APIRouter(tags=["methodologies"])
 
 ClientDep = Annotated[MethodologyClient, Depends(get_methodology_client)]
 BenefitClientDep = Annotated[BenefitClient, Depends(get_benefit_client)]
+UsersClientDep = Annotated[UsersClient, Depends(get_users_client)]
 
 
 @router.post("/", response_model=MethodologyDTO)
@@ -23,8 +24,8 @@ def create_methodology(new_methodology: MethodologyBase, client: ClientDep):
 
 
 @router.put("/assign", summary="Assign Methodology to User")
-def assign_methodology(user_id: int, methodology_id: int, session: SessionDep, client: ClientDep):
-    result = methodology_service.assign_methodology(session, client, user_id, methodology_id)
+def assign_methodology(user_id: int, methodology_id: int, users_client: UsersClientDep, client: ClientDep):
+    result = methodology_service.assign_methodology(users_client, client, user_id, methodology_id)
     if result is None:
         raise HTTPException(status_code=404, detail="User or Methodology not found")
     user, methodology = result
@@ -37,8 +38,8 @@ def get_all_methodologies(client: ClientDep):
 
 
 @router.get("/by_name/{name}", summary="Get methodology by name with assigned users")
-def get_users_by_methodology(name: str, session: SessionDep, client: ClientDep):
-    result = methodology_service.get_methodology_with_users(session, client, name)
+def get_users_by_methodology(name: str, users_client: UsersClientDep, client: ClientDep):
+    result = methodology_service.get_methodology_with_users(users_client, client, name)
     if result is None:
         raise HTTPException(status_code=404, detail="Methodology not found")
     return result

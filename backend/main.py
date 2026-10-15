@@ -1,4 +1,3 @@
-from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi.templating import Jinja2Templates
@@ -7,7 +6,6 @@ from fastapi import FastAPI, Request, HTTPException
 
 from backend.clients.base import ServiceError, ServiceUnavailable
 from backend import user, methodology, benefit, analysis, reports
-from backend.db import create_tables
 
 # Ruta de la carpeta raíz del proyecto
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -15,13 +13,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Carpeta donde están los templates
 TEMPLATES_DIR = BASE_DIR / "templates"
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    create_tables(app)
-    yield
-
-
-app = FastAPI(lifespan=lifespan, title="Social Impact API")
+app = FastAPI(title="Social Impact API")
 
 app.include_router(user.router, prefix="/users")
 app.include_router(methodology.router, prefix="/methodologies")

@@ -4,20 +4,21 @@ from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 
 from backend.clients.analysis_client import AnalysisClient, AnalysisDTO, get_analysis_client
-from backend.db import SessionDep
+from backend.clients.users_client import UsersClient, get_users_client
 from backend.models import AnalysisBase
 from backend.services import analysis_service
 
 router = APIRouter(tags=["analyses"])
 
 ClientDep = Annotated[AnalysisClient, Depends(get_analysis_client)]
+UsersClientDep = Annotated[UsersClient, Depends(get_users_client)]
 
 
 @router.post("/", response_model=AnalysisDTO)
 def create_analysis_api(
-    new_analysis: AnalysisBase, user_id: int, session: SessionDep, client: ClientDep
+    new_analysis: AnalysisBase, user_id: int, users_client: UsersClientDep, client: ClientDep
 ):
-    analysis = analysis_service.create_analysis(client, session, user_id, new_analysis)
+    analysis = analysis_service.create_analysis(client, users_client, user_id, new_analysis)
     if not analysis:
         raise HTTPException(status_code=404, detail="User not found")
     return analysis
@@ -29,8 +30,8 @@ def get_all_analyses(client: ClientDep):
 
 
 @router.get("/new", response_class=HTMLResponse)
-def new_analysis_form(request: Request, session: SessionDep):
-    users = analysis_service.get_all_users(session)
+def new_analysis_form(request: Request, users_client: UsersClientDep):
+    users = analysis_service.get_all_users(users_client)
     return request.app.state.templates.TemplateResponse(
         "new_analysis.html",
         {"request": request, "users": users}
@@ -38,8 +39,8 @@ def new_analysis_form(request: Request, session: SessionDep):
 
 
 @router.get("", response_class=HTMLResponse)
-def show_analyses(request: Request, session: SessionDep, client: ClientDep):
-    analyses = analysis_service.get_all_analyses_with_user_name(client, session)
+def show_analyses(request: Request, users_client: UsersClientDep, client: ClientDep):
+    analyses = analysis_service.get_all_analyses_with_user_name(client, users_client)
     return request.app.state.templates.TemplateResponse(
         "analysis_list.html",
         {"request": request, "analyses": analyses}
@@ -48,7 +49,7 @@ def show_analyses(request: Request, session: SessionDep, client: ClientDep):
 
 @router.post("/create")
 def create_analysis_web(
-    session: SessionDep,
+    users_client: UsersClientDep,
     client: ClientDep,
     user_id: int = Form(...),
     sector: str = Form(...),
@@ -56,7 +57,7 @@ def create_analysis_web(
     time_in_social_media: float = Form(...)
 ):
     created = analysis_service.create_analysis_web(
-        client, session, user_id, sector, reach, time_in_social_media
+        client, users_client, user_id, sector, reach, time_in_social_media
     )
     if created is None:
         raise HTTPException(status_code=404, detail="User not found")
