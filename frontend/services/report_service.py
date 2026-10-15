@@ -1,7 +1,7 @@
 """Datos del reporte PDF: compone 3 servicios (metodologias, beneficios, usuarios)."""
-from backend.clients.benefit_client import BenefitClient
-from backend.clients.methodology_client import MethodologyClient
-from backend.clients.users_client import UsersClient
+from frontend.clients.benefit_client import BenefitClient
+from frontend.clients.methodology_client import MethodologyClient
+from frontend.clients.users_client import UsersClient
 
 
 def get_methodologies_full_report(

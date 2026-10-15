@@ -3,9 +3,9 @@
 Los beneficios y sus relaciones con metodologias viven en los microservicios.
 Aqui solo se COMPONE: pedir a un micro y a otro, y unir el resultado para la vista.
 """
-from backend.clients.base import ServiceError
-from backend.clients.benefit_client import BenefitClient
-from backend.clients.methodology_client import MethodologyClient
+from frontend.clients.base import ServiceError
+from frontend.clients.benefit_client import BenefitClient
+from frontend.clients.methodology_client import MethodologyClient
 
 
 def create_benefit(client: BenefitClient, name: str, description: str | None):

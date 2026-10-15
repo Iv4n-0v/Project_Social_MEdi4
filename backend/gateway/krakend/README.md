@@ -19,7 +19,7 @@ monolito / navegador ──► KrakenD :8080 ──► beneficios   :8001
 | `krakend.local.json` | Sin Docker: los hosts son `http://127.0.0.1:800X` |
 | `generate.py` | Genera los dos JSON (los 4 micros comparten el mismo CRUD) |
 
-Si cambias algo, edita `generate.py` y ejecuta `python gateway/krakend/generate.py`.
+Si cambias algo, edita `generate.py` y ejecuta `python backend/gateway/krakend/generate.py`.
 
 ## Rutas publicas (`/api/v1`)
 
@@ -63,8 +63,8 @@ Ademas: `GET /__health` (propio de KrakenD).
 2. Valida y arranca KrakenD (necesita Docker; desde la raiz del repo):
 
 ```bash
-docker run --rm -v "$PWD/gateway/krakend:/etc/krakend" krakend:latest check -c /etc/krakend/krakend.local.json
-docker run --rm --network host -v "$PWD/gateway/krakend:/etc/krakend" krakend:latest run -c /etc/krakend/krakend.local.json
+docker run --rm -v "$PWD/backend/gateway/krakend:/etc/krakend" krakend:latest check -c /etc/krakend/krakend.local.json
+docker run --rm --network host -v "$PWD/backend/gateway/krakend:/etc/krakend" krakend:latest run -c /etc/krakend/krakend.local.json
 ```
 
 (`--network host` hace que `127.0.0.1` sea tu maquina; en Codespaces funciona.)
@@ -81,6 +81,6 @@ curl -i localhost:8080/api/v1/analysis?user_id=1
 
 ## Monolito
 
-`backend/benefit.py` ahora lee `GATEWAY_URL` (por defecto `http://127.0.0.1:8080`)
+`frontend/benefit.py` ahora lee `GATEWAY_URL` (por defecto `http://127.0.0.1:8080`)
 y llama a `/api/v1/benefits`. El `gateway/main.py` viejo (FastAPI + httpx) ya no
 hace falta y se puede borrar cuando esto funcione.

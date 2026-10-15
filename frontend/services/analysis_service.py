@@ -3,9 +3,9 @@
 Los analisis viven en el microservicio de analisis y los usuarios en el de
 usuarios. Aqui solo se compone: validar el usuario y unir nombres para la vista.
 """
-from backend.clients.analysis_client import AnalysisClient, AnalysisDTO
-from backend.clients.base import or_none
-from backend.clients.users_client import UsersClient, UserDTO
+from frontend.clients.analysis_client import AnalysisClient, AnalysisDTO
+from frontend.clients.base import or_none
+from frontend.clients.users_client import UsersClient, UserDTO
 
 
 def get_all_users(users_client: UsersClient) -> list[UserDTO]:

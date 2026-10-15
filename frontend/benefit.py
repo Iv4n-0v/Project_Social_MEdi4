@@ -3,10 +3,10 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 
-from backend.clients.benefit_client import BenefitClient, BenefitDTO, get_benefit_client
-from backend.clients.methodology_client import MethodologyClient, get_methodology_client
-from backend.models import BenefitBase
-from backend.services import benefit_service
+from frontend.clients.benefit_client import BenefitClient, BenefitDTO, get_benefit_client
+from frontend.clients.methodology_client import MethodologyClient, get_methodology_client
+from frontend.models import BenefitBase
+from frontend.services import benefit_service
 
 router = APIRouter(tags=["benefits"])
 

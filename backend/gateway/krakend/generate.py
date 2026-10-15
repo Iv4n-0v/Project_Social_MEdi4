@@ -3,7 +3,7 @@
 Los 4 microservicios exponen el mismo CRUD, asi que en vez de copiar 40
 endpoints a mano se describen una vez y se generan. Uso:
 
-    python gateway/krakend/generate.py
+    python backend/gateway/krakend/generate.py
 
 KrakenD solo lee los .json generados; este script es una comodidad.
 """

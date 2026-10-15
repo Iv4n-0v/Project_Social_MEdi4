@@ -4,11 +4,11 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse 
 from fastapi import FastAPI, Request, HTTPException
 
-from backend.clients.base import ServiceError, ServiceUnavailable
-from backend import user, methodology, benefit, analysis, reports
+from frontend.clients.base import ServiceError, ServiceUnavailable
+from frontend import user, methodology, benefit, analysis, reports
 
 # Ruta de la carpeta raíz del proyecto
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent  # carpeta frontend/
 
 # Carpeta donde están los templates
 TEMPLATES_DIR = BASE_DIR / "templates"

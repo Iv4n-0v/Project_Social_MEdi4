@@ -8,9 +8,9 @@ from typing import Optional
 
 from fastapi import UploadFile
 
-from backend.clients.base import or_none
-from backend.clients.methodology_client import MethodologyClient
-from backend.clients.users_client import UserDTO, UsersClient
+from frontend.clients.base import or_none
+from frontend.clients.methodology_client import MethodologyClient
+from frontend.clients.users_client import UserDTO, UsersClient
 
 
 def get_active_users(client: UsersClient) -> list[UserDTO]:

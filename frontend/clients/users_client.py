@@ -3,7 +3,7 @@ from typing import Optional
 
 from sqlmodel import SQLModel
 
-from backend.clients.base import BaseClient
+from frontend.clients.base import BaseClient
 
 # (nombre_de_archivo, contenido, content_type)
 Image = tuple[str, bytes, Optional[str]]

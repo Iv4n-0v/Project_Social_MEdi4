@@ -3,11 +3,11 @@ from typing import Optional
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import HTMLResponse, RedirectResponse
 
-from backend.clients.analysis_client import AnalysisClient, get_analysis_client
-from backend.clients.base import ServiceUnavailable
-from backend.clients.methodology_client import MethodologyClient, get_methodology_client
-from backend.clients.users_client import UserDTO, UsersClient, get_users_client
-from backend.services import analysis_service, user_service
+from frontend.clients.analysis_client import AnalysisClient, get_analysis_client
+from frontend.clients.base import ServiceUnavailable
+from frontend.clients.methodology_client import MethodologyClient, get_methodology_client
+from frontend.clients.users_client import UserDTO, UsersClient, get_users_client
+from frontend.services import analysis_service, user_service
 
 router = APIRouter(tags=["users"])
 

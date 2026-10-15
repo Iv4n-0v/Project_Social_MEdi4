@@ -2,10 +2,10 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
-from backend.clients.benefit_client import BenefitClient, get_benefit_client
-from backend.clients.methodology_client import MethodologyClient, get_methodology_client
-from backend.clients.users_client import UsersClient, get_users_client
-from backend.services import report_service
+from frontend.clients.benefit_client import BenefitClient, get_benefit_client
+from frontend.clients.methodology_client import MethodologyClient, get_methodology_client
+from frontend.clients.users_client import UsersClient, get_users_client
+from frontend.services import report_service
 
 from io import BytesIO
 from reportlab.lib.pagesizes import letter

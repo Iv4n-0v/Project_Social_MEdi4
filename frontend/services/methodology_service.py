@@ -3,11 +3,11 @@
 Las metodologias viven en el microservicio de metodologias. Lo unico local es
 la relacion usuario <-> metodologia (solo IDs), hasta migrar el modulo de usuarios.
 """
-from backend.clients.base import ServiceError, or_none
-from backend.clients.benefit_client import BenefitClient
-from backend.clients.methodology_client import MethodologyClient
-from backend.clients.users_client import UsersClient
-from backend.models import MethodologyBase
+from frontend.clients.base import ServiceError, or_none
+from frontend.clients.benefit_client import BenefitClient
+from frontend.clients.methodology_client import MethodologyClient
+from frontend.clients.users_client import UsersClient
+from frontend.models import MethodologyBase
 
 
 def create_methodology(client: MethodologyClient, new_methodology: MethodologyBase):

@@ -3,10 +3,10 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 
-from backend.clients.analysis_client import AnalysisClient, AnalysisDTO, get_analysis_client
-from backend.clients.users_client import UsersClient, get_users_client
-from backend.models import AnalysisBase
-from backend.services import analysis_service
+from frontend.clients.analysis_client import AnalysisClient, AnalysisDTO, get_analysis_client
+from frontend.clients.users_client import UsersClient, get_users_client
+from frontend.models import AnalysisBase
+from frontend.services import analysis_service
 
 router = APIRouter(tags=["analyses"])
 

@@ -3,13 +3,13 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 
-from backend.clients.benefit_client import BenefitClient, get_benefit_client
-from backend.clients.methodology_client import (
+from frontend.clients.benefit_client import BenefitClient, get_benefit_client
+from frontend.clients.methodology_client import (
     MethodologyClient, MethodologyDTO, get_methodology_client,
 )
-from backend.clients.users_client import UsersClient, get_users_client
-from backend.models import MethodologyBase
-from backend.services import benefit_service, methodology_service
+from frontend.clients.users_client import UsersClient, get_users_client
+from frontend.models import MethodologyBase
+from frontend.services import benefit_service, methodology_service
 
 router = APIRouter(tags=["methodologies"])
 

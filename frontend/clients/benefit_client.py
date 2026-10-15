@@ -3,7 +3,7 @@ from typing import Optional
 
 from sqlmodel import SQLModel
 
-from backend.clients.base import BaseClient
+from frontend.clients.base import BaseClient
 
 
 class BenefitDTO(SQLModel):
