@@ -1,8 +1,0 @@
-# Solo lo que necesita el frontend (app web Jinja). Los micros tienen sus propios requirements.
-fastapi==0.122.0
-uvicorn==0.38.0
-Jinja2==3.1.6
-httpx==0.28.1
-python-multipart==0.0.20
-sqlmodel==0.0.27
-reportlab==4.4.4
