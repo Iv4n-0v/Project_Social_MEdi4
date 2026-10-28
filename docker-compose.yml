@@ -101,13 +101,16 @@ services:
         condition: service_healthy
 
   frontend:
-    build: ./frontend
-    environment:
-      GATEWAY_URL: http://gateway:8080
+    build: ./frontend-react
     ports:
-      - "8000:8000"
+      - "8000:8080"
     depends_on:
       - gateway
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
 
 volumes:
   pgdata:
