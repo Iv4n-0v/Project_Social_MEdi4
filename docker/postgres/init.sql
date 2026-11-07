@@ -4,3 +4,4 @@ CREATE DATABASE beneficios;
 CREATE DATABASE usuarios;
 CREATE DATABASE metodologias;
 CREATE DATABASE analisis;
+CREATE DATABASE auth;

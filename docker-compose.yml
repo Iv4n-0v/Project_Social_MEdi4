@@ -82,6 +82,28 @@ services:
       retries: 5
       start_period: 10s
 
+  auth:
+    build: ./backend/microservicios/auth
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@db:5432/auth
+    # Google/Facebook, SMTP, PUBLIC_URL, etc. van en backend/microservicios/auth/.env
+    # (ver .env.example). Si no existe, el servicio arranca igual: solo funciona
+    # el registro con correo y contraseña, y la recuperación escribe el enlace en los logs.
+    env_file:
+      - path: ./backend/microservicios/auth/.env
+        required: false
+    volumes:
+      - authkeys:/data   # llave privada JWT: los tokens siguen validos al reiniciar
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8005/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 15s
+
   gateway:
     image: krakend:latest
     # La configuración utiliza "version": 4 (KrakenD 3.x).
@@ -99,6 +121,8 @@ services:
         condition: service_healthy
       analisis:
         condition: service_healthy
+      auth:
+        condition: service_healthy
 
   frontend:
     build: ./frontend-react
@@ -114,3 +138,4 @@ services:
 
 volumes:
   pgdata:
+  authkeys:
