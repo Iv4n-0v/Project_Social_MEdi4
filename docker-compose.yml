@@ -104,6 +104,22 @@ services:
       retries: 5
       start_period: 15s
 
+  emprendimientos:
+    build: ./backend/microservicios/emprendimientos
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@db:5432/emprendimientos
+    # Sin puertos publicados: solo se llega a el a traves del gateway, que es quien
+    # valida el token y fija X-User-Id. Nunca expongas este servicio directamente.
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8006/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 15s
+
   gateway:
     image: krakend:latest
     # La configuración utiliza "version": 4 (KrakenD 3.x).
@@ -123,6 +139,8 @@ services:
         condition: service_healthy
       auth:
         condition: service_healthy
+      emprendimientos:
+        condition: service_healthy
 
   frontend:
     build: ./frontend-react
@@ -131,7 +149,7 @@ services:
     depends_on:
       - gateway
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/health"]
       interval: 10s
       timeout: 3s
       retries: 5

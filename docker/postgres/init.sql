@@ -5,3 +5,4 @@ CREATE DATABASE usuarios;
 CREATE DATABASE metodologias;
 CREATE DATABASE analisis;
 CREATE DATABASE auth;
+CREATE DATABASE emprendimientos;

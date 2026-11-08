@@ -117,10 +117,13 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(again.status_code, 200)
         second, _ = _cookie(again)
         self.assertNotEqual(first.value, second.value)
-        reuse = self.client.post("/auth/refresh", headers=header)
-        self.assertEqual(reuse.status_code, 401)
-        _, cleared = _cookie(reuse)
-        self.assertIn("max-age=0", cleared.lower())  # la cookie invalida se borra
+        race = self.client.post("/auth/refresh", headers=header)
+        self.assertEqual(race.status_code, 401)  # dentro de la ventana de gracia
+        self.assertIsNone(_cookie(race)[1])  # no borra la cookie (ya es la nueva)
+        bad = self.client.post("/auth/refresh", headers={"Cookie": "refresh_token=inventado"})
+        self.assertEqual(bad.status_code, 401)
+        _, cleared = _cookie(bad)
+        self.assertIn("max-age=0", cleared.lower())  # una cookie invalida si se borra
         self.assertEqual(self.client.post("/auth/refresh").status_code, 401)
 
     def test_logout_clears_cookie_and_session(self):

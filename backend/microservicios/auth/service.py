@@ -60,8 +60,18 @@ class AccountNotFound(AuthError):
     pass
 
 
+REFRESH_GRACE_SECONDS = 10
+
+
 class InvalidRefreshToken(AuthError):
     pass
+
+
+class RefreshRaceLost(InvalidRefreshToken):
+    """Dos pestañas renovaron a la vez: la otra ya roto el token.
+
+    No es un robo. No se cierran sesiones ni se borra la cookie (que ya es la nueva).
+    """
 
 
 class InvalidResetToken(AuthError):
@@ -243,6 +253,10 @@ class AuthService:
             raise InvalidRefreshToken("Sesion no valida")
         now = self._now()
         if record.revoked_at is not None:
+            # Ventana de gracia: una peticion paralela legitima (pestañas, recarga)
+            # llega unos milisegundos despues de la rotacion.
+            if (now - _aware(record.revoked_at)).total_seconds() <= REFRESH_GRACE_SECONDS:
+                raise RefreshRaceLost("Sesion renovada en otra peticion")
             self.repo.revoke_all_refresh(record.account_id, now)
             self.repo.add_audit(record.account_id, "REFRESH_REUSE_DETECTED")
             self.repo.commit()

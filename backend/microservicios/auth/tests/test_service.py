@@ -113,11 +113,19 @@ class SessionTests(unittest.TestCase):
 
     def test_reusing_a_revoked_token_closes_every_session(self):
         second = self.s.refresh(self.first.refresh_token)
+        self.clock.advance(seconds=svc.REFRESH_GRACE_SECONDS + 1)  # fuera de la ventana de gracia
         with self.assertRaises(svc.InvalidRefreshToken):
             self.s.refresh(self.first.refresh_token)  # reuso = posible robo
         with self.assertRaises(svc.InvalidRefreshToken):
             self.s.refresh(second.refresh_token)  # el legitimo tambien cae
         self.assertIn("REFRESH_REUSE_DETECTED", self.repo.actions(self.first.account.id))
+
+    def test_parallel_refresh_inside_grace_window_is_not_theft(self):
+        second = self.s.refresh(self.first.refresh_token)
+        with self.assertRaises(svc.RefreshRaceLost):
+            self.s.refresh(self.first.refresh_token)  # la otra pestaña, milisegundos despues
+        self.assertNotIn("REFRESH_REUSE_DETECTED", self.repo.actions(self.first.account.id))
+        self.s.refresh(second.refresh_token)  # la sesion legitima sigue viva
 
     def test_missing_unknown_and_expired(self):
         for bad in (None, "", "inventado"):

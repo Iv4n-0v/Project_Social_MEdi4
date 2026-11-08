@@ -35,7 +35,7 @@ from schemas import (
     RoleRequest,
     SessionResponse,
 )
-from service import AuthError, AuthService, AuthSession, Settings
+from service import AuthError, AuthService, AuthSession, RefreshRaceLost, Settings
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 well_known = APIRouter(tags=["jwks"])
@@ -162,13 +162,15 @@ def refresh(
     try:
         s = service.refresh(refresh_token)
     except AuthError as exc:
-        # Una cookie invalida se borra del navegador (por eso no se usa raise)
         failed = JSONResponse(
             status_code=401,
             content={"detail": str(exc)},
             headers={"WWW-Authenticate": "Bearer"},
         )
-        _clear_refresh_cookie(failed)
+        # Una cookie invalida se borra del navegador (por eso no se usa raise), salvo
+        # en una carrera entre peticiones: ahi la cookie del navegador ya es la nueva.
+        if not isinstance(exc, RefreshRaceLost):
+            _clear_refresh_cookie(failed)
         return failed
     return _respond(response, s, service.settings)
 

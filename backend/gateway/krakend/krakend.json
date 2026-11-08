@@ -934,6 +934,660 @@
           ]
         }
       }
+    },
+    {
+      "endpoint": "/api/v1/categories",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_query_strings": [],
+      "input_headers": [
+        "Content-Type",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/categories",
+          "method": "GET",
+          "host": [
+            "http://emprendimientos:8006"
+          ],
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/v1/ventures",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_query_strings": [
+        "q",
+        "category_id",
+        "limit",
+        "offset"
+      ],
+      "input_headers": [
+        "Content-Type",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/ventures",
+          "method": "GET",
+          "host": [
+            "http://emprendimientos:8006"
+          ],
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/v1/ventures/{id}",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_query_strings": [],
+      "input_headers": [
+        "Content-Type",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/ventures/{id}",
+          "method": "GET",
+          "host": [
+            "http://emprendimientos:8006"
+          ],
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/v1/me/venture",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_query_strings": [],
+      "input_headers": [
+        "Content-Type",
+        "Accept",
+        "Authorization",
+        "X-User-Id"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/me/venture",
+          "method": "GET",
+          "host": [
+            "http://emprendimientos:8006"
+          ],
+          "encoding": "no-op"
+        }
+      ],
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "jwk_url": "http://auth:8005/.well-known/jwks.json",
+          "cache": true,
+          "cache_duration": 900,
+          "disable_jwk_security": true,
+          "issuer": "social-media-auth",
+          "audience": [
+            "social-media-api"
+          ],
+          "roles_key": "roles",
+          "roles": [
+            "entrepreneur"
+          ],
+          "propagate_claims": [
+            [
+              "sub",
+              "X-User-Id"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "endpoint": "/api/v1/me/venture",
+      "method": "PUT",
+      "output_encoding": "no-op",
+      "input_query_strings": [],
+      "input_headers": [
+        "Content-Type",
+        "Accept",
+        "Authorization",
+        "X-User-Id"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/me/venture",
+          "method": "PUT",
+          "host": [
+            "http://emprendimientos:8006"
+          ],
+          "encoding": "no-op"
+        }
+      ],
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "jwk_url": "http://auth:8005/.well-known/jwks.json",
+          "cache": true,
+          "cache_duration": 900,
+          "disable_jwk_security": true,
+          "issuer": "social-media-auth",
+          "audience": [
+            "social-media-api"
+          ],
+          "roles_key": "roles",
+          "roles": [
+            "entrepreneur"
+          ],
+          "propagate_claims": [
+            [
+              "sub",
+              "X-User-Id"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "endpoint": "/api/v1/me/venture",
+      "method": "DELETE",
+      "output_encoding": "no-op",
+      "input_query_strings": [],
+      "input_headers": [
+        "Content-Type",
+        "Accept",
+        "Authorization",
+        "X-User-Id"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/me/venture",
+          "method": "DELETE",
+          "host": [
+            "http://emprendimientos:8006"
+          ],
+          "encoding": "no-op"
+        }
+      ],
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "jwk_url": "http://auth:8005/.well-known/jwks.json",
+          "cache": true,
+          "cache_duration": 900,
+          "disable_jwk_security": true,
+          "issuer": "social-media-auth",
+          "audience": [
+            "social-media-api"
+          ],
+          "roles_key": "roles",
+          "roles": [
+            "entrepreneur"
+          ],
+          "propagate_claims": [
+            [
+              "sub",
+              "X-User-Id"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "endpoint": "/api/v1/me/venture/restore",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "input_query_strings": [],
+      "input_headers": [
+        "Content-Type",
+        "Accept",
+        "Authorization",
+        "X-User-Id"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/me/venture/restore",
+          "method": "POST",
+          "host": [
+            "http://emprendimientos:8006"
+          ],
+          "encoding": "no-op"
+        }
+      ],
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "jwk_url": "http://auth:8005/.well-known/jwks.json",
+          "cache": true,
+          "cache_duration": 900,
+          "disable_jwk_security": true,
+          "issuer": "social-media-auth",
+          "audience": [
+            "social-media-api"
+          ],
+          "roles_key": "roles",
+          "roles": [
+            "entrepreneur"
+          ],
+          "propagate_claims": [
+            [
+              "sub",
+              "X-User-Id"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "endpoint": "/api/v1/me/venture/publish",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "input_query_strings": [],
+      "input_headers": [
+        "Content-Type",
+        "Accept",
+        "Authorization",
+        "X-User-Id"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/me/venture/publish",
+          "method": "POST",
+          "host": [
+            "http://emprendimientos:8006"
+          ],
+          "encoding": "no-op"
+        }
+      ],
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "jwk_url": "http://auth:8005/.well-known/jwks.json",
+          "cache": true,
+          "cache_duration": 900,
+          "disable_jwk_security": true,
+          "issuer": "social-media-auth",
+          "audience": [
+            "social-media-api"
+          ],
+          "roles_key": "roles",
+          "roles": [
+            "entrepreneur"
+          ],
+          "propagate_claims": [
+            [
+              "sub",
+              "X-User-Id"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "endpoint": "/api/v1/me/venture/unpublish",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "input_query_strings": [],
+      "input_headers": [
+        "Content-Type",
+        "Accept",
+        "Authorization",
+        "X-User-Id"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/me/venture/unpublish",
+          "method": "POST",
+          "host": [
+            "http://emprendimientos:8006"
+          ],
+          "encoding": "no-op"
+        }
+      ],
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "jwk_url": "http://auth:8005/.well-known/jwks.json",
+          "cache": true,
+          "cache_duration": 900,
+          "disable_jwk_security": true,
+          "issuer": "social-media-auth",
+          "audience": [
+            "social-media-api"
+          ],
+          "roles_key": "roles",
+          "roles": [
+            "entrepreneur"
+          ],
+          "propagate_claims": [
+            [
+              "sub",
+              "X-User-Id"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "endpoint": "/api/v1/me/venture/audits",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_query_strings": [],
+      "input_headers": [
+        "Content-Type",
+        "Accept",
+        "Authorization",
+        "X-User-Id"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/me/venture/audits",
+          "method": "GET",
+          "host": [
+            "http://emprendimientos:8006"
+          ],
+          "encoding": "no-op"
+        }
+      ],
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "jwk_url": "http://auth:8005/.well-known/jwks.json",
+          "cache": true,
+          "cache_duration": 900,
+          "disable_jwk_security": true,
+          "issuer": "social-media-auth",
+          "audience": [
+            "social-media-api"
+          ],
+          "roles_key": "roles",
+          "roles": [
+            "entrepreneur"
+          ],
+          "propagate_claims": [
+            [
+              "sub",
+              "X-User-Id"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "endpoint": "/api/v1/me/venture/social/{platform}",
+      "method": "PUT",
+      "output_encoding": "no-op",
+      "input_query_strings": [],
+      "input_headers": [
+        "Content-Type",
+        "Accept",
+        "Authorization",
+        "X-User-Id"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/me/venture/social/{platform}",
+          "method": "PUT",
+          "host": [
+            "http://emprendimientos:8006"
+          ],
+          "encoding": "no-op"
+        }
+      ],
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "jwk_url": "http://auth:8005/.well-known/jwks.json",
+          "cache": true,
+          "cache_duration": 900,
+          "disable_jwk_security": true,
+          "issuer": "social-media-auth",
+          "audience": [
+            "social-media-api"
+          ],
+          "roles_key": "roles",
+          "roles": [
+            "entrepreneur"
+          ],
+          "propagate_claims": [
+            [
+              "sub",
+              "X-User-Id"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "endpoint": "/api/v1/me/venture/social/{platform}",
+      "method": "DELETE",
+      "output_encoding": "no-op",
+      "input_query_strings": [],
+      "input_headers": [
+        "Content-Type",
+        "Accept",
+        "Authorization",
+        "X-User-Id"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/me/venture/social/{platform}",
+          "method": "DELETE",
+          "host": [
+            "http://emprendimientos:8006"
+          ],
+          "encoding": "no-op"
+        }
+      ],
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "jwk_url": "http://auth:8005/.well-known/jwks.json",
+          "cache": true,
+          "cache_duration": 900,
+          "disable_jwk_security": true,
+          "issuer": "social-media-auth",
+          "audience": [
+            "social-media-api"
+          ],
+          "roles_key": "roles",
+          "roles": [
+            "entrepreneur"
+          ],
+          "propagate_claims": [
+            [
+              "sub",
+              "X-User-Id"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "endpoint": "/api/v1/me/favorites",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_query_strings": [],
+      "input_headers": [
+        "Content-Type",
+        "Accept",
+        "Authorization",
+        "X-User-Id"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/me/favorites",
+          "method": "GET",
+          "host": [
+            "http://emprendimientos:8006"
+          ],
+          "encoding": "no-op"
+        }
+      ],
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "jwk_url": "http://auth:8005/.well-known/jwks.json",
+          "cache": true,
+          "cache_duration": 900,
+          "disable_jwk_security": true,
+          "issuer": "social-media-auth",
+          "audience": [
+            "social-media-api"
+          ],
+          "roles_key": "roles",
+          "roles": [
+            "visitor",
+            "entrepreneur"
+          ],
+          "propagate_claims": [
+            [
+              "sub",
+              "X-User-Id"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "endpoint": "/api/v1/me/favorite-ids",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_query_strings": [],
+      "input_headers": [
+        "Content-Type",
+        "Accept",
+        "Authorization",
+        "X-User-Id"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/me/favorite-ids",
+          "method": "GET",
+          "host": [
+            "http://emprendimientos:8006"
+          ],
+          "encoding": "no-op"
+        }
+      ],
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "jwk_url": "http://auth:8005/.well-known/jwks.json",
+          "cache": true,
+          "cache_duration": 900,
+          "disable_jwk_security": true,
+          "issuer": "social-media-auth",
+          "audience": [
+            "social-media-api"
+          ],
+          "roles_key": "roles",
+          "roles": [
+            "visitor",
+            "entrepreneur"
+          ],
+          "propagate_claims": [
+            [
+              "sub",
+              "X-User-Id"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "endpoint": "/api/v1/me/favorites/{id}",
+      "method": "PUT",
+      "output_encoding": "no-op",
+      "input_query_strings": [],
+      "input_headers": [
+        "Content-Type",
+        "Accept",
+        "Authorization",
+        "X-User-Id"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/me/favorites/{id}",
+          "method": "PUT",
+          "host": [
+            "http://emprendimientos:8006"
+          ],
+          "encoding": "no-op"
+        }
+      ],
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "jwk_url": "http://auth:8005/.well-known/jwks.json",
+          "cache": true,
+          "cache_duration": 900,
+          "disable_jwk_security": true,
+          "issuer": "social-media-auth",
+          "audience": [
+            "social-media-api"
+          ],
+          "roles_key": "roles",
+          "roles": [
+            "visitor",
+            "entrepreneur"
+          ],
+          "propagate_claims": [
+            [
+              "sub",
+              "X-User-Id"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "endpoint": "/api/v1/me/favorites/{id}",
+      "method": "DELETE",
+      "output_encoding": "no-op",
+      "input_query_strings": [],
+      "input_headers": [
+        "Content-Type",
+        "Accept",
+        "Authorization",
+        "X-User-Id"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/me/favorites/{id}",
+          "method": "DELETE",
+          "host": [
+            "http://emprendimientos:8006"
+          ],
+          "encoding": "no-op"
+        }
+      ],
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "jwk_url": "http://auth:8005/.well-known/jwks.json",
+          "cache": true,
+          "cache_duration": 900,
+          "disable_jwk_security": true,
+          "issuer": "social-media-auth",
+          "audience": [
+            "social-media-api"
+          ],
+          "roles_key": "roles",
+          "roles": [
+            "visitor",
+            "entrepreneur"
+          ],
+          "propagate_claims": [
+            [
+              "sub",
+              "X-User-Id"
+            ]
+          ]
+        }
+      }
     }
   ]
 }

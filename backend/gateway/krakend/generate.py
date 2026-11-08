@@ -19,6 +19,9 @@ SERVICES = {
     "analisis": ("analysis", "/analysis", 8004, ["is_active", "user_id"]),
 }
 
+# Servicio de emprendimientos (puerto 8006): catalogo publico, "mi emprendimiento" y favoritos.
+VENTURES_PORT = 8006
+
 # Servicio de autenticacion (puerto 8005). Las rutas son distintas al CRUD, por eso
 # se describen aparte. El JWT se valida AQUI, en el gateway, con la llave publica
 # que el servicio auth publica en /.well-known/jwks.json (sin secretos compartidos).
@@ -46,6 +49,30 @@ AUTH_OPERATIONS = [
     ("GET", "/me", "/auth/me", [], True, None),
     ("GET", "/me/audits", "/auth/me/audits", [], True, None),
     ("POST", "/roles", "/auth/roles", [], True, None),
+]
+
+
+# (metodo, ruta publica tras /api/v1, ruta del micro, query strings, acceso)
+# acceso: "public" sin token | "user" cualquier rol | "owner" solo rol entrepreneur
+# Las rutas de la cuenta viven bajo /me/... para no mezclar rutas fijas y con parametro
+# bajo un mismo prefijo (/ventures/me vs /ventures/{id} puede chocar en el router del gateway).
+VENTURE_OPERATIONS = [
+    ("GET", "/categories", "/categories", [], "public"),
+    ("GET", "/ventures", "/ventures", ["q", "category_id", "limit", "offset"], "public"),
+    ("GET", "/ventures/{id}", "/ventures/{id}", [], "public"),
+    ("GET", "/me/venture", "/me/venture", [], "owner"),
+    ("PUT", "/me/venture", "/me/venture", [], "owner"),
+    ("DELETE", "/me/venture", "/me/venture", [], "owner"),
+    ("POST", "/me/venture/restore", "/me/venture/restore", [], "owner"),
+    ("POST", "/me/venture/publish", "/me/venture/publish", [], "owner"),
+    ("POST", "/me/venture/unpublish", "/me/venture/unpublish", [], "owner"),
+    ("GET", "/me/venture/audits", "/me/venture/audits", [], "owner"),
+    ("PUT", "/me/venture/social/{platform}", "/me/venture/social/{platform}", [], "owner"),
+    ("DELETE", "/me/venture/social/{platform}", "/me/venture/social/{platform}", [], "owner"),
+    ("GET", "/me/favorites", "/me/favorites", [], "user"),
+    ("GET", "/me/favorite-ids", "/me/favorite-ids", [], "user"),
+    ("PUT", "/me/favorites/{id}", "/me/favorites/{id}", [], "user"),
+    ("DELETE", "/me/favorites/{id}", "/me/favorites/{id}", [], "user"),
 ]
 
 
@@ -144,6 +171,19 @@ def build(hosts, jwks_url):
                 headers, jwt_validator(jwks_url) if protected else None,
             )
         )
+    # ---- emprendimientos ----
+    for method, pub, back, query, access in VENTURE_OPERATIONS:
+        # Los endpoints protegidos reciben el id de la cuenta en X-User-Id (lo pone el
+        # gateway a partir del token; lo que mande el cliente se descarta).
+        if access == "public":
+            ep = endpoint(method, f"/api/v1{pub}", back, hosts["emprendimientos"], query)
+        else:
+            roles = ["entrepreneur"] if access == "owner" else ROLES
+            ep = endpoint(
+                method, f"/api/v1{pub}", back, hosts["emprendimientos"], query, None,
+                ("Authorization", "X-User-Id"), jwt_validator(jwks_url, roles, propagate=True),
+            )
+        endpoints.append(ep)
     return {
         "$schema": "https://www.krakend.io/schema/krakend.json",
         "version": 4,
@@ -159,8 +199,10 @@ if __name__ == "__main__":
     here = Path(__file__).parent
     docker_hosts = {n: f"http://{n}:{s[2]}" for n, s in SERVICES.items()}
     docker_hosts["auth"] = f"http://auth:{AUTH_PORT}"
+    docker_hosts["emprendimientos"] = f"http://emprendimientos:{VENTURES_PORT}"
     local_hosts = {n: f"http://127.0.0.1:{s[2]}" for n, s in SERVICES.items()}
     local_hosts["auth"] = f"http://127.0.0.1:{AUTH_PORT}"
+    local_hosts["emprendimientos"] = f"http://127.0.0.1:{VENTURES_PORT}"
     for filename, hosts in (("krakend.json", docker_hosts), ("krakend.local.json", local_hosts)):
         cfg = build(hosts, hosts["auth"] + "/.well-known/jwks.json")
         (here / filename).write_text(json.dumps(cfg, indent=2) + "\n", encoding="utf-8")
