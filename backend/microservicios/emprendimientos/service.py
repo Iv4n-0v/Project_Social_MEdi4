@@ -12,10 +12,12 @@ from models import Category, FollowerStat, SocialLink, Venture, utcnow
 from repository import DuplicateVenture
 from schemas import (
     CategoryResponse,
+    NetworkStats,
     OwnVenture,
     PublicVenture,
     PublicVentureList,
     SocialPublic,
+    StatPoint,
     VentureSave,
 )
 
@@ -321,6 +323,25 @@ class VentureService:
             self.repo.add_audit(v.id, f"SOCIAL_REMOVE:{platform}")
             self.repo.commit()
         return self._own(v)
+
+    # ---- estadisticas (solo del dueno) ----
+    HISTORY_LIMIT = 10
+
+    def stats_mine(self, account_id: int) -> list[NetworkStats]:
+        """Seguidores por red con su fuente y fecha. Nunca inventa valores: sin dato -> latest=None."""
+        v = self._mine(account_id)
+        links = self.repo.links_for([v.id])
+        by_link: dict = {}
+        for stat in self.repo.stat_history([l.id for l in links]):  # mas nuevo primero
+            by_link.setdefault(stat.social_link_id, []).append(stat)
+        out = []
+        for link in links:
+            points = [
+                StatPoint(followers=s.followers, source=s.source, updated_at=s.updated_at)
+                for s in by_link.get(link.id, [])[: self.HISTORY_LIMIT]
+            ]
+            out.append(NetworkStats(platform=link.platform, url=link.url, latest=points[0] if points else None, history=points))
+        return out
 
     # ---- favoritos (privados por cuenta) ----
     def favorite_ids(self, account_id: int) -> list[int]:

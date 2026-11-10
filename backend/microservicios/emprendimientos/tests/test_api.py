@@ -73,6 +73,17 @@ class ApiTests(unittest.TestCase):
         self.assertIn("PUBLISH", acts)
         self.assertIn("RESTORE", acts)
 
+    def test_06_stats(self):
+        h = {"X-User-Id": "303"}
+        self.assertEqual(self.c.get("/me/venture/stats", headers=h).status_code, 404)
+        self.c.put("/me/venture", json={"name": "Stat Co", "description": "x"}, headers=h)
+        self.c.put("/me/venture/social/tiktok", json={"url": "https://tiktok.com/@a", "followers": 7}, headers=h)
+        r = self.c.get("/me/venture/stats", headers=h)
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.json()[0]["latest"]["followers"], 7)
+        self.assertEqual(r.json()[0]["latest"]["source"], "manual")
+        self.assertEqual(self.c.get("/me/venture/stats").status_code, 401)
+
     def test_05_validation(self):
         self.assertEqual(self.c.put("/me/venture", json={"name": "   "}, headers=B).status_code, 422)
         self.assertEqual(self.c.put("/me/venture", json={"name": "ok", "category_id": 9999}, headers=B).status_code, 422)

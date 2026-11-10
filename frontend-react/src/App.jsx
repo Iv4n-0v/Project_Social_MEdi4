@@ -8,7 +8,11 @@ import Favorites from './pages/Favorites';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import MyVenture from './pages/MyVenture';
+import MySocials from './pages/MySocials';
+import MyStats from './pages/MyStats';
 import Panel from './pages/Panel';
+import Preview from './pages/Preview';
+import Settings from './pages/Settings';
 import { Forgot, Reset } from './pages/PasswordReset';
 import Register from './pages/Register';
 import VentureDetail from './pages/VentureDetail';
@@ -70,6 +74,10 @@ export default function App() {
           <Route path="/cuenta" element={<RequireAuth><Account /></RequireAuth>} />
           <Route path="/panel" element={<RequireRole role="entrepreneur"><Panel /></RequireRole>} />
           <Route path="/panel/emprendimiento" element={<RequireRole role="entrepreneur"><MyVenture /></RequireRole>} />
+          <Route path="/panel/redes" element={<RequireRole role="entrepreneur"><MySocials /></RequireRole>} />
+          <Route path="/panel/estadisticas" element={<RequireRole role="entrepreneur"><MyStats /></RequireRole>} />
+          <Route path="/panel/vista-previa" element={<RequireRole role="entrepreneur"><Preview /></RequireRole>} />
+          <Route path="/panel/configuracion" element={<RequireRole role="entrepreneur"><Settings /></RequireRole>} />
           <Route path="/usuarios" element={tool('users')} />
           <Route path="/metodologias" element={tool('methodologies')} />
           <Route path="/beneficios" element={tool('benefits')} />

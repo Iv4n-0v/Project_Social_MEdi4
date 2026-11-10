@@ -30,10 +30,10 @@ JWT_ISSUER = "social-media-auth"
 JWT_AUDIENCE = "social-media-api"
 ROLES = ["visitor", "entrepreneur"]
 
-# True = los CRUD existentes (usuarios, metodologias, beneficios, analisis) exigen
-# un token con rol 'entrepreneur'. Se deja en False hasta que el frontend envie el
-# token (Fase 5); asi el panel actual sigue funcionando mientras tanto.
-PROTECT_LEGACY = False
+# True = los CRUD (usuarios, metodologias, beneficios, analisis) exigen un token con rol
+# 'entrepreneur'. usuarios y analisis ademas filtran por dueno con X-User-Id (lo fija el
+# gateway); metodologias y beneficios son catalogos compartidos y solo exigen el rol.
+PROTECT_LEGACY = True
 
 # (metodo, ruta publica tras /api/v1/auth, ruta del micro, query strings, requiere JWT, timeout)
 AUTH_OPERATIONS = [
@@ -67,6 +67,7 @@ VENTURE_OPERATIONS = [
     ("POST", "/me/venture/publish", "/me/venture/publish", [], "owner"),
     ("POST", "/me/venture/unpublish", "/me/venture/unpublish", [], "owner"),
     ("GET", "/me/venture/audits", "/me/venture/audits", [], "owner"),
+    ("GET", "/me/venture/stats", "/me/venture/stats", [], "owner"),
     ("PUT", "/me/venture/social/{platform}", "/me/venture/social/{platform}", [], "owner"),
     ("DELETE", "/me/venture/social/{platform}", "/me/venture/social/{platform}", [], "owner"),
     ("GET", "/me/favorites", "/me/favorites", [], "user"),

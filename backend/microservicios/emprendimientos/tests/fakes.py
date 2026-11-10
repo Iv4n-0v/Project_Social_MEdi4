@@ -84,6 +84,9 @@ class FakeRepo:
     def latest_stats(self, link_ids):
         return {s.social_link_id: s for s in self.stats if s.social_link_id in link_ids}
 
+    def stat_history(self, link_ids):
+        return [s for s in reversed(self.stats) if s.social_link_id in link_ids]
+
     def add_stat(self, stat):
         stat.id = self._next("s")
         self.stats.append(stat)

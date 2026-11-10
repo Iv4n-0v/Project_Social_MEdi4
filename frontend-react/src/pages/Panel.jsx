@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { venturesApi } from '../api/ventures';
 import { useAuth } from '../auth/AuthContext';
 import { Loading } from '../components/Guards';
+import PanelNav from '../components/PanelNav';
 
 const TOOLS = [
   ['/usuarios', 'Usuarios', 'Registra usuarios y las metodologías que aplican.'],
@@ -30,6 +31,7 @@ export default function Panel() {
   return (
     <section>
       <h2>Hola, {account.name}</h2>
+      <PanelNav />
       <div className="grid two">
         <article className="card">
           <h3>Mi emprendimiento</h3>
@@ -47,7 +49,10 @@ export default function Panel() {
         <article className="card">
           <h3>Mis redes sociales</h3>
           <p>Vincula Instagram, Facebook, TikTok, WhatsApp o YouTube para que los visitantes te encuentren.</p>
-          <Link className="btn" to="/panel/emprendimiento#redes">Administrar redes</Link>
+          <div className="row">
+            <Link className="btn" to="/panel/redes">Administrar redes</Link>
+            <Link className="btn" to="/panel/estadisticas">Ver estadísticas</Link>
+          </div>
         </article>
       </div>
       <h3>Herramientas</h3>

@@ -107,3 +107,18 @@ h1 { font-family: Georgia, serif; color: var(--color-primary); font-weight: 400;
   .card.narrow { margin: 12px auto; }
   .btn { padding: 10px 14px; }
 }
+
+/* ===== Fase 5: panel del emprendedor ===== */
+.panel-nav { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 18px; padding-bottom: 10px; border-bottom: 1px solid var(--color-border); }
+.panel-nav a { text-decoration: none; color: var(--color-primary); padding: 6px 12px; border-radius: 999px; border: 1px solid var(--color-border); background: var(--color-surface); font-size: 0.9rem; }
+.panel-nav a.active { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+.alert.info { background: #e8f0f7; color: var(--color-info); }
+.card.info { background: #f1f6fa; border-color: #c9dcea; }
+.stat { margin: 0; }
+.stat h3 { margin-top: 0; }
+.stat-number { font-size: 1.8rem; margin: 4px 0; font-family: Georgia, serif; color: var(--color-primary); }
+.history { margin: 6px 0 0; padding-left: 18px; }
+@media (max-width: 640px) {
+  .panel-nav { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 12px; }
+  .panel-nav a { white-space: nowrap; }
+}

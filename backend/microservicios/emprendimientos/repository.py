@@ -135,6 +135,17 @@ class VentureRepository:
         ).all()
         return {row.social_link_id: row for row in rows}  # el ultimo gana
 
+    def stat_history(self, link_ids: list[int]) -> list[FollowerStat]:
+        if not link_ids:
+            return []
+        return list(
+            self.session.exec(
+                select(FollowerStat)
+                .where(FollowerStat.social_link_id.in_(link_ids))
+                .order_by(FollowerStat.id.desc())
+            ).all()
+        )
+
     def add_stat(self, stat: FollowerStat) -> None:
         self.session.add(stat)
 

@@ -41,9 +41,10 @@ class UserService:
         self.storage = storage
 
     # ---- helpers ----
-    def _get_or_raise(self, user_id: int) -> User:
+    def _get_or_raise(self, user_id: int, owner: int) -> User:
         user = self.repo.get(user_id)
-        if user is None:
+        # Un registro ajeno "no existe" para quien pregunta (404, no 403): no revela que existe.
+        if user is None or user.owner_account_id != owner:
             raise UserNotFound("User not found")
         return user
 
@@ -73,8 +74,8 @@ class UserService:
         self._validate_image(content, content_type)
         return await self.storage.upload(content, filename, content_type, "users")
 
-    def _set_active(self, user_id: int, active: bool, action: str) -> UserResponse:
-        user = self._get_or_raise(user_id)
+    def _set_active(self, user_id: int, owner: int, active: bool, action: str) -> UserResponse:
+        user = self._get_or_raise(user_id, owner)
         user.is_active = active
         self.repo.add_audit(user.id, action)
         self.repo.commit()
@@ -82,14 +83,15 @@ class UserService:
         return self._to_response(user)
 
     # ---- casos de uso ----
-    def list_users(self, is_active: Optional[bool] = None) -> list[UserResponse]:
-        return [self._to_response(u) for u in self.repo.find_all(is_active)]
+    def list_users(self, owner: int, is_active: Optional[bool] = None) -> list[UserResponse]:
+        return [self._to_response(u) for u in self.repo.find_all(owner, is_active)]
 
-    def get_user(self, user_id: int) -> UserResponse:
-        return self._to_response(self._get_or_raise(user_id))
+    def get_user(self, user_id: int, owner: int) -> UserResponse:
+        return self._to_response(self._get_or_raise(user_id, owner))
 
     async def create_user(
         self,
+        owner: int,
         name: str,
         is_active: bool,
         methodology_ids: list[int],
@@ -100,15 +102,15 @@ class UserService:
         if image is not None:
             img_url = await self._upload_image(*image)
 
-        user = self.repo.add(User(name=name.strip(), is_active=is_active, img=img_url))
+        user = self.repo.add(User(name=name.strip(), is_active=is_active, img=img_url, owner_account_id=owner))
         self.repo.set_methodologies(user.id, methodology_ids)
         self.repo.add_audit(user.id, "CREATE")
         self.repo.commit()
         self.repo.refresh(user)
         return self._to_response(user)
 
-    def update_user(self, user_id: int, data: UserUpdate) -> UserResponse:
-        user = self._get_or_raise(user_id)
+    def update_user(self, user_id: int, owner: int, data: UserUpdate) -> UserResponse:
+        user = self._get_or_raise(user_id, owner)
         if data.name is not None:
             user.name = data.name
         if data.is_active is not None:
@@ -121,22 +123,22 @@ class UserService:
         return self._to_response(user)
 
     async def update_image(
-        self, user_id: int, content: bytes, filename: str, content_type: Optional[str]
+        self, user_id: int, owner: int, content: bytes, filename: str, content_type: Optional[str]
     ) -> UserResponse:
-        user = self._get_or_raise(user_id)
+        user = self._get_or_raise(user_id, owner)
         user.img = await self._upload_image(content, filename, content_type)
         self.repo.add_audit(user.id, "UPDATE_IMAGE")
         self.repo.commit()
         self.repo.refresh(user)
         return self._to_response(user)
 
-    def delete_user(self, user_id: int) -> UserResponse:
+    def delete_user(self, user_id: int, owner: int) -> UserResponse:
         """Borrado logico: el registro no se destruye, queda is_active=False."""
-        return self._set_active(user_id, False, "DELETE")
+        return self._set_active(user_id, owner, False, "DELETE")
 
-    def restore_user(self, user_id: int) -> UserResponse:
-        return self._set_active(user_id, True, "RESTORE")
+    def restore_user(self, user_id: int, owner: int) -> UserResponse:
+        return self._set_active(user_id, owner, True, "RESTORE")
 
-    def audits(self, user_id: int):
-        self._get_or_raise(user_id)
+    def audits(self, user_id: int, owner: int):
+        self._get_or_raise(user_id, owner)
         return self.repo.audits(user_id)

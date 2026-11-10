@@ -190,6 +190,46 @@ class SocialTests(unittest.TestCase):
             s.set_social(1, "instagram", "https://instagram.com/a", None)
 
 
+class StatsTests(unittest.TestCase):
+    def test_no_data_is_none_never_zero(self):
+        s, _ = make()
+        published(s)
+        s.set_social(1, "instagram", "https://instagram.com/a", None)
+        st = s.stats_mine(1)
+        self.assertEqual(len(st), 1)
+        self.assertIsNone(st[0].latest)
+        self.assertEqual(st[0].history, [])
+
+    def test_history_newest_first_with_source_and_date(self):
+        s, _ = make()
+        published(s)
+        for n in (100, 150, 200):
+            s.set_social(1, "instagram", "https://instagram.com/a", n)
+        st = s.stats_mine(1)[0]
+        self.assertEqual([p.followers for p in st.history], [200, 150, 100])
+        self.assertEqual(st.latest.followers, 200)
+        self.assertEqual(st.latest.source, "manual")
+        self.assertIsNotNone(st.latest.updated_at)
+
+    def test_history_is_capped_and_unlinked_networks_hidden(self):
+        s, _ = make()
+        published(s)
+        for n in range(15):
+            s.set_social(1, "youtube", "https://youtube.com/@a", n)
+        self.assertEqual(len(s.stats_mine(1)[0].history), s.HISTORY_LIMIT)
+        s.remove_social(1, "youtube")
+        self.assertEqual(s.stats_mine(1), [])
+
+    def test_stats_need_a_venture_and_are_private(self):
+        s, _ = make()
+        with self.assertRaises(svc.VentureNotFound):
+            s.stats_mine(1)
+        published(s, 1)
+        s.set_social(1, "tiktok", "https://tiktok.com/@a", 5)
+        with self.assertRaises(svc.VentureNotFound):
+            s.stats_mine(2)
+
+
 class FavoriteTests(unittest.TestCase):
     def test_add_list_remove_and_idempotent(self):
         s, repo = make()

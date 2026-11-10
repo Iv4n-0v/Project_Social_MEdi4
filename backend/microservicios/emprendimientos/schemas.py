@@ -68,6 +68,19 @@ class SocialSave(BaseModel):
     followers: Optional[int] = Field(default=None, ge=0, le=2_000_000_000)
 
 
+class StatPoint(BaseModel):
+    followers: int
+    source: str  # 'manual' = declarado por el emprendedor | 'api' = obtenido de la red
+    updated_at: datetime.datetime
+
+
+class NetworkStats(BaseModel):
+    platform: str
+    url: str
+    latest: Optional[StatPoint] = None
+    history: list[StatPoint] = []  # del mas nuevo al mas antiguo
+
+
 class FavoriteIds(BaseModel):
     ids: list[int]
 

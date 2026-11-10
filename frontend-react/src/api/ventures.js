@@ -12,6 +12,7 @@ export const venturesApi = {
   publish: () => request('POST', '/me/venture/publish'),
   unpublish: () => request('POST', '/me/venture/unpublish'),
   audits: () => request('GET', '/me/venture/audits'),
+  stats: () => request('GET', '/me/venture/stats'),
   setSocial: (platform, body) => request('PUT', `/me/venture/social/${platform}`, { body }),
   removeSocial: (platform) => request('DELETE', `/me/venture/social/${platform}`),
   // favoritos

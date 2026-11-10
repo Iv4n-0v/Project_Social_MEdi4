@@ -26,6 +26,8 @@ class Analysis(SQLModel, table=True):
     user_id: int  # referencia logica al servicio de usuarios (sin FK)
     date: datetime.datetime = Field(default_factory=_utcnow)
     is_active: bool = True
+    # Cuenta (servicio auth) duena del registro. Sin llave foranea.
+    owner_account_id: Optional[int] = Field(default=None, index=True)
 
 
 class AnalysisAudit(SQLModel, table=True):

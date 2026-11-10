@@ -13,6 +13,7 @@ from schemas import (
     AuditResponse,
     CategoryResponse,
     FavoriteIds,
+    NetworkStats,
     OwnVenture,
     PublicVenture,
     PublicVentureList,
@@ -99,6 +100,11 @@ def unpublish(account: AccountDep, svc: ServiceDep):
 @router.get("/me/venture/audits", response_model=list[AuditResponse])
 def audits(account: AccountDep, svc: ServiceDep):
     return svc.audits_mine(account)
+
+
+@router.get("/me/venture/stats", response_model=list[NetworkStats])
+def stats(account: AccountDep, svc: ServiceDep):
+    return svc.stats_mine(account)
 
 
 @router.put("/me/venture/social/{platform}", response_model=OwnVenture)
