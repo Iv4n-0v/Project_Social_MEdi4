@@ -89,3 +89,12 @@ class AuditResponse(BaseModel):
     id: int
     action: str
     timestamp: datetime.datetime
+
+
+class Integrations(BaseModel):
+    photo_upload: bool
+    youtube: bool
+
+
+class StartResponse(BaseModel):
+    url: str

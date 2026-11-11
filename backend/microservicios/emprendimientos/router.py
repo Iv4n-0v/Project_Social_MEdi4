@@ -5,7 +5,12 @@ despues de validar el JWT. Los servicios no deben ser alcanzables sin pasar por 
 """
 from typing import Annotated, Optional
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Query, Response
+import html
+import os
+import urllib.parse
+
+from fastapi import APIRouter, Depends, File, Header, HTTPException, Query, Response, UploadFile
+from fastapi.responses import HTMLResponse
 
 from database import SessionDep
 from repository import VentureRepository
@@ -13,6 +18,8 @@ from schemas import (
     AuditResponse,
     CategoryResponse,
     FavoriteIds,
+    Integrations,
+    StartResponse,
     NetworkStats,
     OwnVenture,
     PublicVenture,
@@ -20,7 +27,9 @@ from schemas import (
     SocialSave,
     VentureSave,
 )
-from service import VentureService
+from service import MAX_IMAGE_BYTES, VentureService
+from storage import ImageStorage, get_storage
+from youtube import YoutubeConnector, get_connector
 
 router = APIRouter(tags=["emprendimientos"])
 
@@ -115,6 +124,60 @@ def set_social(platform: str, data: SocialSave, account: AccountDep, svc: Servic
 @router.delete("/me/venture/social/{platform}", response_model=OwnVenture)
 def remove_social(platform: str, account: AccountDep, svc: ServiceDep):
     return svc.remove_social(account, platform)
+
+
+# ---- foto del emprendimiento ----
+StorageDep = Annotated[ImageStorage, Depends(get_storage)]
+ConnectorDep = Annotated[YoutubeConnector, Depends(get_connector)]
+
+
+@router.get("/me/venture/integrations", response_model=Integrations)
+def integrations(storage: StorageDep, connector: ConnectorDep):
+    """Que opciones estan configuradas (la interfaz solo muestra las que funcionan)."""
+    return Integrations(photo_upload=storage.is_configured(), youtube=connector.enabled)
+
+
+@router.put("/me/venture/image", response_model=OwnVenture)
+async def set_image(account: AccountDep, svc: ServiceDep, storage: StorageDep, file: UploadFile = File(...)):
+    content = await file.read(MAX_IMAGE_BYTES + 1)  # nunca se lee mas de lo permitido
+    return await svc.set_image(account, content, storage)
+
+
+@router.delete("/me/venture/image", response_model=OwnVenture)
+async def remove_image(account: AccountDep, svc: ServiceDep, storage: StorageDep):
+    return await svc.remove_image(account, storage)
+
+
+# ---- YouTube ----
+@router.get("/me/venture/youtube/start", response_model=StartResponse)
+def youtube_start(account: AccountDep, svc: ServiceDep, connector: ConnectorDep):
+    """Devuelve la URL de Google; el frontend navega a ella (JSON, no 3xx, para pasar por el gateway)."""
+    return StartResponse(url=svc.youtube_start(account, connector))
+
+
+def _bridge_page(target: str) -> str:
+    safe = html.escape(target, quote=True)
+    return (
+        "<!doctype html><html lang='es'><head><meta charset='utf-8'>"
+        f"<meta http-equiv='refresh' content='0;url={safe}'>"
+        "<title>Redirigiendo...</title></head><body>"
+        f"<p>Redirigiendo... <a href='{safe}'>Continuar</a></p></body></html>"
+    )
+
+
+@router.get("/youtube/callback", response_class=HTMLResponse)
+def youtube_callback(
+    svc: ServiceDep,
+    connector: ConnectorDep,
+    code: Optional[str] = None,
+    state: Optional[str] = None,
+    error: Optional[str] = None,
+):
+    """Destino al que Google devuelve al emprendedor. Es publico porque el navegador llega
+    sin el token; la identidad sale del `state` firmado que emitimos nosotros."""
+    result = svc.youtube_finish(code, state, error, connector)
+    base = connector.public_url or os.getenv("PUBLIC_URL", "")
+    return HTMLResponse(_bridge_page(f"{base}/panel/estadisticas?youtube={urllib.parse.quote(result)}"))
 
 
 # ---- favoritos (cualquier cuenta con sesion) ----

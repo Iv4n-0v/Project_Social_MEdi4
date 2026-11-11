@@ -7,6 +7,7 @@ from sqlmodel import Session
 from database import create_tables, engine
 from repository import VentureRepository
 from router import router
+from storage import StorageError, StorageUnavailable
 from service import (
     InvalidInput,
     NotPublishable,
@@ -33,6 +34,8 @@ ERROR_STATUS = {
     VentureNotFound: 404,
     VentureInactive: 409,
     NotPublishable: 422,
+    StorageUnavailable: 503,
+    StorageError: 502,
 }
 
 

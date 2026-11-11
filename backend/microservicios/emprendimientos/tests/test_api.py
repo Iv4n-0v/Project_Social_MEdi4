@@ -11,6 +11,9 @@ os.environ["DATABASE_URL"] = f"sqlite:///{_TMP}/test.sqlite3"
 from fastapi.testclient import TestClient  # noqa: E402
 
 from main import app  # noqa: E402
+from storage import get_storage  # noqa: E402
+from tests.test_phase6 import JPEG, FakeStorage, connector  # noqa: E402
+from youtube import get_connector  # noqa: E402
 
 A = {"X-User-Id": "101"}
 B = {"X-User-Id": "202"}
@@ -87,3 +90,40 @@ class ApiTests(unittest.TestCase):
     def test_05_validation(self):
         self.assertEqual(self.c.put("/me/venture", json={"name": "   "}, headers=B).status_code, 422)
         self.assertEqual(self.c.put("/me/venture", json={"name": "ok", "category_id": 9999}, headers=B).status_code, 422)
+
+    def test_07_image_and_youtube(self):
+        h = {"X-User-Id": "404"}
+        st, conn = FakeStorage(), connector()
+        app.dependency_overrides[get_storage] = lambda: st
+        app.dependency_overrides[get_connector] = lambda: conn
+        try:
+            self.assertEqual(self.c.get("/me/venture/integrations", headers=h).json(), {"photo_upload": True, "youtube": True})
+            self.assertEqual(self.c.put("/me/venture/image", files={"file": ("a.jpg", JPEG)}).status_code, 401)
+            self.assertEqual(self.c.put("/me/venture/image", files={"file": ("a.jpg", JPEG)}, headers=h).status_code, 404)
+            self.c.put("/me/venture", json={"name": "Foto Co", "description": "x"}, headers=h)
+            ok = self.c.put("/me/venture/image", files={"file": ("a.jpg", JPEG, "image/jpeg")}, headers=h)
+            self.assertEqual(ok.status_code, 200)
+            self.assertTrue(ok.json()["profile_image_url"].startswith("https://cdn.test/ventures/"))
+            # un .exe que dice ser jpg se rechaza por su contenido
+            bad = self.c.put("/me/venture/image", files={"file": ("a.jpg", b"MZ-not-an-image", "image/jpeg")}, headers=h)
+            self.assertEqual(bad.status_code, 422)
+            self.assertIsNone(self.c.delete("/me/venture/image", headers=h).json()["profile_image_url"])
+            # YouTube: inicio con sesion; callback publico con `state` firmado
+            self.assertEqual(self.c.get("/me/venture/youtube/start").status_code, 401)
+            start = self.c.get("/me/venture/youtube/start", headers=h)
+            self.assertEqual(start.status_code, 200)
+            self.assertTrue(start.json()["url"].startswith("https://accounts.google.com/"))
+            state = start.json()["url"].split("state=")[1].split("&")[0]
+            cb = self.c.get("/youtube/callback", params={"code": "abc", "state": state})
+            self.assertEqual(cb.status_code, 200)
+            self.assertIn("youtube=ok", cb.text)
+            stats = self.c.get("/me/venture/stats", headers=h).json()
+            self.assertEqual((stats[0]["latest"]["followers"], stats[0]["latest"]["source"]), (1520, "api"))
+            forged = self.c.get("/youtube/callback", params={"code": "abc", "state": "falso"})
+            self.assertIn("youtube=invalid", forged.text)
+            # almacenamiento sin configurar -> 503 claro, no 500
+            st.configured = False
+            self.assertEqual(self.c.get("/me/venture/integrations", headers=h).json()["photo_upload"], False)
+            self.assertEqual(self.c.put("/me/venture/image", files={"file": ("a.jpg", JPEG)}, headers=h).status_code, 503)
+        finally:
+            app.dependency_overrides.clear()

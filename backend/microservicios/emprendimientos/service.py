@@ -8,6 +8,9 @@ import datetime
 import urllib.parse
 from typing import Optional
 
+import youtube
+from storage import StorageError, StorageUnavailable  # noqa: F401  (main.py las traduce a HTTP)
+
 from models import Category, FollowerStat, SocialLink, Venture, utcnow
 from repository import DuplicateVenture
 from schemas import (
@@ -46,6 +49,24 @@ PLATFORMS = {
 }
 
 MAX_PAGE = 50
+
+# Foto del emprendimiento: se reconoce por el CONTENIDO (no por lo que declara el navegador)
+MAX_IMAGE_BYTES = 5 * 1024 * 1024
+IMAGE_KINDS = {  # tipo -> (content-type, extension)
+    "jpeg": ("image/jpeg", ".jpg"),
+    "png": ("image/png", ".png"),
+    "webp": ("image/webp", ".webp"),
+}
+
+
+def sniff_image(content: bytes) -> Optional[str]:
+    if content.startswith(b"\xff\xd8\xff"):
+        return "jpeg"
+    if content.startswith(b"\x89PNG\r\n\x1a\n"):
+        return "png"
+    if content[:4] == b"RIFF" and content[8:12] == b"WEBP":
+        return "webp"
+    return None
 
 
 # ---- errores de dominio ----
@@ -364,3 +385,77 @@ class VentureService:
     def remove_favorite(self, account_id: int, venture_id: int) -> None:
         self.repo.remove_favorite(account_id, venture_id)
         self.repo.commit()
+
+    # ---- foto del emprendimiento (Supabase Storage) ----
+    async def set_image(self, account_id: int, content: bytes, storage) -> OwnVenture:
+        v = self._active_mine(account_id)
+        if not content:
+            raise InvalidInput("El archivo esta vacio")
+        if len(content) > MAX_IMAGE_BYTES:
+            raise InvalidInput("La imagen supera los 5 MB")
+        kind = sniff_image(content)
+        if kind is None:
+            raise InvalidInput("Formato no permitido. Usa JPG, PNG o WEBP")
+        if not storage.is_configured():
+            raise StorageUnavailable("Almacenamiento de imagenes no configurado")
+        content_type, ext = IMAGE_KINDS[kind]
+        old = v.profile_image_url
+        url = await storage.upload(content, ext, content_type, f"ventures/{v.id}")
+        v.profile_image_url = url
+        v.updated_at = self._now()
+        self.repo.save(v)
+        self.repo.add_audit(v.id, "IMAGE_SET")
+        self.repo.commit()
+        if old:
+            await storage.delete(old)  # limpieza: nunca rompe el flujo
+        return self._own(v)
+
+    async def remove_image(self, account_id: int, storage) -> OwnVenture:
+        v = self._active_mine(account_id)
+        old = v.profile_image_url
+        if old:
+            v.profile_image_url = None
+            v.updated_at = self._now()
+            self.repo.save(v)
+            self.repo.add_audit(v.id, "IMAGE_REMOVE")
+            self.repo.commit()
+            await storage.delete(old)
+        return self._own(v)
+
+    # ---- YouTube (API oficial, solo lectura) ----
+    def youtube_start(self, account_id: int, connector) -> str:
+        self._active_mine(account_id)  # sin emprendimiento no hay a que vincular el canal
+        return connector.authorize_url(account_id)
+
+    def youtube_finish(self, code: Optional[str], state: Optional[str], error: Optional[str], connector) -> str:
+        """Cierra el flujo y devuelve un codigo corto para la interfaz:
+        ok | denied | invalid | nochannel | hidden | novenue | failed | notconfigured."""
+        try:
+            if not state:
+                raise youtube.InvalidState("Falta el estado")
+            account_id = connector.account_from_state(state)
+            if error or not code:
+                return "denied"
+            v = self.repo.get_by_owner(account_id)
+            if v is None or not v.is_active:
+                return "novenue"
+            token = connector.exchange_code(code)
+            channel = connector.fetch_channel(token)  # el token se descarta aqui: no se guarda
+            if channel.hidden:
+                return "hidden"  # nada de cifras inventadas
+            url = f"https://www.youtube.com/channel/{channel.channel_id}"
+            link = self.repo.get_link(v.id, "youtube")
+            if link is None:
+                link = self.repo.add_link(SocialLink(venture_id=v.id, platform="youtube", url=url))
+            else:
+                link.url = url
+                link.is_active = True
+                self.repo.save(link)
+            self.repo.add_stat(
+                FollowerStat(social_link_id=link.id, followers=channel.subscribers, source="api", updated_at=self._now())
+            )
+            self.repo.add_audit(v.id, "YOUTUBE_SYNC")
+            self.repo.commit()
+            return "ok"
+        except youtube.YoutubeError as exc:
+            return exc.code

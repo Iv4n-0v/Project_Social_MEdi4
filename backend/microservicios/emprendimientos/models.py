@@ -36,7 +36,7 @@ class Venture(SQLModel, table=True):
     description: Optional[str] = None
     location: Optional[str] = None
     category_id: Optional[int] = Field(default=None, foreign_key="categories.id", index=True)
-    profile_image_url: Optional[str] = None  # la subida de imagen llega en la Fase 6
+    profile_image_url: Optional[str] = None
     is_published: bool = False  # nace como borrador
     is_active: bool = True
     created_at: datetime.datetime = Field(default_factory=utcnow)
