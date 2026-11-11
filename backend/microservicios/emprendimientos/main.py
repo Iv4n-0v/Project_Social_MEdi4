@@ -8,6 +8,7 @@ from database import create_tables, engine
 from repository import VentureRepository
 from router import router
 from storage import StorageError, StorageUnavailable
+from youtube import NotConfigured
 from service import (
     InvalidInput,
     NotPublishable,
@@ -36,6 +37,7 @@ ERROR_STATUS = {
     NotPublishable: 422,
     StorageUnavailable: 503,
     StorageError: 502,
+    NotConfigured: 503,
 }
 
 

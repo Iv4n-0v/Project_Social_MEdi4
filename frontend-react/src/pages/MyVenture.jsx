@@ -4,6 +4,9 @@ import { ApiError, friendlyMessage } from '../api/errors';
 import { venturesApi } from '../api/ventures';
 import { Loading } from '../components/Guards';
 import PanelNav from '../components/PanelNav';
+import { Avatar } from '../components/venture';
+
+const MAX_MB = 5;
 
 const EMPTY = { name: '', entrepreneur_name: '', show_entrepreneur_name: false, description: '', location: '', category_id: '' };
 
@@ -14,6 +17,7 @@ export default function MyVenture() {
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [busy, setBusy] = useState(false);
+  const [canUpload, setCanUpload] = useState(false);
 
   const adopt = useCallback((v) => {
     setVenture(v);
@@ -29,6 +33,7 @@ export default function MyVenture() {
 
   useEffect(() => {
     venturesApi.categories().then(setCategories).catch(() => {});
+    venturesApi.integrations().then((i) => setCanUpload(!!i.photo_upload)).catch(() => {});
     venturesApi
       .mine()
       .then(adopt)
@@ -66,6 +71,21 @@ export default function MyVenture() {
     };
     return run(() => venturesApi.save(body), 'Cambios guardados');
   };
+
+  function pickPhoto(e) {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = ''; // permite elegir de nuevo el mismo archivo
+    if (!file) return;
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      setError('Usa una imagen JPG, PNG o WEBP.');
+      return;
+    }
+    if (file.size > MAX_MB * 1024 * 1024) {
+      setError(`La imagen supera los ${MAX_MB} MB.`);
+      return;
+    }
+    return run(() => venturesApi.setImage(file), 'Foto actualizada');
+  }
 
   if (venture === undefined) return <Loading />;
 
@@ -118,6 +138,29 @@ export default function MyVenture() {
 
       {venture && !deleted && (
         <>
+          <div className="card">
+            <h3>Foto del emprendimiento</h3>
+            <div className="row photo-row">
+              <Avatar venture={venture} size={96} />
+              <div>
+                {canUpload ? (
+                  <>
+                    <label className="btn" aria-disabled={busy}>
+                      {venture.profile_image_url ? 'Cambiar foto' : 'Subir foto'}
+                      <input type="file" accept="image/jpeg,image/png,image/webp" hidden disabled={busy} onChange={pickPhoto} />
+                    </label>{' '}
+                    {venture.profile_image_url && (
+                      <button className="btn" disabled={busy} onClick={() => run(venturesApi.removeImage, 'Foto eliminada')}>Quitar foto</button>
+                    )}
+                    <p className="muted small">JPG, PNG o WEBP, hasta {MAX_MB} MB.</p>
+                  </>
+                ) : (
+                  <p className="muted small">La subida de fotos aún no está configurada en este entorno.</p>
+                )}
+              </div>
+            </div>
+          </div>
+
           <div className="card">
             <h3>Visibilidad</h3>
             <p>

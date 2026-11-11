@@ -108,6 +108,11 @@ services:
     build: ./backend/microservicios/emprendimientos
     environment:
       DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@db:5432/emprendimientos
+    # Fotos (Supabase) y conexion con YouTube: backend/microservicios/emprendimientos/.env
+    # (ver .env.example). Si no existe, el servicio arranca igual y oculta esas opciones.
+    env_file:
+      - path: ./backend/microservicios/emprendimientos/.env
+        required: false
     # Sin puertos publicados: solo se llega a el a traves del gateway, que es quien
     # valida el token y fija X-User-Id. Nunca expongas este servicio directamente.
     depends_on:

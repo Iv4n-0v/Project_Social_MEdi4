@@ -68,6 +68,12 @@ VENTURE_OPERATIONS = [
     ("POST", "/me/venture/unpublish", "/me/venture/unpublish", [], "owner"),
     ("GET", "/me/venture/audits", "/me/venture/audits", [], "owner"),
     ("GET", "/me/venture/stats", "/me/venture/stats", [], "owner"),
+    ("GET", "/me/venture/integrations", "/me/venture/integrations", [], "owner"),
+    ("PUT", "/me/venture/image", "/me/venture/image", [], "owner"),
+    ("DELETE", "/me/venture/image", "/me/venture/image", [], "owner"),
+    ("GET", "/me/venture/youtube/start", "/me/venture/youtube/start", [], "owner"),
+    # Google vuelve aqui SIN token: es publico, pero el micro solo acepta un `state` firmado por el
+    ("GET", "/youtube/callback", "/youtube/callback", ["code", "state", "error", "scope"], "public"),
     ("PUT", "/me/venture/social/{platform}", "/me/venture/social/{platform}", [], "owner"),
     ("DELETE", "/me/venture/social/{platform}", "/me/venture/social/{platform}", [], "owner"),
     ("GET", "/me/favorites", "/me/favorites", [], "user"),
@@ -181,7 +187,8 @@ def build(hosts, jwks_url):
         else:
             roles = ["entrepreneur"] if access == "owner" else ROLES
             ep = endpoint(
-                method, f"/api/v1{pub}", back, hosts["emprendimientos"], query, None,
+                method, f"/api/v1{pub}", back, hosts["emprendimientos"], query,
+                UPLOAD_TIMEOUT if (method == "PUT" and pub == "/me/venture/image") else None,
                 ("Authorization", "X-User-Id"), jwt_validator(jwks_url, roles, propagate=True),
             )
         endpoints.append(ep)

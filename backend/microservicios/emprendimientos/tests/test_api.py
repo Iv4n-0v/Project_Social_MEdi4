@@ -103,7 +103,7 @@ class ApiTests(unittest.TestCase):
             self.c.put("/me/venture", json={"name": "Foto Co", "description": "x"}, headers=h)
             ok = self.c.put("/me/venture/image", files={"file": ("a.jpg", JPEG, "image/jpeg")}, headers=h)
             self.assertEqual(ok.status_code, 200)
-            self.assertTrue(ok.json()["profile_image_url"].startswith("https://cdn.test/ventures/"))
+            self.assertTrue(ok.json()["profile_image_url"].startswith("https://cdn.test/emprendimientos/"))
             # un .exe que dice ser jpg se rechaza por su contenido
             bad = self.c.put("/me/venture/image", files={"file": ("a.jpg", b"MZ-not-an-image", "image/jpeg")}, headers=h)
             self.assertEqual(bad.status_code, 422)

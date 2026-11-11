@@ -77,10 +77,10 @@ class ImageTests(unittest.TestCase):
         s, repo = make()
         st = FakeStorage()
         v = run(s.set_image(1, JPEG, st))
-        self.assertEqual(v.profile_image_url, "https://cdn.test/ventures/1/0.jpg")
+        self.assertEqual(v.profile_image_url, "https://cdn.test/emprendimientos/1/0.jpg")
         self.assertEqual(st.uploaded[0][1], "image/jpeg")
         v = run(s.set_image(1, PNG, st))
-        self.assertEqual(st.deleted, ["https://cdn.test/ventures/1/0.jpg"])
+        self.assertEqual(st.deleted, ["https://cdn.test/emprendimientos/1/0.jpg"])
         self.assertIn("IMAGE_SET", [a.action for a in repo.audit_rows])
 
     def test_extension_comes_from_content_not_client(self):

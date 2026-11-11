@@ -400,7 +400,7 @@ class VentureService:
             raise StorageUnavailable("Almacenamiento de imagenes no configurado")
         content_type, ext = IMAGE_KINDS[kind]
         old = v.profile_image_url
-        url = await storage.upload(content, ext, content_type, f"ventures/{v.id}")
+        url = await storage.upload(content, ext, content_type, f"emprendimientos/{v.id}")
         v.profile_image_url = url
         v.updated_at = self._now()
         self.repo.save(v)
