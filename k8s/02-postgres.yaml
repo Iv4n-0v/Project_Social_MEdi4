@@ -1,4 +1,5 @@
-# Crea las bases de datos que usan los dos microservicios (solo corre con el volumen vacío).
+# Crea las bases de datos de los microservicios (solo corre con el volumen vacío;
+# si el volumen ya existe, créalas a mano: ver docs/reorientacion/GUIA_FASE7.md).
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -8,6 +9,8 @@ data:
   init.sql: |
     CREATE DATABASE beneficios;
     CREATE DATABASE analisis;
+    CREATE DATABASE auth;
+    CREATE DATABASE emprendimientos;
 ---
 apiVersion: v1
 kind: Service

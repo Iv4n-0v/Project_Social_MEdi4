@@ -1,0 +1,107 @@
+# AJUSTADO A K3s EN ORACLE (VM Always Free, 1 GB RAM): 1 réplica, memoria baja, imagen local.
+# Servicio de emprendimientos (catálogo, panel, favoritos, fotos y seguidores de YouTube).
+#
+# SEGURIDAD: este servicio confía en la cabecera X-User-Id, que fija el gateway tras validar el JWT.
+# Por eso es ClusterIP y además lleva una NetworkPolicy: NUNCA lo expongas con LoadBalancer/Ingress,
+# porque cualquiera podría suplantar a otra cuenta enviando esa cabecera.
+#
+# Secret opcional con Supabase/YouTube (si no existe, el servicio arranca y oculta esas opciones):
+#   kubectl -n social-media create secret generic emprendimientos-secret --from-env-file=<archivo>
+# OAUTH_STATE_SECRET debe ser el mismo en todas las réplicas.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: emprendimientos
+  namespace: social-media
+  labels:
+    app: emprendimientos
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: emprendimientos
+  template:
+    metadata:
+      labels:
+        app: emprendimientos
+    spec:
+      containers:
+        - name: emprendimientos
+          image: emprendimientos:v1
+          imagePullPolicy: IfNotPresent   # la imagen se importó a K3s, no hay registro
+          ports:
+            - containerPort: 8006
+          envFrom:
+            - secretRef:
+                name: emprendimientos-secret
+                optional: true
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+            - name: DATABASE_URL
+              value: postgresql://postgres:$(POSTGRES_PASSWORD)@db:5432/emprendimientos
+          # Tiempos holgados: la VM Always Free (1 GB de RAM) responde lento al arrancar.
+          # Con timeoutSeconds=1 (por defecto) los pods se reiniciaban sin estar rotos.
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8006
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8006
+            initialDelaySeconds: 45
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 5
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 50m
+              memory: 96Mi
+            limits:
+              memory: 192Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: emprendimientos
+  namespace: social-media
+spec:
+  type: ClusterIP
+  selector:
+    app: emprendimientos
+  ports:
+    - port: 8006          # mismo puerto que usa el gateway (krakend.json apunta a http://emprendimientos:8006)
+      targetPort: 8006
+---
+# Solo el gateway puede llamar a este servicio (requiere un clúster con NetworkPolicy:
+# K3s la aplica con su controlador integrado; GKE Autopilot también). Si el gateway aún corre fuera del clúster, esta política
+# bloquea todo tráfico interno: para probar con port-forward no hace falta quitarla.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: emprendimientos-solo-gateway
+  namespace: social-media
+spec:
+  podSelector:
+    matchLabels:
+      app: emprendimientos
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: gateway
+      ports:
+        - port: 8006
