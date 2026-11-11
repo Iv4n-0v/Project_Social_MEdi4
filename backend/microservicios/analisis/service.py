@@ -19,9 +19,10 @@ class AnalysisService:
         self.repo = repo
 
     # ---- helpers ----
-    def _get_or_raise(self, analysis_id: int) -> Analysis:
+    def _get_or_raise(self, analysis_id: int, owner: int) -> Analysis:
         analysis = self.repo.get(analysis_id)
-        if analysis is None:
+        # Un registro ajeno "no existe" para quien pregunta (404, no 403).
+        if analysis is None or analysis.owner_account_id != owner:
             raise AnalysisNotFound("Analysis not found")
         return analysis
 
@@ -37,8 +38,8 @@ class AnalysisService:
             is_active=a.is_active,
         )
 
-    def _set_active(self, analysis_id: int, active: bool, action: str) -> AnalysisResponse:
-        analysis = self._get_or_raise(analysis_id)
+    def _set_active(self, analysis_id: int, owner: int, active: bool, action: str) -> AnalysisResponse:
+        analysis = self._get_or_raise(analysis_id, owner)
         analysis.is_active = active
         self.repo.add_audit(analysis.id, action)
         self.repo.commit()
@@ -47,20 +48,21 @@ class AnalysisService:
 
     # ---- casos de uso ----
     def list_analyses(
-        self, is_active: Optional[bool] = None, user_id: Optional[int] = None
+        self, owner: int, is_active: Optional[bool] = None, user_id: Optional[int] = None
     ) -> list[AnalysisResponse]:
-        return [self._to_response(a) for a in self.repo.find_all(is_active, user_id)]
+        return [self._to_response(a) for a in self.repo.find_all(owner, is_active, user_id)]
 
-    def get_analysis(self, analysis_id: int) -> AnalysisResponse:
-        return self._to_response(self._get_or_raise(analysis_id))
+    def get_analysis(self, analysis_id: int, owner: int) -> AnalysisResponse:
+        return self._to_response(self._get_or_raise(analysis_id, owner))
 
-    def create_analysis(self, data: AnalysisCreate) -> AnalysisResponse:
+    def create_analysis(self, owner: int, data: AnalysisCreate) -> AnalysisResponse:
         analysis = self.repo.add(
             Analysis(
                 sector=data.sector,
                 reach=data.reach,
                 time_in_social_media=data.time_in_social_media,
                 user_id=data.user_id,
+                owner_account_id=owner,
             )
         )
         self.repo.add_audit(analysis.id, "CREATE")
@@ -68,8 +70,8 @@ class AnalysisService:
         self.repo.refresh(analysis)
         return self._to_response(analysis)
 
-    def update_analysis(self, analysis_id: int, data: AnalysisUpdate) -> AnalysisResponse:
-        analysis = self._get_or_raise(analysis_id)
+    def update_analysis(self, analysis_id: int, owner: int, data: AnalysisUpdate) -> AnalysisResponse:
+        analysis = self._get_or_raise(analysis_id, owner)
         if data.sector is not None:
             analysis.sector = data.sector
         if data.reach is not None:
@@ -81,13 +83,13 @@ class AnalysisService:
         self.repo.refresh(analysis)
         return self._to_response(analysis)
 
-    def delete_analysis(self, analysis_id: int) -> AnalysisResponse:
+    def delete_analysis(self, analysis_id: int, owner: int) -> AnalysisResponse:
         """Borrado logico: el registro no se destruye, queda is_active=False."""
-        return self._set_active(analysis_id, False, "DELETE")
+        return self._set_active(analysis_id, owner, False, "DELETE")
 
-    def restore_analysis(self, analysis_id: int) -> AnalysisResponse:
-        return self._set_active(analysis_id, True, "RESTORE")
+    def restore_analysis(self, analysis_id: int, owner: int) -> AnalysisResponse:
+        return self._set_active(analysis_id, owner, True, "RESTORE")
 
-    def audits(self, analysis_id: int):
-        self._get_or_raise(analysis_id)
+    def audits(self, analysis_id: int, owner: int):
+        self._get_or_raise(analysis_id, owner)
         return self.repo.audits(analysis_id)

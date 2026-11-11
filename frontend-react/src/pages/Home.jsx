@@ -1,25 +1,50 @@
-import { Link } from 'react-router-dom';
-
-const cards = [
-  ['/usuarios', 'Usuarios', 'Registra usuarios y las metodologías que aplican.'],
-  ['/metodologias', 'Metodologías', 'Administra metodologías y sus beneficios.'],
-  ['/beneficios', 'Beneficios', 'Catálogo de beneficios.'],
-  ['/analisis', 'Análisis', 'Sector, alcance y tiempo en redes por usuario.'],
-];
+import { useEffect } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useAuth } from '../auth/AuthContext';
+import { homeFor } from '../utils';
 
 export default function Home() {
+  const { account, ready } = useAuth();
+  const [params] = useSearchParams();
+  const navigate = useNavigate();
+
+  // Regreso de Google/Facebook: la sesion ya quedo creada, se entra directo
+  useEffect(() => {
+    if (params.get('oauth') === 'ok' && ready && account) navigate(homeFor(account), { replace: true });
+  }, [params, ready, account, navigate]);
+
   return (
-    <section>
-      <h2>Project Social Media</h2>
-      <p>Registra y controla las metodologías y redes sociales que usas con fines lucrativos.</p>
-      <div className="grid">
-        {cards.map(([to, title, text]) => (
-          <Link key={to} to={to} className="card link-card">
-            <h3>{title}</h3>
-            <p>{text}</p>
-          </Link>
-        ))}
+    <section className="landing">
+      <div className="hero">
+        <h1>Descubre y da a conocer emprendimientos</h1>
+        <p>
+          Una plataforma que conecta a quienes emprenden con las personas que quieren conocerlos:
+          perfiles claros, sus redes sociales en un solo lugar y cifras que tú puedes verificar.
+        </p>
       </div>
+      <div className="grid two">
+        <article className="card choice">
+          <h2>Quiero explorar</h2>
+          <p>Navega el catálogo, busca por nombre o categoría y guarda tus favoritos.</p>
+          <div className="row">
+            <Link className="btn primary" to="/explorar">Ver emprendimientos</Link>
+          </div>
+        </article>
+        <article className="card choice">
+          <h2>Tengo un emprendimiento</h2>
+          <p>Crea tu perfil, vincula tus redes y decide cuándo publicarlo.</p>
+          <div className="row">
+            <Link className="btn primary" to={account ? '/panel' : '/registro?rol=entrepreneur'}>
+              {account ? 'Ir a mi panel' : 'Crear mi cuenta de emprendedor'}
+            </Link>
+            {!account && <Link className="btn" to="/ingresar?rol=entrepreneur">Ya tengo cuenta</Link>}
+          </div>
+        </article>
+      </div>
+      <p className="muted small">
+        Los datos que ves son los que cada emprendedor publica. Si una cifra de seguidores es declarada
+        a mano, se indica así.
+      </p>
     </section>
   );
 }

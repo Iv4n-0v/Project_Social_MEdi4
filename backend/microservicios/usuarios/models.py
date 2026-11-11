@@ -14,6 +14,8 @@ class User(UserBase, table=True):
 
     id: Optional[int] = Field(default=None, primary_key=True)
     img: Optional[str] = Field(default=None, nullable=True)
+    # Cuenta (servicio auth) duena del registro. Sin llave foranea: vive en otro servicio.
+    owner_account_id: Optional[int] = Field(default=None, index=True)
 
 
 class UserMethodologyLink(SQLModel, table=True):

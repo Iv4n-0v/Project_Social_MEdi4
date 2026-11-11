@@ -17,5 +17,6 @@
             "username": "media_db_vb3o_user",
             "password": "jZvhTYFgFNDLqRZCEZclU75EPiukZdWA"
         }
-    ]
+    ],
+    "python.terminal.useEnvFile": true
 }

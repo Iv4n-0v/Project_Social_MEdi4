@@ -16,9 +16,9 @@ class AnalysisRepository:
 
     # ---- analisis ----
     def find_all(
-        self, is_active: Optional[bool] = None, user_id: Optional[int] = None
+        self, owner: int, is_active: Optional[bool] = None, user_id: Optional[int] = None
     ) -> list[Analysis]:
-        stmt = select(Analysis)
+        stmt = select(Analysis).where(Analysis.owner_account_id == owner)
         if is_active is not None:
             stmt = stmt.where(Analysis.is_active == is_active)
         if user_id is not None:
