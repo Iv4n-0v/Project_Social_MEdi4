@@ -126,3 +126,8 @@ h1 { font-family: Georgia, serif; color: var(--color-primary); font-weight: 400;
 /* ===== Fase 6: foto y conexion con YouTube ===== */
 .photo-row { align-items: center; gap: 16px; }
 .photo-row .btn[aria-disabled="true"] { opacity: 0.6; pointer-events: none; }
+
+/*Con esto el corazón queda rojo y no se aplica el fondo naranja de .btn.on */
+.btn.heart { display: inline-flex; align-items: center; justify-content: center; padding: 6px 9px; line-height: 0; color: var(--color-danger); border-color: var(--color-border); }
+.btn.heart:hover { border-color: var(--color-danger); }
+.btn.heart.on { background: var(--color-surface); border-color: var(--color-danger); color: var(--color-danger); }

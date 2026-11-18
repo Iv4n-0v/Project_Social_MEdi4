@@ -96,12 +96,22 @@ export function FavoriteButton({ venture }) {
     <>
       <button
         type="button"
-        className={`btn small${on ? ' on' : ''}`}
+        className={`btn small heart${on ? ' on' : ''}`}
         onClick={click}
         disabled={busy}
         aria-pressed={on}
+        aria-label={on ? 'Quitar de favoritos' : 'Añadir a favoritos'}
+        title={on ? 'Quitar de favoritos' : 'Añadir a favoritos'}
       >
-        {on ? '★ En favoritos' : '☆ Guardar'}
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+          <path
+            d="M12 21s-7.5-4.6-9.6-9.1C.9 8.6 2.6 5 6.1 5c2 0 3.4 1.1 4.2 2.3h3.4C14.5 6.1 15.9 5 17.9 5c3.5 0 5.2 3.6 3.7 6.9C19.5 16.4 12 21 12 21z"
+            fill={on ? 'currentColor' : 'none'}
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinejoin="round"
+          />
+        </svg>
       </button>
       {error && <span className="alert error small" role="alert">{error}</span>}
     </>
