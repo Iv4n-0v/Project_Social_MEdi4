@@ -141,3 +141,6 @@ h1 { font-family: Georgia, serif; color: var(--color-primary); font-weight: 400;
 .social-icon { flex: none; vertical-align: middle; }
 .social-name { display: inline-flex; align-items: center; gap: 6px; }
 .social-link { display: inline-flex; align-items: center; gap: 6px; }
+
+.field-error { color: var(--color-danger); }
+input[aria-invalid="true"] { border-color: var(--color-danger); }

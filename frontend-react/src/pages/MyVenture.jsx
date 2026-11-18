@@ -6,6 +6,7 @@ import { Loading } from '../components/Guards';
 import PanelNav from '../components/PanelNav';
 import { Avatar } from '../components/venture';
 import { compressImage, formatSize } from '../imageTools';
+import { normalizeName, validateName } from '../validators';
 
 const MAX_MB = 5;
 const MAX_ORIGINAL_MB = 20;
@@ -20,6 +21,9 @@ export default function MyVenture() {
   const [notice, setNotice] = useState('');
   const [busy, setBusy] = useState(false);
   const [canUpload, setCanUpload] = useState(false);
+  const [touched, setTouched] = useState(false);
+  const nameError = touched ? validateName(form.name, 'venture') : '';
+  const ownerError = form.entrepreneur_name.trim() ? validateName(form.entrepreneur_name) : '';
 
   const adopt = useCallback((v) => {
     setVenture(v);
@@ -66,9 +70,12 @@ export default function MyVenture() {
 
   const save = (e) => {
     e.preventDefault();
+    setTouched(true);
+    if (validateName(form.name, 'venture') || ownerError) return; // los mensajes salen bajo cada campo
     const body = {
       ...form,
-      name: form.name.trim(),
+      name: normalizeName(form.name),
+      entrepreneur_name: normalizeName(form.entrepreneur_name) || null,
       category_id: form.category_id === '' ? null : Number(form.category_id),
     };
     return run(() => venturesApi.save(body), 'Cambios guardados');
@@ -125,7 +132,16 @@ export default function MyVenture() {
       {!deleted && (
         <form className="card" onSubmit={save}>
           <label className="field"><span>Nombre del emprendimiento *</span>
-            <input required maxLength={100} value={form.name} onChange={set('name')} />
+            <input
+              required
+              maxLength={100}
+              value={form.name}
+              onChange={set('name')}
+              onBlur={() => setTouched(true)}
+              aria-invalid={!!nameError}
+              aria-describedby={nameError ? 'venture-name-error' : undefined}
+            />
+            {nameError && <small id="venture-name-error" className="field-error" role="alert">{nameError}</small>}
           </label>
           <label className="field"><span>Categoría</span>
             <select value={form.category_id} onChange={set('category_id')}>
@@ -141,7 +157,14 @@ export default function MyVenture() {
             <input maxLength={120} value={form.location} onChange={set('location')} />
           </label>
           <label className="field"><span>Tu nombre como emprendedor</span>
-            <input maxLength={100} value={form.entrepreneur_name} onChange={set('entrepreneur_name')} />
+            <input
+              maxLength={100}
+              value={form.entrepreneur_name}
+              onChange={set('entrepreneur_name')}
+              aria-invalid={!!ownerError}
+              aria-describedby={ownerError ? 'owner-name-error' : undefined}
+            />
+            {ownerError && <small id="owner-name-error" className="field-error" role="alert">{ownerError}</small>}
           </label>
           <label className="check">
             <input type="checkbox" checked={form.show_entrepreneur_name} onChange={set('show_entrepreneur_name')} />

@@ -4,6 +4,7 @@ import { friendlyMessage } from '../api/errors';
 import { useAuth } from '../auth/AuthContext';
 import { homeFor, safeNext } from '../utils';
 import { OAuthButtons } from './Login';
+import { normalizeName, validateName } from '../validators';
 
 export default function Register() {
   const { register, account, ready } = useAuth();
@@ -14,7 +15,8 @@ export default function Register() {
   const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
-
+  const [touched, setTouched] = useState(false);
+  const nameError = touched ? validateName(form.name) : '';
   useEffect(() => {
     if (ready && account) navigate(next || homeFor(account), { replace: true });
   }, [ready, account, next, navigate]);
@@ -23,10 +25,12 @@ export default function Register() {
 
   async function submit(e) {
     e.preventDefault();
+    setTouched(true);
+    if (validateName(form.name)) return; // el mensaje se muestra bajo el campo
     setBusy(true);
     setError('');
     try {
-      const acc = await register({ ...form, role });
+      const acc = await register({ ...form, name: normalizeName(form.name), role });
       navigate(next || homeFor(acc), { replace: true });
     } catch (err) {
       setError(friendlyMessage(err));
@@ -53,7 +57,17 @@ export default function Register() {
       <OAuthButtons role={role} />
       <form onSubmit={submit} className="stack">
         <label className="field"><span>Nombre</span>
-          <input autoComplete="name" required maxLength={100} value={form.name} onChange={set('name')} />
+          <input
+            autoComplete="name"
+            required
+            maxLength={100}
+            value={form.name}
+            onChange={set('name')}
+            onBlur={() => setTouched(true)}
+            aria-invalid={!!nameError}
+            aria-describedby={nameError ? 'name-error' : undefined}
+          />
+          {nameError && <small id="name-error" className="field-error" role="alert">{nameError}</small>}
         </label>
         <label className="field"><span>Correo</span>
           <input type="email" autoComplete="email" required value={form.email} onChange={set('email')} />
