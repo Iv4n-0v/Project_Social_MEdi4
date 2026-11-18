@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { friendlyMessage } from '../api/errors';
 import { venturesApi } from '../api/ventures';
 import { PLATFORM_LABELS, SOURCE_LABELS, formatFollowers } from './venture';
+import SocialIcon from './SocialIcon';
 
 export const PLACEHOLDERS = {
   instagram: 'https://instagram.com/tu_usuario',
@@ -46,7 +47,7 @@ export default function SocialRow({ platform, current, onSaved, onError }) {
   }
   return (
     <form className="social-row" onSubmit={save}>
-      <strong>{PLATFORM_LABELS[platform]}</strong>
+      <strong className="social-name"><SocialIcon platform={platform} size={22} /> {PLATFORM_LABELS[platform]}</strong>
       <input
         type="url"
         aria-label={`Enlace de ${PLATFORM_LABELS[platform]}`}

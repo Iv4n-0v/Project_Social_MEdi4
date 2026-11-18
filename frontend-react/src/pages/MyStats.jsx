@@ -6,6 +6,7 @@ import { Loading } from '../components/Guards';
 import PanelNav, { NoVenture } from '../components/PanelNav';
 import { useMyVenture } from '../components/useMyVenture';
 import { PLATFORM_LABELS, SOURCE_LABELS, formatFollowers } from '../components/venture';
+import SocialIcon from '../components/SocialIcon';
 
 const YOUTUBE_MESSAGES = {
   ok: ['success', 'Listo: obtuvimos tus suscriptores de YouTube con la API oficial.'],
@@ -53,7 +54,7 @@ function StatCard({ stat, onUpdated, onError, youtubeEnabled }) {
   }
   return (
     <article className="card stat">
-      <h3>{PLATFORM_LABELS[stat.platform] || stat.platform}</h3>
+      <h3 className="social-name"><SocialIcon platform={stat.platform} size={22} /> {PLATFORM_LABELS[stat.platform] || stat.platform}</h3>
       {!canTrack ? (
         <p className="muted">WhatsApp no tiene seguidores: no hay cifra que mostrar.</p>
       ) : stat.latest ? (

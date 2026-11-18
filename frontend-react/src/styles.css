@@ -137,3 +137,7 @@ h1 { font-family: Georgia, serif; color: var(--color-primary); font-weight: 400;
 .v-location { margin: 0; display: flex; align-items: center; gap: 4px; }
 .v-location svg { flex: none; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+.social-icon { flex: none; vertical-align: middle; }
+.social-name { display: inline-flex; align-items: center; gap: 6px; }
+.social-link { display: inline-flex; align-items: center; gap: 6px; }

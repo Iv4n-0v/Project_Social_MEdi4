@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { friendlyMessage } from '../api/errors';
 import { useAuth } from '../auth/AuthContext';
 import { useFavorites } from '../auth/FavoritesContext';
+import SocialIcon from './SocialIcon';
 
 export const PLATFORM_LABELS = {
   instagram: 'Instagram',
@@ -71,7 +72,10 @@ export function SocialList({ social }) {
     <ul className="social-list">
       {social.map((s) => (
         <li key={s.platform}>
-          <a href={s.url} target="_blank" rel="noopener noreferrer nofollow">{PLATFORM_LABELS[s.platform] || s.platform}</a>
+          <a href={s.url} target="_blank" rel="noopener noreferrer nofollow" className="social-link">
+            <SocialIcon platform={s.platform} />
+            {PLATFORM_LABELS[s.platform] || s.platform}
+          </a>
           {s.followers != null && (
             <span className="muted small">
               {' '}· {formatFollowers(s.followers)} seguidores
