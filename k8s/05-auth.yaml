@@ -1,0 +1,101 @@
+# AJUSTADO A K3s EN ORACLE (VM Always Free, 1 GB RAM): 1 réplica, memoria baja, imagen local.
+# Servicio de autenticación (emite y firma los JWT; publica la llave pública en /.well-known/jwks.json).
+# Solo ClusterIP: el navegador llega a él a través del gateway, no directo.
+#
+# Antes de aplicar, crea el Secret con la llave JWT (ver docs/reorientacion/GUIA_FASE7.md):
+#   kubectl -n social-media create secret generic auth-secret --from-env-file=<archivo>
+# JWT_PRIVATE_KEY es OBLIGATORIA: con varias réplicas todas deben firmar con la MISMA llave.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auth-config
+  namespace: social-media
+data:
+  # Ajusta a la URL pública real (HTTPS) desde la que se abre la app
+  PUBLIC_URL: "https://CAMBIAME.example.com"
+  FRONTEND_URL: "https://CAMBIAME.example.com"
+  COOKIE_SECURE: "true"
+  MAIL_MODE: "log"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth
+  namespace: social-media
+  labels:
+    app: auth
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth
+  template:
+    metadata:
+      labels:
+        app: auth
+    spec:
+      containers:
+        - name: auth
+          image: auth:v1
+          imagePullPolicy: IfNotPresent   # la imagen se importó a K3s, no hay registro
+          ports:
+            - containerPort: 8005
+          envFrom:
+            - configMapRef:
+                name: auth-config
+            - secretRef:
+                name: auth-secret        # JWT_PRIVATE_KEY (+ Google/Facebook/SMTP si se usan)
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+            - name: DATABASE_URL
+              value: postgresql://postgres:$(POSTGRES_PASSWORD)@db:5432/auth
+            - name: JWT_PRIVATE_KEY      # explícita: si falta, el pod no arranca (mejor que firmar con llaves distintas)
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secret
+                  key: JWT_PRIVATE_KEY
+          # Tiempos holgados: la VM Always Free (1 GB de RAM) responde lento al arrancar.
+          # Con timeoutSeconds=1 (por defecto) los pods se reiniciaban sin estar rotos.
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8005
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8005
+            initialDelaySeconds: 45
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 5
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 50m
+              memory: 96Mi
+            limits:
+              memory: 192Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth
+  namespace: social-media
+spec:
+  type: ClusterIP
+  selector:
+    app: auth
+  ports:
+    - port: 8005          # mismo puerto que usa el gateway (krakend.json apunta a http://auth:8005)
+      targetPort: 8005

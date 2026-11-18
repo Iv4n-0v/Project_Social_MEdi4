@@ -1,0 +1,57 @@
+# HÍBRIDO: deja que el gateway que corre en el portátil (no en el clúster) llegue a auth y
+# emprendimientos a través de Tailscale. NO reinicia K3s ni toca los Deployments.
+#
+# Seguridad (leer):
+#  - NodePort escucha en todas las interfaces de la VM, pero el firewall de Oracle solo deja
+#    entrar por la interfaz tailscale0 (y SSH). Desde internet no se alcanza.
+#  - externalTrafficPolicy: Local conserva la IP de origen real (la del portátil), necesaria
+#    para que la NetworkPolicy pueda filtrar.
+#  - emprendimientos confía en X-User-Id: por eso solo se admite la IP Tailscale del portátil
+#    (100.73.252.1/32). Si cambia, ajusta el ipBlock.
+#  - La política original (emprendimientos-solo-gateway) se deja como está: las políticas se suman.
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-np
+  namespace: social-media
+spec:
+  type: NodePort
+  externalTrafficPolicy: Local
+  selector:
+    app: auth
+  ports:
+    - port: 8005
+      targetPort: 8005
+      nodePort: 30005
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: emprendimientos-np
+  namespace: social-media
+spec:
+  type: NodePort
+  externalTrafficPolicy: Local
+  selector:
+    app: emprendimientos
+  ports:
+    - port: 8006
+      targetPort: 8006
+      nodePort: 30006
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: emprendimientos-desde-portatil
+  namespace: social-media
+spec:
+  podSelector:
+    matchLabels:
+      app: emprendimientos
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - ipBlock:
+            cidr: 100.73.252.1/32
+      ports:
+        - port: 8006

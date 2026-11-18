@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: beneficios
+  namespace: social-media
+  labels:
+    app: beneficios
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: beneficios
+  template:
+    metadata:
+      labels:
+        app: beneficios
+    spec:
+      containers:
+        - name: beneficios
+          image: IMAGE_BENEFICIOS          # lo reemplaza el sed de la guía
+          ports:
+            - containerPort: 8001
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+            - name: DATABASE_URL
+              value: postgresql://postgres:$(POSTGRES_PASSWORD)@db:5432/beneficios
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8001
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8001
+            initialDelaySeconds: 20
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: beneficios
+  namespace: social-media
+spec:
+  type: LoadBalancer     # IP pública para la evidencia; con ClusterIP solo sería interno
+  selector:
+    app: beneficios
+  ports:
+    - port: 80
+      targetPort: 8001
