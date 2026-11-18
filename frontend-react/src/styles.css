@@ -133,3 +133,7 @@ h1 { font-family: Georgia, serif; color: var(--color-primary); font-weight: 400;
 .btn.heart.on { background: var(--color-surface); border-color: var(--color-danger); color: var(--color-danger); }
 
 .v-broken { display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--color-border); color: var(--color-muted); flex: none; }
+
+.v-location { margin: 0; display: flex; align-items: center; gap: 4px; }
+.v-location svg { flex: none; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
