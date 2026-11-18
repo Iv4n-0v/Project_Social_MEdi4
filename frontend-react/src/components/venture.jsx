@@ -63,7 +63,7 @@ export function Avatar({ venture, size = 56 }) {
     </div>
   );
 }
-}
+
 
 export function SocialList({ social }) {
   if (!social || social.length === 0) return <p className="muted small">Aún no ha publicado sus redes.</p>;
