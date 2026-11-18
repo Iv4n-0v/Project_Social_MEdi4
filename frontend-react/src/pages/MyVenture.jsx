@@ -5,8 +5,10 @@ import { venturesApi } from '../api/ventures';
 import { Loading } from '../components/Guards';
 import PanelNav from '../components/PanelNav';
 import { Avatar } from '../components/venture';
+import { compressImage, formatSize } from '../imageTools';
 
 const MAX_MB = 5;
+const MAX_ORIGINAL_MB = 20;
 
 const EMPTY = { name: '', entrepreneur_name: '', show_entrepreneur_name: false, description: '', location: '', category_id: '' };
 
@@ -72,7 +74,7 @@ export default function MyVenture() {
     return run(() => venturesApi.save(body), 'Cambios guardados');
   };
 
-  function pickPhoto(e) {
+  async function pickPhoto(e) {
     const file = e.target.files && e.target.files[0];
     e.target.value = ''; // permite elegir de nuevo el mismo archivo
     if (!file) return;
@@ -80,11 +82,26 @@ export default function MyVenture() {
       setError('Usa una imagen JPG, PNG o WEBP.');
       return;
     }
-    if (file.size > MAX_MB * 1024 * 1024) {
-      setError(`La imagen supera los ${MAX_MB} MB.`);
+    if (file.size > MAX_ORIGINAL_MB * 1024 * 1024) {
+      setError(`La imagen supera los ${MAX_ORIGINAL_MB} MB.`);
       return;
     }
-    return run(() => venturesApi.setImage(file), 'Foto actualizada');
+    const t0 = performance.now();
+    setBusy(true);
+    setError('');
+    setNotice('Optimizando y subiendo la foto…');
+    try {
+      const small = await compressImage(file);
+      if (small.size > MAX_MB * 1024 * 1024) throw new Error(`La imagen sigue superando los ${MAX_MB} MB.`);
+      adopt(await venturesApi.setImage(small));
+      const secs = ((performance.now() - t0) / 1000).toFixed(1);
+      setNotice(`Foto actualizada en ${secs} s (${formatSize(file.size)} → ${formatSize(small.size)})`);
+    } catch (err) {
+      setNotice('');
+      setError(err instanceof ApiError ? friendlyMessage(err) : err.message);
+    } finally {
+      setBusy(false);
+    }
   }
 
   if (venture === undefined) return <Loading />;
@@ -152,7 +169,7 @@ export default function MyVenture() {
                     {venture.profile_image_url && (
                       <button className="btn" disabled={busy} onClick={() => run(venturesApi.removeImage, 'Foto eliminada')}>Quitar foto</button>
                     )}
-                    <p className="muted small">JPG, PNG o WEBP, hasta {MAX_MB} MB.</p>
+                  <p className="muted small">JPG, PNG o WEBP, hasta {MAX_ORIGINAL_MB} MB. Se optimiza automáticamente antes de subir.</p>
                   </>
                 ) : (
                   <p className="muted small">La subida de fotos aún no está configurada en este entorno.</p>
