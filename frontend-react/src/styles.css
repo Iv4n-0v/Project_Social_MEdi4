@@ -131,3 +131,5 @@ h1 { font-family: Georgia, serif; color: var(--color-primary); font-weight: 400;
 .btn.heart { display: inline-flex; align-items: center; justify-content: center; padding: 6px 9px; line-height: 0; color: var(--color-danger); border-color: var(--color-border); }
 .btn.heart:hover { border-color: var(--color-danger); }
 .btn.heart.on { background: var(--color-surface); border-color: var(--color-danger); color: var(--color-danger); }
+
+.v-broken { display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--color-border); color: var(--color-muted); flex: none; }

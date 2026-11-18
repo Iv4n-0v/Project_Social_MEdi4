@@ -3,6 +3,7 @@ import { friendlyMessage } from '../api/errors';
 import { RESOURCES } from '../config/resources';
 import { labelOf } from '../utils';
 import ResourceForm from './ResourceForm';
+import { BrokenImage } from './venture';
 
 export default function CrudPage({ resourceKey }) {
   const cfg = RESOURCES[resourceKey];
@@ -56,8 +57,7 @@ export default function CrudPage({ resourceKey }) {
     if (col.type === 'multi') return v && v.length ? v.map((id) => nameOf(col.source, id)).join(', ') : '—';
     if (col.type === 'ref') return nameOf(col.source, v);
     if (col.type === 'date') return v ? new Date(v).toLocaleString() : '';
-    if (col.type === 'image') return v ? <img className="avatar" src={v} alt={item.name} /> : 'Sin imagen';
-    return v ?? '—';
+    if (col.type === 'image') return v ? <TableImage src={v} alt={item.name} /> : 'Sin imagen';
   }
 
   async function run(action, okMessage) {
@@ -193,4 +193,11 @@ export default function CrudPage({ resourceKey }) {
       )}
     </section>
   );
+}
+
+function TableImage({ src, alt }) {
+  const [failed, setFailed] = useState(false);
+  useEffect(() => setFailed(false), [src]);
+  if (failed) return <BrokenImage size={40} className="avatar" />;
+  return <img className="avatar" src={src} alt={alt} onError={() => setFailed(true)} />;
 }

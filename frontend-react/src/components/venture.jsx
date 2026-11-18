@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { friendlyMessage } from '../api/errors';
 import { useAuth } from '../auth/AuthContext';
@@ -18,16 +18,51 @@ export function formatFollowers(n) {
   return new Intl.NumberFormat('es-CO').format(n);
 }
 
+export function BrokenImage({ size = 56, className = 'v-avatar' }) {
+  return (
+    <div
+      className={`${className} v-broken`}
+      style={{ width: size, height: size }}
+      role="img"
+      aria-label="Imagen dañada o no disponible"
+      title="La imagen está dañada o no está disponible"
+    >
+      <svg viewBox="0 0 24 24" width={size * 0.5} height={size * 0.5} aria-hidden="true" focusable="false">
+        <rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="currentColor" strokeWidth="2" />
+        <circle cx="9" cy="10" r="1.6" fill="currentColor" />
+        <path d="M3 17l5-5 4 4 3-3 6 6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+        <path d="M4 3l16 18" stroke="var(--color-danger)" strokeWidth="2.2" strokeLinecap="round" />
+      </svg>
+    </div>
+  );
+}
+
 export function Avatar({ venture, size = 56 }) {
+  const [failed, setFailed] = useState(false);
+  const url = venture.profile_image_url;
   const initial = (venture.name || '?').trim().charAt(0).toUpperCase();
-  if (venture.profile_image_url) {
-    return <img className="v-avatar" style={{ width: size, height: size }} src={venture.profile_image_url} alt="" />;
+
+  // Si cambia la URL (foto nueva), se vuelve a intentar cargar
+  useEffect(() => setFailed(false), [url]);
+
+  if (url && failed) return <BrokenImage size={size} />;
+  if (url) {
+    return (
+      <img
+        className="v-avatar"
+        style={{ width: size, height: size }}
+        src={url}
+        alt=""
+        onError={() => setFailed(true)}
+      />
+    );
   }
   return (
     <div className="v-avatar v-initial" style={{ width: size, height: size, fontSize: size * 0.45 }} aria-hidden="true">
       {initial}
     </div>
   );
+}
 }
 
 export function SocialList({ social }) {
