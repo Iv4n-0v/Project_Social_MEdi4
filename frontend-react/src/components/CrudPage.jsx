@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { friendlyMessage } from '../api/errors';
-import { RESOURCES } from '../config/resources';
+import { MAX_RECORDS, RESOURCES } from '../config/resources';
 import { labelOf } from '../utils';
 import ResourceForm from './ResourceForm';
 import { BrokenImage } from './venture';
@@ -15,6 +15,10 @@ export default function CrudPage({ resourceKey }) {
   const [notice, setNotice] = useState('');
   const [editing, setEditing] = useState(null);
   const [audits, setAudits] = useState(null);
+  const [activeCount, setActiveCount] = useState(0);
+  const max = cfg.maxRecords ?? MAX_RECORDS;
+  const full = activeCount >= max;
+
 
   const sources = useMemo(
     () => [...new Set(cfg.fields.filter((f) => f.source).map((f) => f.source))],
@@ -32,6 +36,11 @@ export default function CrudPage({ resourceKey }) {
       ]);
       setItems(list);
       setLookups(Object.fromEntries(sources.map((s, i) => [s, related[i]])));
+// Cuántos registros activos hay, sin importar el filtro que se esté viendo
+      if (filter === 'true') setActiveCount(list.length);
+      else if (filter === 'all') setActiveCount(list.filter((i) => i.is_active).length);
+      else setActiveCount((await cfg.api.list({ is_active: 'true' })).length);
+
     } catch (e) {
       setError(friendlyMessage(e));
     } finally {
@@ -86,6 +95,10 @@ export default function CrudPage({ resourceKey }) {
     setNotice('');
     try {
       const isNew = editing === 'new';
+      if (isNew && full) {
+        setError(`Alcanzaste el límite de ${max} registros activos. Desactiva alguno para crear otro.`);
+        return;
+      }
       const data = {};
       let file = null;
       for (const f of fields) {
@@ -129,9 +142,22 @@ export default function CrudPage({ resourceKey }) {
             <option value="false">Inactivos</option>
             <option value="all">Todos</option>
           </select>
-          <button className="btn primary" onClick={() => setEditing('new')}>Nuevo</button>
+          <button
+            className="btn primary"
+            disabled={full}
+            title={full ? `Límite de ${max} registros activos alcanzado` : undefined}
+            onClick={() => setEditing('new')}
+          >
+            Nuevo
+          </button>
         </div>
       </div>
+      <p className="muted small">Registros activos: {activeCount} de {max}</p>
+      {full && (
+        <p className="alert info" role="status">
+          Alcanzaste el límite de {max} registros activos. Desactiva alguno para poder crear o restaurar otro.
+        </p>
+      )}
 
       {error && <p className="alert error" role="alert">{error}</p>}
       {notice && <p className="alert success">{notice}</p>}
@@ -168,7 +194,14 @@ export default function CrudPage({ resourceKey }) {
                     <button className="btn small" onClick={() => showAudits(item)}>Historial</button>
                     {item.is_active
                       ? <button className="btn small danger" onClick={() => run(() => cfg.api.remove(item.id), 'Registro desactivado.')}>Desactivar</button>
-                      : <button className="btn small" onClick={() => run(() => cfg.api.restore(item.id), 'Registro restaurado.')}>Restaurar</button>}
+                      : <button
+                          className="btn small"
+                          disabled={full}
+                          title={full ? `Límite de ${max} registros activos alcanzado` : undefined}
+                          onClick={() => run(() => cfg.api.restore(item.id), 'Registro restaurado.')}
+                        >
+                          Restaurar
+                        </button>}
                   </td>
                 </tr>
               ))}

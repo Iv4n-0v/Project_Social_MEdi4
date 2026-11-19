@@ -2,6 +2,8 @@ import { users } from '../api/users';
 import { methodologies } from '../api/methodologies';
 import { benefits } from '../api/benefits';
 import { analysis } from '../api/analysis';
+// Máximo de registros ACTIVOS por recurso. Un recurso puede tener su propio tope con `maxRecords`.
+export const MAX_RECORDS = 3;
 
 // Cada recurso describe su formulario y su tabla; CrudPage los dibuja
 export const RESOURCES = {
