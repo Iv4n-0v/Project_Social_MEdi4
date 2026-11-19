@@ -1362,7 +1362,13 @@
           ],
           "encoding": "no-op"
         }
-      ]
+      ],
+      "extra_config": {
+        "qos/ratelimit/router": {
+          "max_rate": 10,
+          "every": "1m"
+        }
+      }
     },
     {
       "endpoint": "/api/v1/auth/login",

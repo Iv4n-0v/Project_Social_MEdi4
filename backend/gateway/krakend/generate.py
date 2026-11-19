@@ -51,6 +51,12 @@ AUTH_OPERATIONS = [
     ("POST", "/roles", "/auth/roles", [], True, None),
 ]
 
+# Límites de velocidad del gateway, por endpoint (sufijo público bajo /api/v1/auth).
+# max_rate peticiones cada `every` para TODO el endpoint; al pasarse, KrakenD responde 429.
+RATE_LIMITS = {
+    "/register": {"max_rate": 10, "every": "1m"},
+}
+
 
 # (metodo, ruta publica tras /api/v1, ruta del micro, query strings, acceso)
 # acceso: "public" sin token | "user" cualquier rol | "owner" solo rol entrepreneur
@@ -172,10 +178,13 @@ def build(hosts, jwks_url):
     for method, suffix, back, query, protected, timeout in AUTH_OPERATIONS:
         # Cookie: el refresh token viaja en una cookie httpOnly. Authorization: JWT.
         headers = ("Cookie", "Authorization") if protected else ("Cookie",)
+        extra = jwt_validator(jwks_url) if protected else None
+        if suffix in RATE_LIMITS:
+            extra = {**(extra or {}), "qos/ratelimit/router": RATE_LIMITS[suffix]}
         endpoints.append(
             endpoint(
                 method, f"/api/v1/auth{suffix}", back, hosts["auth"], query, timeout,
-                headers, jwt_validator(jwks_url) if protected else None,
+                headers, extra,
             )
         )
     # ---- emprendimientos ----

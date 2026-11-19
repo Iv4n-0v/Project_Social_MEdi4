@@ -18,6 +18,7 @@ export function friendlyMessage(err) {
   if (err instanceof NetworkError) return err.message;
   if (err instanceof ApiError) {
     if (err.status === 404) return 'No se encontró el registro.';
+    if (err.status === 429) return 'Demasiados intentos. Espera un minuto e inténtalo de nuevo.';
     if (err.status === 422) return err.message || 'Datos inválidos.';
     if (err.status === 503) return err.message || 'El servicio no está disponible.';
     return err.message || `Error ${err.status}`;
