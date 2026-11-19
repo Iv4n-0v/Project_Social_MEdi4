@@ -7,6 +7,7 @@ import PanelNav from '../components/PanelNav';
 import { Avatar } from '../components/venture';
 import { compressImage, formatSize } from '../imageTools';
 import { normalizeName, validateName } from '../validators';
+import LocationInput from '../components/LocationInput';
 
 const MAX_MB = 5;
 const MAX_ORIGINAL_MB = 20;
@@ -153,9 +154,15 @@ export default function MyVenture() {
             <textarea rows={4} maxLength={1000} value={form.description} onChange={set('description')} />
             <small className="muted">{form.description.length}/1000 · Es obligatoria para publicar.</small>
           </label>
-          <label className="field"><span>Ubicación</span>
-            <input maxLength={120} value={form.location} onChange={set('location')} />
-          </label>
+          <div className="field">
+           <label htmlFor="venture-location"><span>Ubicación</span></label>
+           <LocationInput
+            id="venture-location"
+            value={form.location}
+            onChange={(v) => setForm((f) => ({ ...f, location: v }))}
+           />
+           <small className="muted">Empieza a escribir y elige una sugerencia, o déjala como la escribas.</small>
+          </div>
           <label className="field"><span>Tu nombre como emprendedor</span>
             <input
               maxLength={100}
