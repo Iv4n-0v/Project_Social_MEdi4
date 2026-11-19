@@ -144,3 +144,8 @@ h1 { font-family: Georgia, serif; color: var(--color-primary); font-weight: 400;
 
 .field-error { color: var(--color-danger); }
 input[aria-invalid="true"] { border-color: var(--color-danger); }
+
+.signup-preview { border: 1px dashed var(--color-border); border-radius: 10px; padding: 12px; background: var(--color-bg); }
+.signup-preview h3 { margin: 0 0 8px; font-size: 1rem; }
+.signup-preview p { margin: 8px 0 0; }
+.signup-preview strong, .signup-preview .small { overflow-wrap: anywhere; }

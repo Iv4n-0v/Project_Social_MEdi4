@@ -6,6 +6,17 @@ import { homeFor, safeNext } from '../utils';
 import { OAuthButtons } from './Login';
 import { normalizeName, validateName } from '../validators';
 
+const ROLE_INFO = {
+  visitor: {
+    label: 'Visitante',
+    text: 'Explorarás el catálogo, guardarás favoritos y compartirás emprendimientos.',
+  },
+  entrepreneur: {
+    label: 'Emprendedor',
+    text: 'Podrás publicar tu emprendimiento, vincular tus redes y ver tus estadísticas.',
+  },
+};
+
 export default function Register() {
   const { register, account, ready } = useAuth();
   const [params] = useSearchParams();
@@ -17,6 +28,8 @@ export default function Register() {
   const [busy, setBusy] = useState(false);
   const [touched, setTouched] = useState(false);
   const nameError = touched ? validateName(form.name) : '';
+  const shownName = normalizeName(form.name);
+  const shownEmail = form.email.trim();
   useEffect(() => {
     if (ready && account) navigate(next || homeFor(account), { replace: true });
   }, [ready, account, next, navigate]);
@@ -80,6 +93,20 @@ export default function Register() {
           <input type="password" autoComplete="new-password" required minLength={8} value={form.password} onChange={set('password')} />
           <small className="muted">Mínimo 8 caracteres, con letras y números.</small>
         </label>
+        <div className="signup-preview" role="group" aria-label="Vista previa de tu cuenta">
+          <h3>Así se verá tu cuenta</h3>
+          <div className="row">
+            <div className="v-avatar v-initial" style={{ width: 56, height: 56, fontSize: 25 }} aria-hidden="true">
+              {shownName ? shownName.charAt(0).toUpperCase() : '?'}
+            </div>
+            <div>
+              <strong className={shownName ? '' : 'muted'}>{shownName || 'Tu nombre'}</strong>
+              <div className={`small ${shownEmail ? '' : 'muted'}`}>{shownEmail || 'tu@correo.com'}</div>
+              <span className="badge ok role-badge">{ROLE_INFO[role].label}</span>
+            </div>
+          </div>
+          <p className="muted small">{ROLE_INFO[role].text}</p>
+        </div>
         {error && <div className="alert error" role="alert">{error}</div>}
         <button className="btn primary" disabled={busy}>{busy ? 'Creando…' : 'Crear cuenta'}</button>
       </form>
