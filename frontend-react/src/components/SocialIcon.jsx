@@ -2,7 +2,7 @@
 const BRAND = {
   instagram: '#e1306c',
   facebook: '#1877f2',
-  tiktok: '#111111',
+  tiktok: 'var(--color-text)',
   whatsapp: '#25d366',
   youtube: '#ff0000',
 };

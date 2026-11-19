@@ -16,6 +16,7 @@ import Settings from './pages/Settings';
 import { Forgot, Reset } from './pages/PasswordReset';
 import Register from './pages/Register';
 import VentureDetail from './pages/VentureDetail';
+import ThemeToggle from './components/ThemeToggle';
 
 function Nav() {
   const { account, isLoggedIn, hasRole, logout, ready } = useAuth();
@@ -48,6 +49,7 @@ function Nav() {
             <Link className="nav-cta" to="/registro">Registrarme</Link>
           </>
         )}
+        <ThemeToggle />
       </nav>
     </header>
   );
