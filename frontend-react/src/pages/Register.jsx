@@ -1,0 +1,116 @@
+import { useEffect, useState } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { ApiError, friendlyMessage } from '../api/errors';
+import { useAuth } from '../auth/AuthContext';
+import { homeFor, safeNext } from '../utils';
+import { OAuthButtons } from './Login';
+import { normalizeName, validateName } from '../validators';
+
+const ROLE_INFO = {
+  visitor: {
+    label: 'Visitante',
+    text: 'Explorarás el catálogo, guardarás favoritos y compartirás emprendimientos.',
+  },
+  entrepreneur: {
+    label: 'Emprendedor',
+    text: 'Podrás publicar tu emprendimiento, vincular tus redes y ver tus estadísticas.',
+  },
+};
+
+export default function Register() {
+  const { register, account, ready } = useAuth();
+  const [params] = useSearchParams();
+  const navigate = useNavigate();
+  const next = safeNext(params.get('next'));
+  const [role, setRole] = useState(params.get('rol') === 'entrepreneur' ? 'entrepreneur' : 'visitor');
+  const [form, setForm] = useState({ name: '', email: '', password: '' });
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [touched, setTouched] = useState(false);
+  const nameError = touched ? validateName(form.name) : '';
+  const shownName = normalizeName(form.name);
+  const shownEmail = form.email.trim();
+  useEffect(() => {
+    if (ready && account) navigate(next || homeFor(account), { replace: true });
+  }, [ready, account, next, navigate]);
+
+  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  async function submit(e) {
+    e.preventDefault();
+    setTouched(true);
+    if (validateName(form.name)) return; // el mensaje se muestra bajo el campo
+    setBusy(true);
+    setError('');
+    try {
+      const acc = await register({ ...form, name: normalizeName(form.name), role });
+      navigate(next || homeFor(acc), { replace: true });
+    } catch (err) {
+      setError(
+        err instanceof ApiError && (err.status === 503 || err.status === 429)
+          ? 'Demasiados intentos o el servicio está ocupado. Espera un minuto e inténtalo de nuevo.'
+          : friendlyMessage(err)
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <section className="card narrow">
+      <h2>Crear cuenta</h2>
+      <fieldset className="role-pick">
+        <legend>¿Cómo quieres empezar?</legend>
+        <label className={`role-option${role === 'visitor' ? ' selected' : ''}`}>
+          <input type="radio" name="role" value="visitor" checked={role === 'visitor'} onChange={() => setRole('visitor')} />
+          <span><strong>Visitante</strong><br /><small>Explorar y guardar favoritos</small></span>
+        </label>
+        <label className={`role-option${role === 'entrepreneur' ? ' selected' : ''}`}>
+          <input type="radio" name="role" value="entrepreneur" checked={role === 'entrepreneur'} onChange={() => setRole('entrepreneur')} />
+          <span><strong>Emprendedor</strong><br /><small>Mostrar mi emprendimiento</small></span>
+        </label>
+      </fieldset>
+      <p className="muted small">Podrás activar el otro rol más tarde con la misma cuenta.</p>
+      <OAuthButtons role={role} />
+      <form onSubmit={submit} className="stack">
+        <label className="field"><span>Nombre</span>
+          <input
+            autoComplete="name"
+            required
+            maxLength={100}
+            value={form.name}
+            onChange={set('name')}
+            onBlur={() => setTouched(true)}
+            aria-invalid={!!nameError}
+            aria-describedby={nameError ? 'name-error' : undefined}
+          />
+          {nameError && <small id="name-error" className="field-error" role="alert">{nameError}</small>}
+        </label>
+        <label className="field"><span>Correo</span>
+          <input type="email" autoComplete="email" required value={form.email} onChange={set('email')} />
+        </label>
+        <label className="field"><span>Contraseña</span>
+          <input type="password" autoComplete="new-password" required minLength={8} value={form.password} onChange={set('password')} />
+          <small className="muted">Mínimo 8 caracteres, con letras y números.</small>
+        </label>
+        <div className="signup-preview" role="group" aria-label="Vista previa de tu cuenta">
+          <h3>Así se verá tu cuenta</h3>
+          <div className="row">
+            <div className="v-avatar v-initial" style={{ width: 56, height: 56, fontSize: 25 }} aria-hidden="true">
+              {shownName ? shownName.charAt(0).toUpperCase() : '?'}
+            </div>
+            <div>
+              <strong className={shownName ? '' : 'muted'}>{shownName || 'Tu nombre'}</strong>
+              <div className={`small ${shownEmail ? '' : 'muted'}`}>{shownEmail || 'tu@correo.com'}</div>
+              <span className="badge ok role-badge">{ROLE_INFO[role].label}</span>
+            </div>
+          </div>
+          <p className="muted small">{ROLE_INFO[role].text}</p>
+        </div>
+        {error && <div className="alert error" role="alert">{error}</div>}
+        <button className="btn primary" disabled={busy}>{busy ? 'Creando…' : 'Crear cuenta'}</button>
+      </form>
+      <p className="small">¿Ya tienes cuenta? <Link to={`/ingresar?rol=${role}${next ? `&next=${encodeURIComponent(next)}` : ''}`}>Ingresa</Link></p>
+    </section>
+  );
+}

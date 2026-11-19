@@ -16,8 +16,8 @@ class UserRepository:
         self.session = session
 
     # ---- usuarios ----
-    def find_all(self, is_active: Optional[bool] = None) -> list[User]:
-        stmt = select(User)
+    def find_all(self, owner: int, is_active: Optional[bool] = None) -> list[User]:
+        stmt = select(User).where(User.owner_account_id == owner)
         if is_active is not None:
             stmt = stmt.where(User.is_active == is_active)
         return list(self.session.exec(stmt.order_by(User.id)).all())

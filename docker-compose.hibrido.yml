@@ -1,0 +1,118 @@
+# PARTE LOCAL del híbrido (portátil con Ubuntu Server): corre aquí frontend, gateway y los
+# microservicios "legados". auth, emprendimientos y su Postgres corren en K3s (Oracle) y se
+# alcanzan por Tailscale (NodePort 30005 y 30006 en la IP Tailscale de la VM).
+#
+#   ./scripts/hibrido-laptop.sh            # genera el krakend.hibrido.json y levanta todo
+#
+# navegador ─HTTPS─► Tailscale Funnel ─► frontend :8000 ─► gateway :8080 ─┬─► servicios locales
+#                                                                         └─Tailscale─► K3s (auth, emprendimientos)
+#
+# Solo escuchan en 127.0.0.1: la única puerta pública es Funnel hacia el 8000.
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  beneficios:
+    build: ./backend/microservicios/beneficios
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@db:5432/beneficios
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
+  usuarios:
+    build: ./backend/microservicios/usuarios
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@db:5432/usuarios
+    env_file:
+      - path: ./backend/microservicios/usuarios/.env
+        required: false
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8002/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
+  metodologias:
+    build: ./backend/microservicios/metodologias
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@db:5432/metodologias
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8003/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
+  analisis:
+    build: ./backend/microservicios/analisis
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@db:5432/analisis
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8004/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
+  gateway:
+    image: krakend:latest
+    command: ["run", "-c", "/etc/krakend/krakend.json"]
+    volumes:
+      # Generado por scripts/hibrido-laptop.sh: igual que krakend.json pero con auth y
+      # emprendimientos apuntando a la VM de Oracle por Tailscale.
+      - ./backend/gateway/krakend/krakend.hibrido.json:/etc/krakend/krakend.json:ro
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      beneficios:
+        condition: service_healthy
+      usuarios:
+        condition: service_healthy
+      metodologias:
+        condition: service_healthy
+      analisis:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend-react
+    ports:
+      - "127.0.0.1:8000:8080"
+    depends_on:
+      - gateway
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  pgdata:

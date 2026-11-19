@@ -1,0 +1,164 @@
+
+# Levanta todo el sistema: docker compose up --build
+#
+# navegador ─► monolito :8000 ─► gateway (KrakenD) :8080 ─► micros (red interna)
+#
+# Solo el monolito (8000) y el gateway (8080) se publican al exterior.
+# Los micros y la BD quedan en la red interna.
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  beneficios:
+    build: ./backend/microservicios/beneficios
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@db:5432/beneficios
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
+  usuarios:
+    build: ./backend/microservicios/usuarios
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@db:5432/usuarios
+    # Supabase para imágenes. Si no existe el archivo .env,
+    # el servicio arranca igual y responde 503 al subir imágenes.
+    env_file:
+      - path: ./backend/microservicios/usuarios/.env
+        required: false
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8002/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
+  metodologias:
+    build: ./backend/microservicios/metodologias
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@db:5432/metodologias
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8003/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
+  analisis:
+    build: ./backend/microservicios/analisis
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@db:5432/analisis
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8004/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
+  auth:
+    build: ./backend/microservicios/auth
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@db:5432/auth
+    # Google/Facebook, SMTP, PUBLIC_URL, etc. van en backend/microservicios/auth/.env
+    # (ver .env.example). Si no existe, el servicio arranca igual: solo funciona
+    # el registro con correo y contraseña, y la recuperación escribe el enlace en los logs.
+    env_file:
+      - path: ./backend/microservicios/auth/.env
+        required: false
+    volumes:
+      - authkeys:/data   # llave privada JWT: los tokens siguen validos al reiniciar
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8005/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 15s
+
+  emprendimientos:
+    build: ./backend/microservicios/emprendimientos
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@db:5432/emprendimientos
+    # Fotos (Supabase) y conexion con YouTube: backend/microservicios/emprendimientos/.env
+    # (ver .env.example). Si no existe, el servicio arranca igual y oculta esas opciones.
+    env_file:
+      - path: ./backend/microservicios/emprendimientos/.env
+        required: false
+    # Sin puertos publicados: solo se llega a el a traves del gateway, que es quien
+    # valida el token y fija X-User-Id. Nunca expongas este servicio directamente.
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8006/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 15s
+
+  gateway:
+    image: krakend:latest
+    # La configuración utiliza "version": 4 (KrakenD 3.x).
+    command: ["run", "-c", "/etc/krakend/krakend.json"]
+    volumes:
+      - ./backend/gateway/krakend/krakend.json:/etc/krakend/krakend.json:ro
+    ports:
+      - "8080:8080"
+    depends_on:
+      beneficios:
+        condition: service_healthy
+      usuarios:
+        condition: service_healthy
+      metodologias:
+        condition: service_healthy
+      analisis:
+        condition: service_healthy
+      auth:
+        condition: service_healthy
+      emprendimientos:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend-react
+    ports:
+      - "8000:8080"
+    depends_on:
+      - gateway
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  pgdata:
+  authkeys:
