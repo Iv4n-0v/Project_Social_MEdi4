@@ -54,7 +54,7 @@ AUTH_OPERATIONS = [
 # Límites de velocidad del gateway, por endpoint (sufijo público bajo /api/v1/auth).
 # max_rate peticiones cada `every` para TODO el endpoint; al pasarse, KrakenD responde 429.
 RATE_LIMITS = {
-    "/register": {"max_rate": 10, "every": "1m"},
+    "/register": {"max_rate": 10, "every": "1m", "capacity": 10},
 }
 
 

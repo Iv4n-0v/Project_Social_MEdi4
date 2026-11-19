@@ -1366,7 +1366,8 @@
       "extra_config": {
         "qos/ratelimit/router": {
           "max_rate": 10,
-          "every": "1m"
+          "every": "1m",
+          "capacity": 10
         }
       }
     },
