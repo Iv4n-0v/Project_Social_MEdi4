@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { friendlyMessage } from '../api/errors';
+import { ApiError, friendlyMessage } from '../api/errors';
 import { useAuth } from '../auth/AuthContext';
 import { homeFor, safeNext } from '../utils';
 import { OAuthButtons } from './Login';
@@ -33,7 +33,11 @@ export default function Register() {
       const acc = await register({ ...form, name: normalizeName(form.name), role });
       navigate(next || homeFor(acc), { replace: true });
     } catch (err) {
-      setError(friendlyMessage(err));
+      setError(
+        err instanceof ApiError && (err.status === 503 || err.status === 429)
+          ? 'Demasiados intentos o el servicio está ocupado. Espera un minuto e inténtalo de nuevo.'
+          : friendlyMessage(err)
+      );
     } finally {
       setBusy(false);
     }
