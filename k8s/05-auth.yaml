@@ -26,6 +26,8 @@ metadata:
     app: auth
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: auth
@@ -36,7 +38,7 @@ spec:
     spec:
       containers:
         - name: auth
-          image: auth:v1
+          image: auth:v2
           imagePullPolicy: IfNotPresent   # la imagen se importó a K3s, no hay registro
           ports:
             - containerPort: 8005
