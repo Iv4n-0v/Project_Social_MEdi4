@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { friendlyMessage } from '../api/errors';
 import { venturesApi } from '../api/ventures';
 import { useAuth } from '../auth/AuthContext';
+import ChangePasswordForm from '../components/ChangePasswordForm';
 import PanelNav from '../components/PanelNav';
 import { useMyVenture } from '../components/useMyVenture';
 
@@ -55,6 +56,7 @@ export default function Settings() {
           <dt>Nombre</dt><dd>{account.name}</dd>
           <dt>Correo</dt><dd>{account.email}</dd>
         </dl>
+        <ChangePasswordForm />
         <div className="row">
           <Link className="btn" to="/cuenta">Roles y datos de la cuenta</Link>
           <button className="btn danger" onClick={async () => { await logout(); navigate('/', { replace: true }); }}>Cerrar sesión</button>

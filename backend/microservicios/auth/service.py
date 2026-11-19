@@ -356,6 +356,48 @@ class AuthService:
         self.throttle.clear(account.email)
         self.repo.commit()
 
+    def change_password(
+        self,
+        account: Account,
+        current_password: str,
+        new_password: str,
+        keep_refresh_token: Optional[str] = None,
+    ) -> None:
+        """Cambia la contrasena de una cuenta con la sesion abierta.
+
+        - Pide la contrasena actual: un token de acceso robado no basta.
+        - Frena la adivinanza de la actual (mismo limitador que el login).
+        - Cierra las demas sesiones; la del dispositivo actual (`keep_refresh_token`) sigue viva.
+        Los errores de datos son 422 (no 401): un 401 haria que el frontend intente renovar
+        la sesion y la cierre.
+        """
+        key = f"change:{account.id}"
+        if self.throttle.blocked(key):
+            raise TooManyAttempts("Demasiados intentos. Intenta de nuevo mas tarde")
+        if not account.password_hash:
+            raise InvalidInput(
+                "Tu cuenta entra con Google o Facebook y no tiene contrasena. "
+                "Usa «Olvide mi contrasena» para crear una"
+            )
+        if not security.verify_password(current_password, account.password_hash):
+            self.throttle.record_failure(key)
+            self.repo.add_audit(account.id, "PASSWORD_CHANGE_FAILED")
+            self.repo.commit()
+            raise InvalidInput("La contrasena actual no es correcta")
+        problem = security.password_problem(new_password)
+        if problem:
+            raise InvalidInput(problem)
+        if security.verify_password(new_password, account.password_hash):
+            raise InvalidInput("La nueva contrasena debe ser distinta de la actual")
+        now = self._now()
+        account.password_hash = security.hash_password(new_password)
+        self.repo.save(account)
+        keep = security.hash_token(keep_refresh_token) if keep_refresh_token else None
+        self.repo.revoke_all_refresh(account.id, now, keep_hash=keep)
+        self.repo.add_audit(account.id, "PASSWORD_CHANGED")
+        self.throttle.clear(key)
+        self.repo.commit()
+
     # ---- Google / Facebook ----
     def providers_status(self) -> dict:
         return {name: p.configured() for name, p in self.providers.items()}

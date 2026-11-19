@@ -137,6 +137,35 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(self.client.post("/auth/refresh", headers=header).status_code, 401)
         self.assertEqual(self.client.post("/auth/logout").status_code, 204)
 
+    def test_change_password_over_http(self):
+        email, r = self.register()
+        auth = self.bearer(r)
+        cookie, _ = _cookie(r)
+        url = "/auth/password/change"
+        # sin token: 401
+        self.assertEqual(self.client.post(url, json={"current_password": PWD, "new_password": "NuevaClave99"}).status_code, 401)
+        # clave actual incorrecta: 422 (no 401, para que el frontend no cierre la sesion)
+        bad = self.client.post(url, json={"current_password": "incorrecta1", "new_password": "NuevaClave99"}, headers=auth)
+        self.assertEqual(bad.status_code, 422)
+        self.assertEqual(bad.json()["detail"], "La contrasena actual no es correcta")
+        # cuerpo incompleto: 422
+        self.assertEqual(self.client.post(url, json={}, headers=auth).status_code, 422)
+        # cambio correcto, mandando la cookie de ESTE navegador; otro dispositivo tambien tenia sesion
+        other = self.client.post("/auth/login", json={"email": email, "password": PWD})
+        other_cookie, _ = _cookie(other)
+        ok = self.client.post(
+            url,
+            json={"current_password": PWD, "new_password": "NuevaClave99"},
+            headers={**auth, "Cookie": f"refresh_token={cookie.value}"},
+        )
+        self.assertEqual(ok.status_code, 200)
+        self.assertEqual(ok.headers["cache-control"], "no-store")
+        self.assertEqual(self.client.post("/auth/login", json={"email": email, "password": PWD}).status_code, 401)
+        self.assertEqual(self.client.post("/auth/login", json={"email": email, "password": "NuevaClave99"}).status_code, 200)
+        # este navegador sigue con sesion; el otro dispositivo, no
+        self.assertEqual(self.client.post("/auth/refresh", headers={"Cookie": f"refresh_token={cookie.value}"}).status_code, 200)
+        self.assertEqual(self.client.post("/auth/refresh", headers={"Cookie": f"refresh_token={other_cookie.value}"}).status_code, 401)
+
     def test_forgot_password_is_uniform_and_reset_rejects_bad_token(self):
         email, _ = self.register()
         a = self.client.post("/auth/password/forgot", json={"email": email})

@@ -9,5 +9,7 @@ export const authApi = {
   providers: () => publicRequest('GET', '/auth/oauth/providers'),
   oauthStart: (provider, role) => publicRequest('GET', `/auth/oauth/${provider}/login`, { query: { role } }),
   forgot: (email) => publicRequest('POST', '/auth/password/forgot', { body: { email } }),
+  changePassword: (current_password, new_password) =>
+    request('POST', '/auth/password/change', { body: { current_password, new_password } }),
   reset: (token, new_password) => publicRequest('POST', '/auth/password/reset', { body: { token, new_password } }),
 };

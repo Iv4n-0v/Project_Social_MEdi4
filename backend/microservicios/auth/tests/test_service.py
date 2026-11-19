@@ -233,6 +233,57 @@ class PasswordResetTests(unittest.TestCase):
         self.s.forgot_password("a@b.co")  # no lanza: no se revela si la cuenta existe
 
 
+class ChangePasswordTests(unittest.TestCase):
+    def setUp(self):
+        self.s, self.repo, self.mailer, self.clock, self.keys = make()
+        self.here = self.s.register("a@b.co", PWD, "A", "visitor")  # este navegador
+        self.other = self.s.login("a@b.co", PWD)  # otro dispositivo
+        self.account = self.here.account
+
+    def test_changes_password_and_keeps_only_the_current_session(self):
+        self.s.change_password(self.account, PWD, "NuevaClave99", self.here.refresh_token)
+        self.assertTrue(self.s.login("a@b.co", "NuevaClave99").access_token)
+        with self.assertRaises(svc.InvalidCredentials):
+            self.s.login("a@b.co", PWD)
+        with self.assertRaises(svc.InvalidRefreshToken):  # la del otro dispositivo se cerro
+            self.s.refresh(self.other.refresh_token)
+        self.assertTrue(self.s.refresh(self.here.refresh_token).access_token)  # esta sigue abierta
+        self.assertIn("PASSWORD_CHANGED", self.repo.actions(self.account.id))
+
+    def test_without_current_session_all_sessions_close(self):
+        self.s.change_password(self.account, PWD, "NuevaClave99")
+        for out in (self.here, self.other):
+            with self.assertRaises(svc.InvalidRefreshToken):
+                self.s.refresh(out.refresh_token)
+
+    def test_wrong_current_password_is_rejected_and_audited(self):
+        with self.assertRaises(svc.InvalidInput):
+            self.s.change_password(self.account, "incorrecta1", "NuevaClave99", self.here.refresh_token)
+        self.assertIn("PASSWORD_CHANGE_FAILED", self.repo.actions(self.account.id))
+        self.assertTrue(self.s.login("a@b.co", PWD).access_token)  # la clave no cambio
+
+    def test_new_password_rules(self):
+        for bad in ("corta", PWD):  # muy corta / igual a la actual
+            with self.assertRaises(svc.InvalidInput, msg=bad):
+                self.s.change_password(self.account, PWD, bad, self.here.refresh_token)
+        self.assertTrue(self.s.login("a@b.co", PWD).access_token)
+
+    def test_guessing_the_current_password_is_throttled(self):
+        for _ in range(5):
+            with self.assertRaises(svc.InvalidInput):
+                self.s.change_password(self.account, "incorrecta1", "NuevaClave99")
+        with self.assertRaises(svc.TooManyAttempts):  # ni con la correcta
+            self.s.change_password(self.account, PWD, "NuevaClave99")
+        self.clock.advance(minutes=16)  # pasa la ventana de bloqueo
+        self.s.change_password(self.account, PWD, "NuevaClave99", self.here.refresh_token)
+
+    def test_account_without_password_is_told_to_use_reset(self):
+        self.account.password_hash = None  # cuenta creada con Google/Facebook
+        with self.assertRaises(svc.InvalidInput) as ctx:
+            self.s.change_password(self.account, "lo-que-sea", "NuevaClave99")
+        self.assertIn("contrasena", str(ctx.exception))
+
+
 class OAuthTests(unittest.TestCase):
     def setUp(self):
         self.profile = oauth.OAuthProfile("google", "g-123", "Nuevo@Mail.com", True, "Nuevo Usuario")

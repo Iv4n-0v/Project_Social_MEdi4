@@ -43,6 +43,7 @@ AUTH_OPERATIONS = [
     ("POST", "/logout", "/auth/logout", [], False, None),
     ("POST", "/password/forgot", "/auth/password/forgot", [], False, "15s"),
     ("POST", "/password/reset", "/auth/password/reset", [], False, None),
+    ("POST", "/password/change", "/auth/password/change", [], True, None),
     ("GET", "/oauth/providers", "/auth/oauth/providers", [], False, None),
     ("GET", "/oauth/{provider}/login", "/auth/oauth/{provider}/login", ["role"], False, None),
     ("GET", "/oauth/{provider}/callback", "/auth/oauth/{provider}/callback", ["code", "state", "error"], False, "20s"),

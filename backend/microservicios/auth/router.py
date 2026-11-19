@@ -25,6 +25,7 @@ from repository import AccountRepository
 from schemas import (
     AccountResponse,
     AuditResponse,
+    ChangePasswordRequest,
     ForgotPasswordRequest,
     LoginRequest,
     MessageResponse,
@@ -205,6 +206,19 @@ def my_audits(account: AccountDep, service: ServiceDep):
         AuditResponse(id=a.id, action=a.action, timestamp=a.timestamp)
         for a in service.audits(account)
     ]
+
+
+# ---- cambio de contrasena (con la sesion abierta) ----
+@router.post("/password/change", response_model=MessageResponse)
+def change_password(
+    data: ChangePasswordRequest,
+    account: AccountDep,
+    service: ServiceDep,
+    refresh_token: Annotated[Optional[str], Cookie(alias=REFRESH_COOKIE)] = None,
+):
+    """Cambia la contrasena y cierra las demas sesiones (la de este navegador sigue abierta)."""
+    service.change_password(account, data.current_password, data.new_password, refresh_token)
+    return MessageResponse(detail="Contrasena actualizada. Se cerraron tus otras sesiones")
 
 
 # ---- recuperacion de contrasena ----

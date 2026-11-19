@@ -55,9 +55,9 @@ class FakeRepo:
     def get_refresh_by_hash(self, token_hash):
         return next((t for t in self.refresh if t.token_hash == token_hash), None)
 
-    def revoke_all_refresh(self, account_id, now):
+    def revoke_all_refresh(self, account_id, now, keep_hash=None):
         for t in self.refresh:
-            if t.account_id == account_id and t.revoked_at is None:
+            if t.account_id == account_id and t.revoked_at is None and t.token_hash != keep_hash:
                 t.revoked_at = now
 
     def add_reset(self, token):

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { friendlyMessage } from '../api/errors';
 import { useAuth } from '../auth/AuthContext';
+import ChangePasswordForm from '../components/ChangePasswordForm';
 
 const ROLE_LABEL = { visitor: 'Visitante', entrepreneur: 'Emprendedor' };
 
@@ -36,6 +37,7 @@ export default function Account() {
         <dd>{account.roles.map((r) => <span key={r} className="badge ok role-badge">{ROLE_LABEL[r] || r}</span>)}</dd>
       </dl>
       {error && <div className="alert error" role="alert">{error}</div>}
+      <ChangePasswordForm />
       <div className="stack">
         {!hasRole('entrepreneur') && (
           <button className="btn" disabled={busy} onClick={() => enable('entrepreneur')}>Activar rol de emprendedor</button>

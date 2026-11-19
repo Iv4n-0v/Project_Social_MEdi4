@@ -30,6 +30,11 @@ class ResetPasswordRequest(BaseModel):
     new_password: str = Field(max_length=200)
 
 
+class ChangePasswordRequest(BaseModel):
+    current_password: str = Field(max_length=200)
+    new_password: str = Field(max_length=200)
+
+
 class AccountResponse(BaseModel):
     id: int
     email: str

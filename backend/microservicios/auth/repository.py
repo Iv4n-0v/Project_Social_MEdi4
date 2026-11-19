@@ -87,13 +87,18 @@ class AccountRepository:
             select(RefreshToken).where(RefreshToken.token_hash == token_hash)
         ).first()
 
-    def revoke_all_refresh(self, account_id: int, now: datetime.datetime) -> None:
+    def revoke_all_refresh(
+        self, account_id: int, now: datetime.datetime, keep_hash: Optional[str] = None
+    ) -> None:
+        """Revoca las sesiones abiertas de la cuenta. `keep_hash` deja viva una (la actual)."""
         rows = self.session.exec(
             select(RefreshToken)
             .where(RefreshToken.account_id == account_id)
             .where(RefreshToken.revoked_at == None)  # noqa: E711  (SQL IS NULL)
         ).all()
         for row in rows:
+            if keep_hash is not None and row.token_hash == keep_hash:
+                continue
             row.revoked_at = now
             self.session.add(row)
 
