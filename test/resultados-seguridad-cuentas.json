@@ -1,0 +1,222 @@
+{
+    "root_group": {
+        "groups": {
+            "Caso 5: sin sesion o con token invalido": {
+                "name": "Caso 5: sin sesion o con token invalido",
+                "path": "::Caso 5: sin sesion o con token invalido",
+                "id": "1174e77206ba5f7be0fc45a119453f37",
+                "groups": {},
+                "checks": {
+                    "GET /users/{id} sin token -> 401": {
+                        "id": "33d1ea103390a740194575c9ebc78659",
+                        "passes": 1,
+                        "fails": 0,
+                        "name": "GET /users/{id} sin token -> 401",
+                        "path": "::Caso 5: sin sesion o con token invalido::GET /users/{id} sin token -> 401"
+                    },
+                    "GET /users sin token -> 401": {
+                        "id": "4a80b0319609bcdcdd3103e37ba90ebd",
+                        "passes": 1,
+                        "fails": 0,
+                        "name": "GET /users sin token -> 401",
+                        "path": "::Caso 5: sin sesion o con token invalido::GET /users sin token -> 401"
+                    },
+                    "GET /auth/me sin token -> 401": {
+                        "name": "GET /auth/me sin token -> 401",
+                        "path": "::Caso 5: sin sesion o con token invalido::GET /auth/me sin token -> 401",
+                        "id": "8fcafefdad683ec4504b0a1c4ef7ef28",
+                        "passes": 1,
+                        "fails": 0
+                    },
+                    "GET /me/venture sin token -> 401": {
+                        "id": "b9051f08d9106a77d2bbd4c05fa45495",
+                        "passes": 1,
+                        "fails": 0,
+                        "name": "GET /me/venture sin token -> 401",
+                        "path": "::Caso 5: sin sesion o con token invalido::GET /me/venture sin token -> 401"
+                    },
+                    "token alterado -> 401": {
+                        "name": "token alterado -> 401",
+                        "path": "::Caso 5: sin sesion o con token invalido::token alterado -> 401",
+                        "id": "2f3181f4b1a5f68161031c855f2a3d95",
+                        "passes": 1,
+                        "fails": 0
+                    }
+                }
+            },
+            "Caso 1: visitante no accede a rutas de emprendedor": {
+                "name": "Caso 1: visitante no accede a rutas de emprendedor",
+                "path": "::Caso 1: visitante no accede a rutas de emprendedor",
+                "id": "b0db654ef2b69cb657ff27de11c691a7",
+                "groups": {},
+                "checks": {
+                    "visitante en /users/{id} -> 403": {
+                        "passes": 1,
+                        "fails": 0,
+                        "name": "visitante en /users/{id} -> 403",
+                        "path": "::Caso 1: visitante no accede a rutas de emprendedor::visitante en /users/{id} -> 403",
+                        "id": "7f35b69fe0048955df1bc363af956343"
+                    },
+                    "visitante en /me/venture -> 403": {
+                        "fails": 0,
+                        "name": "visitante en /me/venture -> 403",
+                        "path": "::Caso 1: visitante no accede a rutas de emprendedor::visitante en /me/venture -> 403",
+                        "id": "fd074ce29c9f67ed96fd6f0158cd369f",
+                        "passes": 1
+                    }
+                }
+            },
+            "Caso 1: usuario A pide el id de B": {
+                "name": "Caso 1: usuario A pide el id de B",
+                "path": "::Caso 1: usuario A pide el id de B",
+                "id": "805c4a49793383a62abc2262d5955569",
+                "groups": {},
+                "checks": {
+                    "recurso ajeno -> 403 o 404": {
+                        "fails": 0,
+                        "name": "recurso ajeno -> 403 o 404",
+                        "path": "::Caso 1: usuario A pide el id de B::recurso ajeno -> 403 o 404",
+                        "id": "0b7284b6f46b334b56dc1ee75e0259a0",
+                        "passes": 1
+                    },
+                    "no devuelve datos del usuario B": {
+                        "name": "no devuelve datos del usuario B",
+                        "path": "::Caso 1: usuario A pide el id de B::no devuelve datos del usuario B",
+                        "id": "3cfa3181ca7880b477fe267e67b6f7f8",
+                        "passes": 1,
+                        "fails": 0
+                    }
+                }
+            }
+        },
+        "checks": {},
+        "name": "",
+        "path": "",
+        "id": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "metrics": {
+        "http_req_blocked": {
+            "p(90)": 134.31411999999997,
+            "p(95)": 168.09030999999993,
+            "avg": 32.86748,
+            "min": 0,
+            "med": 0,
+            "max": 201.8665
+        },
+        "group_duration": {
+            "avg": 389.1232333333334,
+            "min": 53.7079,
+            "med": 471.3169,
+            "max": 642.3449,
+            "p(90)": 608.1393,
+            "p(95)": 625.2421
+        },
+        "vus": {
+            "value": 1,
+            "min": 0,
+            "max": 1
+        },
+        "http_req_sending": {
+            "avg": 0.69919,
+            "min": 0,
+            "med": 0.5744499999999999,
+            "max": 2.9371,
+            "p(90)": 0.8671899999999992,
+            "p(95)": 1.9021449999999975
+        },
+        "iteration_duration": {
+            "avg": 1172.5869,
+            "min": 1172.5869,
+            "med": 1172.5869,
+            "max": 1172.5869,
+            "p(90)": 1172.5869,
+            "p(95)": 1172.5869
+        },
+        "http_req_duration": {
+            "p(90)": 457.16857,
+            "p(95)": 506.1410349999999,
+            "avg": 196.59946,
+            "min": 15.2431,
+            "med": 42.69515,
+            "max": 555.1135
+        },
+        "checks": {
+            "passes": 9,
+            "fails": 0,
+            "thresholds": {
+                "rate==1": false
+            },
+            "value": 1
+        },
+        "http_req_receiving": {
+            "avg": 0.38485,
+            "min": 0,
+            "med": 0.21505,
+            "max": 1.1094,
+            "p(90)": 1.00851,
+            "p(95)": 1.0589549999999999
+        },
+        "iterations": {
+            "count": 1,
+            "rate": 0.42890125363547427
+        },
+        "data_received": {
+            "count": 12766,
+            "rate": 5475.353403910464
+        },
+        "http_reqs": {
+            "count": 10,
+            "rate": 4.2890125363547424
+        },
+        "http_req_failed": {
+            "passes": 0,
+            "fails": 10,
+            "value": 0
+        },
+        "http_req_connecting": {
+            "avg": 1.5720800000000001,
+            "min": 0,
+            "med": 0,
+            "max": 8.7281,
+            "p(90)": 7.166239999999999,
+            "p(95)": 7.947169999999998
+        },
+        "http_req_tls_handshaking": {
+            "avg": 25.812,
+            "min": 0,
+            "med": 0,
+            "max": 140.0918,
+            "p(90)": 120.23455999999999,
+            "p(95)": 130.16317999999998
+        },
+        "vus_max": {
+            "max": 1,
+            "value": 1,
+            "min": 1
+        },
+        "data_sent": {
+            "count": 5402,
+            "rate": 2316.924572138832
+        },
+        "http_req_waiting": {
+            "min": 15.2431,
+            "med": 42.12635,
+            "max": 553.4042,
+            "p(90)": 456.52927999999997,
+            "p(95)": 504.96673999999985,
+            "avg": 195.51541999999998
+        },
+        "http_req_duration{expected_response:true}": {
+            "p(90)": 457.16857,
+            "p(95)": 506.1410349999999,
+            "avg": 196.59946,
+            "min": 15.2431,
+            "med": 42.69515,
+            "max": 555.1135
+        }
+    },
+    "setup_data": {
+        "tokenV": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjhiNzZjMDlhNGI5ZjVjYmMiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiIyNyIsImVtYWlsIjoieGFzZWxpMTE1M0BiY291Z2guY29tIiwicm9sZXMiOlsidmlzaXRvciJdLCJpc3MiOiJzb2NpYWwtbWVkaWEtYXV0aCIsImF1ZCI6WyJzb2NpYWwtbWVkaWEtYXBpIl0sImlhdCI6MTc5NTMwNjM5NCwiZXhwIjoxNzk1MzA3Mjk0LCJqdGkiOiJlZGEwZDUxODQ0NWM0MDc2ODVkZDE1MDA1MzExZGI1MSJ9.CLNF7SvNpnMAVRJwIS9p4R0sEBn0bC1Wl6FUdCZAW1ZBhBNjx5IG7H92VUcKMtwix8BL6yotwaE8HDnbRFuwsdhIoI6bQ9XSrmoZkY4Ah0HbE8Fsj2ywEqOXA6A7NgJ8p0ocH3EB8ich6kRQS4X5HQMpigHLMvc8aJRPNAtI5btnowgmXtTm190jvT22wVgxs2LVfw1P6OvEyWosR7DMrbFsMd5454l_L4dG5UYmP7hMtUcyyrjNVbpIZetTdx8gWPdGID2mpklllGIPldNd1Q29rj4YAJ3XIexDii91kMQhkV_FQPnYIcpbJg0DgiIXXpT11H3GaLIevH459RvcYw",
+        "tokenA": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjhiNzZjMDlhNGI5ZjVjYmMiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiIxMSIsImVtYWlsIjoicHJ1ZWJhZnJlZTQxOUBnbWFpbC5jb20iLCJyb2xlcyI6WyJlbnRyZXByZW5ldXIiLCJ2aXNpdG9yIl0sImlzcyI6InNvY2lhbC1tZWRpYS1hdXRoIiwiYXVkIjpbInNvY2lhbC1tZWRpYS1hcGkiXSwiaWF0IjoxNzk1MzA2Mzk0LCJleHAiOjE3OTUzMDcyOTQsImp0aSI6ImJjMjczMTcyNzNjZjQ1ZTk5ZTU1ZTliNTBhMzc0ZjBmIn0.Q_djXATTj4Zt8ed7p8Nfx4amA-vKAE6PUM2ga96wOFo8LnNLWqqIFAj1eN1AOR_zfU0rCavcko8d-jCj5SJpoiBwqlrcSlAlACgoYvVpEHzeMgUxIvJA1zef81a-9hWkg7wpqu_iqGXHMiaRhWA6BXYtSXCWBY-tzFVLrSPN3b1tiN1l9vBHZ1sNzX_W81k2z394f8VUpq4DtCEgTRTEjnP5GV3u6dCtBJcDSxGqWudc5uyNw_G18iP0wFXkZge4QDuBXLxWTMynrk5bao2ZMqeZwpgB4mt_2xN3Rta68_VNUz_Ue68LTzjPOUMSnPuJQhs-vZ09jcIbZS5Fff6_Zg"
+    }
+}
