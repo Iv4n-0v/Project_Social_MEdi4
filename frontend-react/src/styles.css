@@ -204,3 +204,8 @@ input[aria-invalid="true"] { border-color: var(--color-danger); }
 }
 .loc-list li { padding: 8px 10px; border-radius: 6px; cursor: pointer; font-size: 0.95rem; }
 .loc-list li:hover, .loc-list li.on { background: var(--color-selected, var(--color-bg)); }
+.pw-rules { list-style: none; padding: 0; margin: 6px 0 0; font-size: 0.9rem; }
+.pw-rules li { color: var(--color-muted); padding: 2px 0; }
+.pw-rules li::before { content: "○ "; }
+.pw-rules li.ok { color: var(--color-success); }
+.pw-rules li.ok::before { content: "✓ "; }
