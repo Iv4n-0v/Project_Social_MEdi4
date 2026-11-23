@@ -109,7 +109,7 @@ export default function Register() {
           <p className="muted small">{ROLE_INFO[role].text}</p>
         </div>
         {error && <div className="alert error" role="alert">{error}</div>}
-        <button className="btn primary" disabled={busy || !passwordOk(form.password)}wc -l src/components/PasswordChecklist.jsx>{busy ? 'Creando…' : 'Crear cuenta'}</button>
+        <button className="btn primary" disabled={busy || !passwordOk(form.password)}>{busy ? 'Creando…' : 'Crear cuenta'}</button>
       </form>
       <p className="small">¿Ya tienes cuenta? <Link to={`/ingresar?rol=${role}${next ? `&next=${encodeURIComponent(next)}` : ''}`}>Ingresa</Link></p>
     </section>
