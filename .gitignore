@@ -20,3 +20,5 @@ __pycache__/
 .pytest_cache/
 .env
 backend/gateway/krakend/krakend.hibrido.json
+*.session.sql
+*.session.sql
