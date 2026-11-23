@@ -5,6 +5,7 @@ import { useAuth } from '../auth/AuthContext';
 import { homeFor, safeNext } from '../utils';
 import { OAuthButtons } from './Login';
 import { normalizeName, validateName } from '../validators';
+import PasswordChecklist, { passwordOk } from '../components/PasswordChecklist';
 
 const ROLE_INFO = {
   visitor: {
@@ -91,7 +92,7 @@ export default function Register() {
         </label>
         <label className="field"><span>Contraseña</span>
           <input type="password" autoComplete="new-password" required minLength={8} value={form.password} onChange={set('password')} />
-          <small className="muted">Mínimo 8 caracteres, con letras y números.</small>
+          <PasswordChecklist password={form.password} />
         </label>
         <div className="signup-preview" role="group" aria-label="Vista previa de tu cuenta">
           <h3>Así se verá tu cuenta</h3>
@@ -108,7 +109,7 @@ export default function Register() {
           <p className="muted small">{ROLE_INFO[role].text}</p>
         </div>
         {error && <div className="alert error" role="alert">{error}</div>}
-        <button className="btn primary" disabled={busy}>{busy ? 'Creando…' : 'Crear cuenta'}</button>
+        <button className="btn primary" disabled={busy || !passwordOk(form.password)}>{busy ? 'Creando…' : 'Crear cuenta'}</button>
       </form>
       <p className="small">¿Ya tienes cuenta? <Link to={`/ingresar?rol=${role}${next ? `&next=${encodeURIComponent(next)}` : ''}`}>Ingresa</Link></p>
     </section>
